@@ -22,7 +22,12 @@ else {
 Position = Line.find("content=\"");
 int Position2 = Line.find('\"', Position+10);
 string Content = Line.substr(Position+9, Position2 - Position);
+int Position3 = Content.find("scheme");
+if (Position3 != string::npos) {
+Content.erase(Position3);
 fin.seekg(0, ios::beg);
+return Content.substr(0, Content.length() - 2);
+}
 return Content.substr(0, Content.length() - 4);
 }
 break;
@@ -47,8 +52,10 @@ return 1;
 cout << "Author: " << ExtractInfo(fin, string("dc:creator")) << endl;
 cout << "Title: " << ExtractInfo(fin, string("dc:title")) << endl;
 
-//cout << ExtractInfo(fin, string("dc:title")) << endl;
+cout << ExtractInfo(fin, string("dc:title")) << endl;
 cout << "Publishing Organisation: " << ExtractInfo(fin, string("dc:publisher")) << endl;
 cout << "Size of book in kilobytes: " << ExtractInfo(fin, "ncc:kByteSize") << endl;
 cout << "Narrator: " << ExtractInfo(fin, "ncc:narrator") << endl;
+cout << "Publishing Date: " << ExtractInfo(fin, "dc:date") << endl;
+cout << "Language: " << ExtractInfo(fin, "dc:language");
 }
