@@ -39,7 +39,10 @@ break;
 }
 }
 }
-string ExtractInfo(ifstream& fin, const char* Name) { return ExtractInfo(fin, string(Name)); }
+string ExtractInfo(ifstream& fin, const char* Name) { 
+string MyString(Name);
+return ExtractInfo(fin, MyString);
+}
 int main(int argc, char* argv[]) {
 if (argc != 2) {
 cout << "Usage: " << argv[0] << " <path>" << endl << "where <path> is the directory containing your Daisy book." << endl;
@@ -47,7 +50,11 @@ return 1;
 }
 ifstream fin;
 string Filename = argv[1];
+#ifdef WIN32
 Filename += "\\ncc.html";
+#else
+Filename += "/ncc.html";
+#endif
 fin.open(Filename.c_str());
 if (!fin) {
 cout << "File not found." << endl;
