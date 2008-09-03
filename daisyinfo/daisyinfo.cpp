@@ -10,6 +10,7 @@ while (1) {
 getline(fin, Line);
 if (Line.find("</head>") != string::npos) {
 cout << "Data element not found." << Name;
+fin.seekg(0, ios::beg);
 return Name;
 }
 int Position = Line.find("meta");
