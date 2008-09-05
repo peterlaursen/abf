@@ -96,5 +96,23 @@ Show(fin, "Normal pages occuring: ", "ncc:pageNormal");
 Show(fin, "Normal pages occuring: ", "ncc:page-normal");
 Show(fin, "Special Pages: ", "ncc:pageSpecial");
 Show(fin, "Special Pages: ", "ncc:page-special");
+Show(fin, "Producer's Notes: ", "ncc:prodNotes");
+Show(fin, "Producer: ", "ncc:producer");
+Show(fin, "Production Date: ", "ncc:producedDate");
+Show(fin, "Revision Number: ", "ncc:revision");
+Show(fin, "Revision Date: ", "ncc:revisionDate");
+Show(fin, "Current Set: ", "ncc:setInfo");
+Show(fin, "Current Set: ", "ncc:setinfo");
+Show(fin, "Sidebars", "ncc:sidebars");
+Show(fin, "Date the print source was published: ", "ncc:sourceDate");
+Show(fin, "Source Edition: ", "ncc:sourceEdition");
+Show(fin, "Publisher of the Print source: ", "ncc:sourcePublisher");
+Show(fin, "Rights held over print source: ", "ncc:sourceRights");
+Show(fin, "Title of print source: ", "ncc:sourceTitle");
+Show(fin, "Navigation points: ", "ncc:tocItems");
+Show(fin, "Navigation points: ", "ncc:tocitems");
+Show(fin, "Navigation points: ", "ncc:TOCitems");
+Show(fin, "Length of Daisy book: ", "ncc:totalTime");
+Show(fin, "Length of Daisy book: ", "ncc:totaltime");
 
 }
