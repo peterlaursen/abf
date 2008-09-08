@@ -1,4 +1,6 @@
 DAISYINFO
+Version 0.2
+Copyright (C) 2008 Peter Laursen.
 
 README
 
@@ -11,7 +13,7 @@ Navigate to the program's folder, usually "C:\Program Files\ABF\daisyinfo"
 cd "\program files\abf\daisyinfo"
 
 Type daisyinfo <path> where <path> is the location of a daisy book, for example
-daisyinfo c:\audiobooks\daisy01"
+daisyinfo "c:\audiobooks\daisy01"
 
 Mac OS X:
 
@@ -31,8 +33,10 @@ and all the output is stored in the file "myfile.txt". It can then be viewed in 
 
 KNOWN PROBLEMS:
 
-1) The program has problems displaying Danish æ, ø and å characters properly. The reason is probably that this is a console window application. I am unsure on how to solve the problem.
+This version fixes the only known problem with DaisyInfo-0.1, namely the displaying of Danish æ, ø and å.
 
 REPORTING OTHER PROBLEMS:
 
 To report other problems, please don't hesitate to write me an email and I'll do my best to try and solve the problem.
+
+Peter Laursen
