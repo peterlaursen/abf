@@ -3,6 +3,21 @@
 #include <fstream>
 #include "daisyinfo.h"
 using namespace std;
+void Replace(string& Value) {
+string Temp = Value;
+int Erased=0;
+for (int i = 0; i < Value.length(); i++) {
+if (Value[i] == -61) {
+if (Value[i+1] == -72)
+Temp[i-Erased] = 'ø';
+if (Value[i+1] == -90)
+Temp[i-Erased] = 'æ';
+Temp.erase((i-Erased)+1, 1);
+Erased++;
+}
+}
+Value = Temp;
+}
 void Show(ifstream& fin, const char* Text, const char* Name) {
 string Value = ExtractInfo(fin, Name);
 if (Value == "notfound") return;
@@ -11,7 +26,6 @@ cout << Text << Value << endl;
 string ExtractInfo(ifstream& fin, string& Name) {
 string Line;
 int Position = 0;
-string MetaString("meta");
 while (1) {
 getline(fin, Line);
 if (Line.find("</head>") != string::npos) {
@@ -27,6 +41,7 @@ else {
 Position = Line.find("content=\"");
 int Position2 = Line.find('\"', Position+10);
 string Content = Line.substr(Position+9, Position2 - Position);
+Replace(Content);
 int Position3 = Content.find("scheme");
 if (Position3 != string::npos) {
 Content.erase(Position3);
