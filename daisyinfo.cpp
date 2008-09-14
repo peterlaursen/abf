@@ -48,11 +48,11 @@ Content.erase(Position3);
 fin.seekg(0, ios::beg);
 return Content.substr(0, Content.length() - 2);
 }
-#ifdef WIN32
-return Content.substr(0, Content.length() - 4);
-#else
-return Content.substr(0, Content.length() - 5);
-#endif
+Position3 = Content.find_last_of("\"");
+if (Position3 != string::npos) {
+Content.erase(Position3);
+}
+return Content;
 }
 break;
 }
