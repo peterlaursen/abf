@@ -1,6 +1,10 @@
 DAISYINFO
-Version 0.2
+Version 0.2.1
 Copyright (C) 2008 Peter Laursen.
+
+What's Fixed In This Release:
+
+1) We are no longer using magic numbers in the search function to return the entire string. Instead, we simply just erase all the things after the last quote character.
 
 README
 
