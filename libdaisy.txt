@@ -1,0 +1,10 @@
+LIBDAISY
+
+A SIMPLE DESIGN DOCUMENT:
+
+LibDaisy contains the classes and functions for working with Daisy 2.02 books. The functions we are to use are currently scattered throughout the programs we have developed so far. It is our job to get a hold of these functions and combine them into a shared library. It is also our goal to create a .NET interface
+
+THE LIBRARY:
+
+The LibDaisy library will be built using classes and functions. The classes will be stored in a namespace called "ABF".
+
