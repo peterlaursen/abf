@@ -134,3 +134,20 @@ _Smil.open(Filename.c_str());
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
 _Ncc.seekg(0, ios::beg);
 }
+const char* Daisy::GetMP3FileName() {
+string Line;
+string MP3;
+while (!_Smil.eof()) {
+getline(_Smil, Line);
+if (Line.find("<audio ") == string::npos) continue;
+int Position = Line.find("\"");
+Line.erase(0, Position+1);
+Position = 0;
+// This is just an audio file - we know it ends with a quote, therefore, we search again.
+int Position2 = Line.find("\"", Position);
+// We do not need to return the quote, we'll delete it alongside the rest of the string.
+Line.erase(Position2);
+MP3 = Line;
+}
+return MP3.c_str();
+}

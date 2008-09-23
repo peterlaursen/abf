@@ -48,6 +48,8 @@ string const GetMetaInfo() const { return _Meta; }
 // Close the open file descriptors.
 // The destructor internally calls the Close function, but it seemed wise to make it public anyway.
 void Close();
+// Let's get the MP3 file too.
+const char* GetMP3FileName();
 };
 // Close the namespace
 }
