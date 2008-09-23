@@ -10,7 +10,7 @@ This is the class implementation for LibDaisy.
 using namespace ABF;
 using namespace std;
 Daisy::Daisy(string Path, bool _Open) {
-_Path = Path.c_str();
+_Path = Path;
 // Open the different file descriptors
 if (_Open) Open();
 // No meta info has been extracted yet.
@@ -25,7 +25,7 @@ bool Daisy::Open() {
 // Catch the obvious problem first - are the files already open?
 if (_Ncc.is_open() || _Smil.is_open()) return false;
 // We now know that the files are not open, let's open them.
-_Ncc.open("ncc.html");
+_Ncc.open((_Path + "\\" + "ncc.html").c_str());
 if (!_Ncc) {
 cerr << "Error, cannot open daisy book." << endl;
 return false;
@@ -123,7 +123,7 @@ if (Position2 == string::npos) return string("# notfound");
 Line.erase(0, Position);
 Position2 = Line.find("#");
 Line.erase(Position2);
-return Line;
+return _Path + "\\" + Line;
 }
 
 void Daisy::OpenFirstSmil() {
