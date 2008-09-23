@@ -32,7 +32,10 @@ return false;
 }
 OpenFirstSmil();
 if (_Smil.is_open()) return true;
-else return false;
+else {
+cout << "Cannot open first Smil file." << endl;
+return false;
+}
 }
 // Close the files open.
 void Daisy::Close() {
@@ -128,4 +131,6 @@ void Daisy::OpenFirstSmil() {
 FindBody();
 string Filename = OpenSmil();
 _Smil.open(Filename.c_str());
+// We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
+_Ncc.seekg(0, ios::beg);
 }
