@@ -24,21 +24,31 @@ ifstream _Mp3;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
 
+// This function is not to be accessible from the outside, I think.
+void OpenFirstSmil();
+// We'll also need our private Replace() function from DaisyInfo.cpp, it is copied in here.
+void Replace(string& Value);
+// This function opens the first smil file it encounters. Speaking from a design standpoint, I am not too happy with this behaviour, but I'lll change it in a short while.
+string OpenSmil();
+// This function helps OpenSmil()
+int FindBody();
 public:
 // Let us add the constructors and destructors. Note that they are not implemented here.
 // We overload the constructor. The reason behind this is that we may either want to use an already-existing string or a string we get from, say, command line.
-// If the Open parameter is set to true, the different file descriptors are initialised to known values.
-Daisy(string Path, bool Open = false);
-Daisy(const char* Path, bool Open = false);
-// The destructor internally calls the Close function, but it seemed wise to make it public anyway.
+// If the Open parameter is set to true, the different file descriptors are initialised to known values, otherwise, you manually have to call the Open function later.
+Daisy(string Path, bool _Open = true);
+Daisy(const char* Path, bool _Open = true);
+// The destructor - takes care of cleaning up.
 ~Daisy();
 // The Open function returns false if the files are already open or another error occurs.
 bool Open();
-string& ExtractMetaInfo(string Value);
 string& ExtractMetaInfo(string& Value);
-// Get the current content of meta info string
-string& GetMetaInfo() const { return _Meta; }
+// Get the current content of meta info string, may not be necessary.
+string const GetMetaInfo() const { return _Meta; }
 // Close the open file descriptors.
+// The destructor internally calls the Close function, but it seemed wise to make it public anyway.
 void Close();
 };
+// Close the namespace
+}
 #endif
