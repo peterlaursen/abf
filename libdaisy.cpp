@@ -166,5 +166,11 @@ MP3 = Line;
 }
 _Meta = MP3;
 cout << "MP3 file: " << _Meta << endl;
-return _Meta.c_str();
+return (_Path + FILE_SEP + _Meta).c_str();
 }
+// The helper function is also added in here.
+SHARED const char* ABF::GetNextAudioFile(Daisy& D) {
+if (!D.OpenSmil()) return 0;
+return D.GetMP3FileName();
+}
+

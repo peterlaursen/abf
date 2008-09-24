@@ -16,7 +16,9 @@ cout << D.GetMetaInfo() << endl;
 string Meta("dc:date");
 cout << D.ExtractMetaInfo(Meta) << endl;
 cout << D.GetMP3FileName();
-while (D.OpenSmil()) {
-cout << D.GetMP3FileName() << endl;
+while (1) {
+const char* Value = GetNextAudioFile(D);
+if (!Value) break;
+cout << Value << endl;
 }
 }
