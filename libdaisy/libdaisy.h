@@ -8,6 +8,7 @@ This is the header file for LibDaisy.
 #define LIBDAISY_H
 // Define this for Win32
 #ifdef WIN32
+#define FILE_SEP "\\"
 #ifdef BUILD_DLL
 #define SHARED __declspec(dllexport)
 #else
@@ -15,6 +16,7 @@ This is the header file for LibDaisy.
 #endif
 #else
 #define SHARED
+#define FILE_SEP "/"
 #endif
 // Includes
 #include <fstream>
@@ -33,14 +35,13 @@ ifstream _Ncc;
 ifstream _Mp3;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
-
 // This function is not to be accessible from the outside, I think.
 void OpenFirstSmil();
 // We'll also need our private Replace() function from DaisyInfo.cpp, it is copied in here.
 void Replace(string& Value);
-// This function opens the first smil file it encounters. Speaking from a design standpoint, I am not too happy with this behaviour, but I'lll change it in a short while.
+// This function opens the first smil file it encounters. Speaking from a design standpoint, I am not too happy with this behaviour, but I'll change it in a short while.
 string OpenSmil();
-// This function helps OpenSmil()
+// This function helps OpenSmil() and other functions.
 int FindBody();
 public:
 // Let us add the constructors and destructors. Note that they are not implemented here.

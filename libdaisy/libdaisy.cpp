@@ -25,7 +25,7 @@ bool Daisy::Open() {
 // Catch the obvious problem first - are the files already open?
 if (_Ncc.is_open() || _Smil.is_open()) return false;
 // We now know that the files are not open, let's open them.
-_Ncc.open((_Path + "\\" + "ncc.html").c_str());
+_Ncc.open((_Path + FILE_SEP + "ncc.html").c_str());
 if (!_Ncc) {
 cerr << "Error, cannot open daisy book." << endl;
 return false;
@@ -123,7 +123,7 @@ if (Position2 == string::npos) return string("# notfound");
 Line.erase(0, Position);
 Position2 = Line.find("#");
 Line.erase(Position2);
-return _Path + "\\" + Line;
+return _Path + FILE_SEP + Line;
 }
 
 void Daisy::OpenFirstSmil() {
