@@ -30,7 +30,7 @@ if (!_Ncc) {
 cerr << "Error, cannot open daisy book." << endl;
 return false;
 }
-OpenFirstSmil();
+OpenSmil();
 if (_Smil.is_open()) return true;
 else {
 cout << "Cannot open first Smil file." << endl;
@@ -112,9 +112,10 @@ if (_Ncc.eof()) return -1;
 return _Ncc.tellg();
 }
 }
-string Daisy::OpenSmil() {
+string Daisy::FindSmil() {
 string Line;
 getline(_Ncc, Line);
+if (Line.find("</body>") != string::npos) return "nomore";
 int Position = Line.find("href=\"");
 if (Position == string::npos) return string("notfound");
 Position += 6;
@@ -126,11 +127,25 @@ Line.erase(Position2);
 return _Path + FILE_SEP + Line;
 }
 
-void Daisy::OpenFirstSmil() {
+bool Daisy::OpenSmil() {
+// This contains the last position from where we had a smil file.
+static int LastPosition = 0;
 // We'll make this easier by locating the body first.
-FindBody();
-string Filename = OpenSmil();
+if (LastPosition == 0)
+LastPosition = FindBody();
+else {
+_Ncc.seekg(LastPosition, ios::beg);
+}
+string Filename = FindSmil();
+if (Filename == "nomore") {
+LastPosition = _Ncc.tellg();
+return false;
+}
+cout << "SMIL filename is " << Filename << endl;
+_Smil.close();
+_Smil.clear();
 _Smil.open(Filename.c_str());
+LastPosition = _Ncc.tellg();
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
 _Ncc.seekg(0, ios::beg);
 }
@@ -149,5 +164,7 @@ int Position2 = Line.find("\"", Position);
 Line.erase(Position2);
 MP3 = Line;
 }
-return MP3.c_str();
+_Meta = MP3;
+cout << "MP3 file: " << _Meta << endl;
+return _Meta.c_str();
 }

@@ -35,12 +35,10 @@ ifstream _Ncc;
 ifstream _Mp3;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
-// This function is not to be accessible from the outside, I think.
-void OpenFirstSmil();
 // We'll also need our private Replace() function from DaisyInfo.cpp, it is copied in here.
 void Replace(string& Value);
 // This function opens the first smil file it encounters. Speaking from a design standpoint, I am not too happy with this behaviour, but I'll change it in a short while.
-string OpenSmil();
+string FindSmil();
 // This function helps OpenSmil() and other functions.
 int FindBody();
 public:
@@ -53,6 +51,7 @@ Daisy(const char* Path, bool _Open = true);
 ~Daisy();
 // The Open function returns false if the files are already open or another error occurs.
 bool Open();
+bool OpenSmil();
 string& ExtractMetaInfo(string& Value);
 // Get the current content of meta info string, may not be necessary.
 string const GetMetaInfo() const { return _Meta; }
