@@ -6,6 +6,16 @@ This is the header file for LibDaisy.
 */
 #ifndef LIBDAISY_H
 #define LIBDAISY_H
+// Define this for Win32
+#ifdef WIN32
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
+#else
+#define SHARED
+#endif
 // Includes
 #include <fstream>
 #include <string>
@@ -15,7 +25,7 @@ using std::string;
 using std::vector;
 namespace ABF {
 // This is the only class available in this namespace. If other classes (or formats) need parsing, they shall also be added in this namespace.
-class Daisy {
+class SHARED Daisy {
 // This is set for every daisy book
 string _Path;
 // Set the private members
