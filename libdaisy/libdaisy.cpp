@@ -149,6 +149,7 @@ _Smil.open(Filename.c_str());
 LastPosition = _Ncc.tellg();
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
 _Ncc.seekg(0, ios::beg);
+return true;
 }
 const char* Daisy::GetMP3FileName() {
 string Line;
