@@ -21,7 +21,7 @@ _Path = Path;
 _Meta = "none";
 if (_Open) Open();
 }
-bool Daisy::Open() {
+bool Daisy::Open(bool _OpenSmil) {
 // Catch the obvious problem first - are the files already open?
 if (_Ncc.is_open() || _Smil.is_open()) return false;
 // We now know that the files are not open, let's open them.
@@ -30,6 +30,7 @@ if (!_Ncc) {
 cerr << "Error, cannot open daisy book." << endl;
 return false;
 }
+if (!_OpenSmil) return true;
 OpenSmil();
 if (_Smil.is_open()) return true;
 else {
