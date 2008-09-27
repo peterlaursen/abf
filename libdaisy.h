@@ -50,7 +50,7 @@ Daisy(const char* Path, bool _Open = true);
 // The destructor - takes care of cleaning up.
 ~Daisy();
 // The Open function returns false if the files are already open or another error occurs.
-bool Open();
+bool Open(bool _OpenSmil = false);
 bool OpenSmil();
 string& ExtractMetaInfo(string& Value);
 // Get the current content of meta info string, may not be necessary.
