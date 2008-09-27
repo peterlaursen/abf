@@ -164,9 +164,9 @@ int Position2 = Line.find("\"", Position);
 Line.erase(Position2);
 MP3 = Line;
 }
-_Meta = MP3;
+_Meta = _Path + FILE_SEP + MP3;
 cout << "MP3 file: " << _Meta << endl;
-return (_Path + FILE_SEP + _Meta).c_str();
+return _Meta.c_str();
 }
 // The helper function is also added in here.
 SHARED const char* ABF::GetNextAudioFile(Daisy& D) {

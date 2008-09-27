@@ -12,13 +12,18 @@ if (!D.Open()) {
 cout << "Something went wrong during opening." << endl;
 return 1;
 }
-cout << D.GetMetaInfo() << endl;
 string Meta("dc:date");
 cout << D.ExtractMetaInfo(Meta) << endl;
-cout << D.GetMP3FileName();
+cout << D.GetMP3FileName() << endl;
 while (1) {
 const char* Value = GetNextAudioFile(D);
 if (!Value) break;
 cout << Value << endl;
+FILE* File = fopen(Value, "rb");
+if (!File) cout << "Cannot open file." << endl;
+else {
+fclose(File);
+cout << "File was opened successfully." << endl;
+}
 }
 }
