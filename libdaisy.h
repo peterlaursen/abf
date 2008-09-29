@@ -61,9 +61,6 @@ void Close();
 // Let's get the MP3 file too.
 const char* GetMP3FileName();
 };
-// We better add a helper function. Whether this should be a static function in the class is still up for debate.
-// Returns a NULL pointer on failure, otherwise the file name
-SHARED const char* GetNextAudioFile(Daisy& D);
 
 // Close the namespace
 }

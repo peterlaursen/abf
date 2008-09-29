@@ -170,14 +170,3 @@ _Meta = _Path + FILE_SEP + MP3;
 cout << "MP3 file: " << _Meta << endl;
 return _Meta.c_str();
 }
-// The helper function is also added in here.
-SHARED const char* ABF::GetNextAudioFile(Daisy& D) {
-if (!D.OpenSmil()) {
-cout << "Cannot open the SMIL file." << endl;
-return 0;
-}
-const char* Value = D.GetMP3FileName();
-if (!Value) return 0;
-return Value;
-}
-
