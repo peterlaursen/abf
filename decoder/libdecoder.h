@@ -14,7 +14,9 @@ FILE* _Output;
 bool _Open;
 public:
 // Assumption: Daisy book is initialized and ready to be decoded.
-Daisy(Daisy& Book, const char* Filename);
+Decoder(Daisy& Book, const char* Filename);
+// We close the _Output file.
+~Decoder() { fclose(_Output); }
 // This function will decode (and, if possible) store the audio book as audio. Note: It requires a lot of space. In the future, this function will not necessarily store this to a file.
 bool Decode();
 // Let's say this is enough for now.
