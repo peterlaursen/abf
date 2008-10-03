@@ -11,12 +11,15 @@ else _Open = true;
 }
 bool Decoder::Decode() {
 // We assume that the daisy book is open and that no other smil file functions have been called.
+
 while (_Daisy.OpenSmil()) {
 // Get me the name of the MP3 file
 const char* Filename = _Daisy.GetMP3FileName();
 // Open the audio file we have just been given.
 SampleSource* Source = OpenSampleSource(Filename);
 if (!Source) return false;
+unsigned long FilePos = ftell(_Output);
+printf("File position in bytes: %lu\n", FilePos);
 const int ReadSize = 4096;
 int Channels, SampleRate;
 SampleFormat SF;
