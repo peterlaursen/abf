@@ -9,7 +9,7 @@ This is the class implementation for LibDaisy.
 #include "libdaisy.h"
 using namespace ABF;
 using namespace std;
-Daisy::Daisy(string Path, bool _Open) {
+Daisy::Daisy(string Path, bool _Open): _Meta("none") {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
@@ -18,9 +18,8 @@ _Path = Path;
 // Open the different file descriptors
 if (_Open) Open();
 // No meta info has been extracted yet.
-_Meta = "none";
 }
-Daisy::Daisy(const char* Path, bool _Open) {
+Daisy::Daisy(const char* Path, bool _Open): _Meta("none") {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
