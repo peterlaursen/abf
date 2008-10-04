@@ -9,7 +9,7 @@ _Output = fopen(Filename, "wb");
 if (!_Output) _Open = false;
 else _Open = true;
 }
-bool Decoder::Decode() {
+bool Decoder::DecodeBook() {
 // We assume that the daisy book is open and that no other smil file functions have been called.
 
 while (_Daisy.OpenSmil()) {
@@ -38,5 +38,15 @@ fwrite(Buffer, sizeof(short), ReadSize, _Output);
 }
 }
 return true;
+}
+void Decoder::DecodeSection(short* Output, int& Size, int& FramesDecoded) {
+// We assume you have gotten the meta data.
+
+FramesDecoded = _Source->read(Size/2, Output);
+
+if (FramesDecoded <= Size) {
+_Daisy.OpenSmil();
+_Source = OpenSampleSource(_Daisy.GetMP3FileName());
+}
 }
 } // End of namespaces
