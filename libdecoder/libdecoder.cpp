@@ -2,8 +2,10 @@
 #include <cstdio>
 #include "libdecoder.h"
 #include <audiere.h>
+#include <iostream>
 namespace ABF {
 using namespace audiere;
+using namespace std;
 Decoder::Decoder(Daisy& _Book, const char* Filename): _Daisy(_Book) {
 _Output = fopen(Filename, "wb");
 if (!_Output) _Open = false;
@@ -39,14 +41,21 @@ fwrite(Buffer, sizeof(short), ReadSize, _Output);
 }
 return true;
 }
-void Decoder::DecodeSection(short* Output, int& Size, int& FramesDecoded) {
+void Decoder::DecodeSection(short* Output, int& Size, int& FramesDecoded, bool& SectionEnd) {
 // We assume you have gotten the meta data.
 static bool Init = false;
 if (!Init) {
 _Daisy.OpenSmil();
 _Source = OpenSampleSource(_Daisy.GetMP3FileName());
 Init = true;
+SectionEnd = false;
+cout << boolalpha << "SectionEnd: " << SectionEnd << endl << "Init: " << Init << endl;
 }
-FramesDecoded = _Source->read(Size/2, Output);
+FramesDecoded = _Source->read(Size, Output);
+if (FramesDecoded < Size) {
+SectionEnd = true;
+Init = false;
+cout << boolalpha << "SectionEnd: " << SectionEnd << endl << "Init: " << Init << endl;
+}
 }
 } // End of namespaces

@@ -22,9 +22,8 @@ Decoder(Daisy& Book, const char* Filename);
 // This function will decode (and, if possible) store the audio book as audio. Note: It requires a lot of space. In the future, this function will not necessarily store this to a file.
 bool DecodeBook();
 // This function will decode part of the audio book and return it to you in an array for parsing to, say, speex_encode. It is noted that the array may be larger than the Speex framesize.
-// Parameters: short* array, int& size, int& FramesDecoded.
-void DecodeSection(short* Output, int& _Size, int& FramesDecoded);
-
+// Parameters: short* array, int& size, int& FramesDecoded, bool& SectionEnd.
+void DecodeSection(short* Output, int& _Size, int& FramesDecoded, bool& SectionEnd);
 };
 }
 #endif

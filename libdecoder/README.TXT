@@ -7,3 +7,5 @@ This could be done by:
 * Providing common functions in the library interface
 * Make the other functions virtual
 Currently, the plan is just to make a small decoder that can save the audio to a wave file. All the audio of a daisy book, I might add.
+
+As of today (October 5, 2008) it can also just decode sections of an audio book and save these in an array.
