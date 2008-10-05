@@ -5,11 +5,21 @@ This file contains a preliminary interface to a decoder of Daisy 2.02 books.
 */
 #ifndef LIBDECODER_H
 #define LIBDECODER_H
+// Define this for Win32
+#ifdef WIN32
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
+#else
+#define SHARED
+#endif
 #include <cstdio>
 #include <libdaisy.h>
 #include <audiere.h>
 namespace ABF {
-class Decoder {
+class SHARED Decoder {
 Daisy& _Daisy;
 FILE* _Output;
 audiere::SampleSourcePtr _Source;

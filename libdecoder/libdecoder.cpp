@@ -61,7 +61,7 @@ cout << boolalpha << "SectionEnd: " << SectionEnd << endl << "Init: " << Init <<
 int Decoder::GetSampleRate() {
 int SampleRate, Channels;
 SampleFormat SF;
-Source->getFormat(Channels, SampleRate, SF);
+_Source->getFormat(Channels, SampleRate, SF);
 return SampleRate;
 }
 } // End of namespaces
