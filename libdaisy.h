@@ -35,6 +35,8 @@ ifstream _Ncc;
 ifstream _Mp3;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
+// Whether the book is valid.
+bool _Valid;
 // We'll also need our private Replace() function from DaisyInfo.cpp, it is copied in here.
 void Replace(string& Value);
 // This function opens the first smil file it encounters. Speaking from a design standpoint, I am not too happy with this behaviour, but I'll change it in a short while.
@@ -49,6 +51,10 @@ Daisy(string Path, bool _Open = true);
 Daisy(const char* Path, bool _Open = true);
 // The destructor - takes care of cleaning up.
 ~Daisy();
+// Validate whether this is a Daisy book.
+void Validate();
+// Return whether this is a valid Daisy book.
+bool IsValid();
 // The Open function returns false if the files are already open or another error occurs.
 bool Open(bool _OpenSmil = false);
 bool OpenSmil();

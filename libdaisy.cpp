@@ -9,7 +9,7 @@ This is the class implementation for LibDaisy.
 #include "libdaisy.h"
 using namespace ABF;
 using namespace std;
-Daisy::Daisy(string Path, bool _Open): _Meta("none") {
+Daisy::Daisy(string Path, bool _Open): _Meta("none"), _Valid(false) {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
@@ -17,15 +17,14 @@ else
 _Path = Path;
 // Open the different file descriptors
 if (_Open) Open();
-// No meta info has been extracted yet.
+
 }
-Daisy::Daisy(const char* Path, bool _Open): _Meta("none") {
+Daisy::Daisy(const char* Path, bool _Open): _Meta("none"), _Valid(false) {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
 else
 _Path = Path;
-_Meta = "none";
 if (_Open) Open();
 }
 bool Daisy::Open(bool _OpenSmil) {
@@ -37,6 +36,7 @@ if (!_Ncc) {
 cerr << "Error, cannot open daisy book." << endl;
 return false;
 }
+_Valid = true;
 if (!_OpenSmil) return true;
 OpenSmil();
 if (_Smil.is_open()) return true;
@@ -177,3 +177,10 @@ _Meta = _Path + MP3;
 cout << "MP3 file: " << _Meta << endl;
 return _Meta.c_str();
 }
+void Daisy::Validate() {
+ifstream fin((_Path + "ncc.html").c_str());
+if (fin.is_open()) _Valid = true;
+else _Valid = false;
+fin.close();
+}
+bool Daisy::IsValid() { return _Valid; }
