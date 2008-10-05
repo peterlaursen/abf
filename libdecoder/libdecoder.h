@@ -24,6 +24,8 @@ bool DecodeBook();
 // This function will decode part of the audio book and return it to you in an array for parsing to, say, speex_encode. It is noted that the array may be larger than the Speex framesize.
 // Parameters: short* array, int& size, int& FramesDecoded, bool& SectionEnd.
 void DecodeSection(short* Output, int& _Size, int& FramesDecoded, bool& SectionEnd);
+// Returns the sample rate.
+int GetSampleRate();
 };
 }
 #endif
