@@ -69,7 +69,7 @@ const char* GetMP3FileName();
 // ExtractSectionTitle gives you back the title of the next section in the book.
 void ExtractSectionTitle();
 // This returns the section title.
-string GetSectionTitle() { return _SectionTitle; }
+string& GetSectionTitle() { return _SectionTitle; }
 };
 
 // Close the namespace
