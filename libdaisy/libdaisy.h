@@ -67,7 +67,7 @@ void Close();
 // Let's get the MP3 file too.
 const char* GetMP3FileName();
 // ExtractSectionTitle gives you back the title of the next section in the book.
-void ExtractSectionTitle();
+string& ExtractSectionTitle();
 // This returns the section title.
 string& GetSectionTitle() { return _SectionTitle; }
 };
