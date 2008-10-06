@@ -16,8 +16,7 @@ return 2;
 }
 string Peter;
 for (int i = 0; i < 20; i++) {
-D.ExtractSectionTitle();
-cout << D.GetSectionTitle() << endl;
+cout << D.ExtractSectionTitle() << endl;
 }
 return 0;
 }
