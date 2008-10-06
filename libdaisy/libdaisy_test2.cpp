@@ -14,9 +14,11 @@ if (!D.IsValid()) {
 cout << "Isn't a valid daisy book." << endl;
 return 2;
 }
-string Peter;
-for (int i = 0; i < 20; i++) {
-cout << D.ExtractSectionTitle() << endl;
+string Title;
+while (1) {
+Title = D.ExtractSectionTitle();
+if (Title == "nomore") break;
+cout << Title << endl;
 }
 return 0;
 }
