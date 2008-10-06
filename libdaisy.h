@@ -32,7 +32,7 @@ class SHARED Daisy {
 string _Path;
 // Set the private members
 ifstream _Ncc;
-ifstream _Mp3;
+string _SectionTitle;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
 // Whether the book is valid.
@@ -66,6 +66,10 @@ string const GetMetaInfo() const { return _Meta; }
 void Close();
 // Let's get the MP3 file too.
 const char* GetMP3FileName();
+// ExtractSectionTitle gives you back the title of the next section in the book.
+void ExtractSectionTitle();
+// This returns the section title.
+string GetSectionTitle() { return _SectionTitle; }
 };
 
 // Close the namespace

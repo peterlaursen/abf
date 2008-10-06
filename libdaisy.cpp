@@ -184,3 +184,23 @@ else _Valid = false;
 fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
+void Daisy::ExtractSectionTitle() { 
+static int LastPosition = 0;
+if (!LastPosition) {
+_Ncc.seekg(0, ios::beg);
+LastPosition = FindBody();
+}
+else _Ncc.seekg(LastPosition, ios::beg);
+string Line;
+while (1) {
+getline(_Ncc, Line);
+if (Line.find("<h") == string::npos) continue;
+else {
+LastPosition = _Ncc.tellg();
+break;
+}
+}
+Line.erase(Line.rfind("</a>"));
+Line.erase(0, Line.rfind(">"));
+_SectionTitle = Line;
+}
