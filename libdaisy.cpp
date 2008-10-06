@@ -195,6 +195,10 @@ string Line;
 while (1) {
 getline(_Ncc, Line);
 if (Line.find("<h") == string::npos) continue;
+else if (Line.find("</body>") != string::npos) {
+_SectionTitle = "nomore";
+return _SectionTitle;
+}
 else {
 LastPosition = _Ncc.tellg();
 break;
