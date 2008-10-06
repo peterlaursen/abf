@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "libdaisy.h"
+#pragma comment(lib, "libdaisy.lib")
 using namespace std;
 using namespace ABF;
 int main(int argc, char* argv[]) {
@@ -14,7 +15,7 @@ cout << "Isn't a valid daisy book." << endl;
 return 2;
 }
 string Peter;
-for (int i = 0; i < 2; i++) {
+for (int i = 0; i < 20; i++) {
 D.ExtractSectionTitle();
 cout << D.GetSectionTitle() << endl;
 }

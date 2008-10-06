@@ -184,7 +184,7 @@ else _Valid = false;
 fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
-void Daisy::ExtractSectionTitle() { 
+string& Daisy::ExtractSectionTitle() { 
 static int LastPosition = 0;
 if (!LastPosition) {
 _Ncc.seekg(0, ios::beg);
@@ -201,6 +201,8 @@ break;
 }
 }
 Line.erase(Line.rfind("</a>"));
-Line.erase(0, Line.rfind(">"));
+Line.erase(0, Line.rfind(">")+1);
 _SectionTitle = Line;
+Replace(_SectionTitle);
+return _SectionTitle;
 }
