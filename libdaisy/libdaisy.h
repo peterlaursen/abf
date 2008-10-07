@@ -68,7 +68,10 @@ void Close();
 const char* GetMP3FileName();
 // ExtractSectionTitle gives you back the title of the next section in the book.
 string& ExtractSectionTitle();
-// This returns the section title.
+// I completely forgot to add a function that returns us the path of the Daisy book.
+string& GetPath();
+// Returns the number of sections in this Daisy book.
+unsigned short GetNumSections();
 };
 
 // Close the namespace

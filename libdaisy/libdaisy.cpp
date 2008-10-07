@@ -194,19 +194,29 @@ else _Ncc.seekg(LastPosition, ios::beg);
 string Line;
 while (1) {
 getline(_Ncc, Line);
-if (Line.find("<h") == string::npos) continue;
-else if (Line.find("</body>") != string::npos) {
+if (Line.find("</body>") != string::npos) {
 _SectionTitle = "nomore";
 return _SectionTitle;
 }
-else {
-LastPosition = _Ncc.tellg();
+if (Line.find("<h") == string::npos) continue;
 break;
 }
-}
+LastPosition = _Ncc.tellg();
 Line.erase(Line.rfind("</a>"));
 Line.erase(0, Line.rfind(">")+1);
 _SectionTitle = Line;
 Replace(_SectionTitle);
 return _SectionTitle;
+}
+string& Daisy::GetPath() { return _Path; }
+unsigned short Daisy::GetNumSections() {
+Daisy Temp(GetPath());
+string Title;
+unsigned short NumSections = 0;
+while (1) {
+Title = Temp.ExtractSectionTitle();
+if (Title != "nomore") ++NumSections;
+else break;
+}
+return NumSections;
 }
