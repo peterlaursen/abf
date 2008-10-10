@@ -122,10 +122,11 @@ return _Ncc.tellg();
 }
 string Daisy::FindSmil() {
 string Line;
+while (1) {
 getline(_Ncc, Line);
 if (Line.find("</body>") != string::npos) return "nomore";
 int Position = Line.find("href=\"");
-if (Position == string::npos) return string("notfound");
+if (Position == string::npos) continue;
 Position += 6;
 int Position2 = Line.find("#", Position);
 if (Position2 == string::npos) return string("# notfound");
@@ -134,7 +135,7 @@ Position2 = Line.find("#");
 Line.erase(Position2);
 return _Path + Line;
 }
-
+}
 bool Daisy::OpenSmil() {
 // This contains the last position from where we had a smil file.
 static int LastPosition = 0;
@@ -145,7 +146,7 @@ else {
 _Ncc.seekg(LastPosition, ios::beg);
 }
 string Filename = FindSmil();
-if (Filename == "nomore") {
+if (Filename == "nomore" || Filename == "notfound") {
 LastPosition = _Ncc.tellg();
 return false;
 }
