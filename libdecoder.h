@@ -5,11 +5,21 @@ This file contains a preliminary interface to a decoder of Daisy 2.02 books.
 */
 #ifndef LIBDECODER_H
 #define LIBDECODER_H
+// Define this for Win32
+#ifdef WIN32
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
+#else
+#define SHARED
+#endif
 #include <cstdio>
 #include <libdaisy.h>
 #include <audiere.h>
 namespace ABF {
-class Decoder {
+class SHARED Decoder {
 Daisy& _Daisy;
 FILE* _Output;
 audiere::SampleSourcePtr _Source;
@@ -22,9 +32,10 @@ Decoder(Daisy& Book, const char* Filename);
 // This function will decode (and, if possible) store the audio book as audio. Note: It requires a lot of space. In the future, this function will not necessarily store this to a file.
 bool DecodeBook();
 // This function will decode part of the audio book and return it to you in an array for parsing to, say, speex_encode. It is noted that the array may be larger than the Speex framesize.
-// Parameters: short* array, int& size, int& FramesDecoded.
-void DecodeSection(short* Output, int& _Size, int& FramesDecoded);
-
+// Parameters: short* array, int& size, int& FramesDecoded, bool& SectionEnd.
+void DecodeSection(short* Output, int& _Size, int& FramesDecoded, bool& SectionEnd);
+// Returns the sample rate.
+int GetSampleRate();
 };
 }
 #endif
