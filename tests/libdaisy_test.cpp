@@ -4,6 +4,7 @@
 #include <speex/speex.h>
 #include <iostream>
 #include <cstdio> // for FILE
+#include <cstdlib>
 #pragma comment(lib, "audiere.lib")
 #pragma comment(lib, "libdaisy.lib")
 #pragma comment(lib, "libspeexdsp_imp.lib")
@@ -12,7 +13,7 @@ using namespace ABF;
 using namespace std;
 using namespace audiere;
 void Decode(Daisy&, FILE*);
-void Encode(short*, unsigned int, FILE*);
+void Encode(FILE*);
 int main(int argc, char* argv[]) {
 Daisy D(argv[1]);
 if (!D.IsValid()) {
@@ -25,49 +26,48 @@ fclose(fout);
 return 0;
 }
 void Decode(Daisy& D, FILE* fout) {
-unsigned int Size = 4096, Processed = 4096;
-short Resampled[4096];
+unsigned int Size = 320, Processed = 320;
+short Resampled[320];
 SampleSourcePtr Source = OpenSampleSource(D.GetMP3FileName());
 int SampleRate, NumChannels;
 SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
-SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 3, 0);
-short Buffer[4096];
+SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
+short Buffer[320];
+FILE* temp = fopen("temp.raw", "wb");
 while (1) {
-unsigned int FramesRead = Source->read(4096, Buffer);
+unsigned int FramesRead = Source->read(320, Buffer);
 if (FramesRead <= 0) break;
 speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
-Encode(Resampled, Processed, fout);
+//Encode(Resampled, Processed, fout);
+fwrite(Resampled, sizeof(short), Processed, temp);
 }
 speex_resampler_destroy(State);
+fclose(temp);
+Encode(fout);
 return;
 }
-void Encode(short* Input, unsigned int Size, FILE* fout) {
+void Encode(FILE* fout) {
+FILE* fin = fopen("temp.raw", "rb");
 // Initialize Speex.
-void* encoder = speex_encoder_init(&speex_wb_mode);
+void* Encoder = speex_encoder_init(&speex_wb_mode);
 SpeexBits Bits;
 speex_bits_init(&Bits);
 int FrameSize;
-speex_encoder_ctl(encoder, SPEEX_GET_FRAME_SIZE, &FrameSize);
-// This is rather complicated. We have our array and we must pass this into speex_encode.
-// We'll read this array in chunks.
-short* Samples = new short[FrameSize];
-int Position = 0, BytesToRead = 0;
-char Output[400];
-while (Position < Size) {
-if (Position + FrameSize > Size) BytesToRead = Size - Position;
-else BytesToRead = FrameSize;
-for (int i = Position, j = 0; i < Position + BytesToRead; i++, j++)
-Samples[j] = Input[i];
+speex_encoder_ctl(Encoder, SPEEX_GET_FRAME_SIZE, &FrameSize);
+short Input[400];
+unsigned short BytesToRead;
+while (!feof(fin)) {
+fread(Input, 2, 320, fin);
 speex_bits_reset(&Bits);
-speex_encode_int(encoder, Samples, &Bits);
+speex_encode_int(Encoder, Input, &Bits);
+char Output[400];
 unsigned short Bytes = speex_bits_write(&Bits, Output, 400);
 fwrite(&Bytes, sizeof(short), 1, fout);
 fwrite(Output, sizeof(char), Bytes, fout);
-Position += BytesToRead;
 }
+speex_encoder_destroy(Encoder);
 speex_bits_destroy(&Bits);
-speex_encoder_destroy(encoder);
-
-delete[] Samples; Samples = 0;
+fclose(fin);
+system("del temp.raw");
 }
