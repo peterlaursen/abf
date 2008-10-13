@@ -24,6 +24,7 @@ char Input[200];
 unsigned short Bytes;
 while (!feof(Book)) {
 for (int i = 0; i < 32000; i+=320) {
+if (feof(Book)) break;
 fread(&Bytes, 2, 1, Book);
 fread(Input, 1, Bytes, Book);
 speex_bits_read_from(&Bits, Input, Bytes);
