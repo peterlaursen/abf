@@ -27,8 +27,11 @@ return 0;
 void Decode(Daisy& D, FILE* fout) {
 unsigned int Size = 4096, Processed = 4096;
 short Resampled[4096];
-SpeexResamplerState* State = speex_resampler_init(1, 22050, 16000, 3, 0);
 SampleSourcePtr Source = OpenSampleSource(D.GetMP3FileName());
+int SampleRate, NumChannels;
+SampleFormat SF;
+Source->getFormat(NumChannels, SampleRate, SF);
+SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 3, 0);
 short Buffer[4096];
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
