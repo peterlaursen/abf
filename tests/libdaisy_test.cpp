@@ -15,12 +15,16 @@ using namespace audiere;
 void Decode(Daisy&, FILE*);
 void Encode(FILE*);
 int main(int argc, char* argv[]) {
+if (argc != 3) {
+cout << "Usage: " << argv[0] << " <path to daisy book> <output file>" << endl;
+return 1;
+}
 Daisy D(argv[1]);
 if (!D.IsValid()) {
 cout << "Error, not a valid daisy book." << endl;
 return 1;
 }
-FILE* fout = fopen("output.raw", "wb");
+FILE* fout = fopen(argv[2], "wb");
 while (D.OpenSmil()) Decode(D, fout);
 fclose(fout);
 return 0;
