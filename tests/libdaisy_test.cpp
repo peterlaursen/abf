@@ -73,5 +73,9 @@ fwrite(Output, sizeof(char), Bytes, fout);
 speex_encoder_destroy(Encoder);
 speex_bits_destroy(&Bits);
 fclose(fin);
+#ifdef WIN32
 system("del temp.raw");
+#else
+system("rm temp.raw");
+#endif
 }
