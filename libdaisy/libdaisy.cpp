@@ -125,6 +125,7 @@ string Line;
 while (1) {
 getline(_Ncc, Line);
 if (Line.find("</body>") != string::npos) return "nomore";
+if (Line.find("<span") != string::npos) continue;
 int Position = Line.find("href=\"");
 if (Position == string::npos) continue;
 Position += 6;
