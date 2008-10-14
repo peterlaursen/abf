@@ -24,8 +24,28 @@ if (!D.IsValid()) {
 cout << "Error, not a valid daisy book." << endl;
 return 1;
 }
-FILE* fout = fopen(argv[2], "wb");
-while (D.OpenSmil()) Decode(D, fout);
+FILE* fout = fopen(argv[2], "wb+");
+unsigned short Sections = D.GetNumSections();
+fwrite(&Sections, sizeof(short), 1, fout);
+int Size = 0;
+for (unsigned short i = 0; i < Sections; i++) {
+fwrite(&i, sizeof(short), 1, fout);
+fwrite(&Size, sizeof(int), 1, fout);
+}
+
+unsigned short Section = 0;
+while (D.OpenSmil()) {
+int Position = ftell(fout);
+fseek(fout, 2, SEEK_SET);
+for (int i = 0; i < Section; i++) fseek(fout, 6, SEEK_CUR);
+// We are now at the beginning of a section header.
+fseek(fout, 2, SEEK_CUR);
+cout << "Am to write a section size at position " << ftell(fout) << endl;
+fwrite(&Position, sizeof(int), 1, fout);
+fseek(fout, Position, SEEK_SET);
+Decode(D, fout);
+++Section;
+}
 fclose(fout);
 return 0;
 }
