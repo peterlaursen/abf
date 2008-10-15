@@ -36,6 +36,7 @@ string _SectionTitle;
 ifstream _Smil;
 string _Meta; // A single string for a single meta information value.
 // Whether the book is valid.
+int _LastPosition;
 bool _Valid;
 // We'll also need our private Replace() function from DaisyInfo.cpp, it is copied in here.
 void Replace(string& Value);
