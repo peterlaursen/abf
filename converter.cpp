@@ -40,27 +40,27 @@ fseek(fout, 2, SEEK_SET);
 for (int i = 0; i < Section; i++) fseek(fout, 6, SEEK_CUR);
 // We are now at the beginning of a section header.
 fseek(fout, 2, SEEK_CUR);
-cout << "Am to write a section size at position " << ftell(fout) << endl;
 fwrite(&Position, sizeof(int), 1, fout);
 fseek(fout, Position, SEEK_SET);
 Decode(D, fout);
 ++Section;
 }
 fclose(fout);
+cout << "The book has been converted successfully." << endl;
 return 0;
 }
 void Decode(Daisy& D, FILE* fout) {
-unsigned int Size = 320, Processed = 320;
-short Resampled[320];
+unsigned int Size = 4096, Processed = 4096;
+short Resampled[4096];
 SampleSourcePtr Source = OpenSampleSource(D.GetMP3FileName());
 int SampleRate, NumChannels;
 SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
 SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
-short Buffer[320];
+short Buffer[4096];
 FILE* temp = fopen("temp.raw", "wb");
 while (1) {
-unsigned int FramesRead = Source->read(320, Buffer);
+unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
 speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
 //Encode(Resampled, Processed, fout);
