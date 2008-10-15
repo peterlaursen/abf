@@ -18,7 +18,7 @@ converter <path to book> <outputfile>
 
 This is best illustrated with a quick example. In the following example, we convert a Daisy book in your CD-ROM drive. We assume this drive is named "e:":
 
-1) Since you are reading this file, you must already have downloaded and extracted this file into an empty folder We call this folder c:\abf for now, but feel free to extract it another place.
+1) Since you are reading this file, you must already have downloaded and extracted this file into an empty folder . We call this folder c:\abf for now, but feel free to extract it another place.
 2) Press Windows Key+R to open the Run dialog box.
 3) Type 
 c:\abf\converter e: c:\abf\MyFirstAudioBook.abf
