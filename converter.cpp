@@ -2,7 +2,6 @@
 #include <audiere.h>
 #include <speex/speex_resampler.h>
 #include <speex/speex.h>
-#include <io.h>
 #include <iostream>
 #include <cstdio> // for FILE
 #include <cstdlib>
@@ -14,7 +13,7 @@ using namespace ABF;
 using namespace std;
 using namespace audiere;
 void Decode(Daisy&, FILE*);
-void Encode(FILE*, char*);
+void Encode(FILE*);
 int main(int argc, char* argv[]) {
 if (argc != 3) {
 cout << "Usage: " << argv[0] << " <path to daisy book> <output file>" << endl;
@@ -59,21 +58,21 @@ SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
 SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[320];
-char* Filename = _mktemp("ConvertXXXX.raw");
-FILE* temp = fopen(Filename, "wb");
+FILE* temp = fopen("temp.raw", "wb");
 while (1) {
 unsigned int FramesRead = Source->read(320, Buffer);
 if (FramesRead <= 0) break;
 speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
+//Encode(Resampled, Processed, fout);
 fwrite(Resampled, sizeof(short), Processed, temp);
 }
 speex_resampler_destroy(State);
 fclose(temp);
-Encode(fout, Filename);
+Encode(fout);
 return;
 }
-void Encode(FILE* fout, char* TmpFile) {
-FILE* fin = fopen(TmpFile, "rb");
+void Encode(FILE* fout) {
+FILE* fin = fopen("temp.raw", "rb");
 // Initialize Speex.
 void* Encoder = speex_encoder_init(&speex_wb_mode);
 SpeexBits Bits;
@@ -94,14 +93,9 @@ fwrite(Output, sizeof(char), Bytes, fout);
 speex_encoder_destroy(Encoder);
 speex_bits_destroy(&Bits);
 fclose(fin);
-string Command;
-
 #ifdef WIN32
-Command = "del ";
-Command += TmpFile;
+system("del temp.raw");
 #else
-Command = "rm ";
-Command += TmpFile;
+system("rm temp.raw");
 #endif
-system(Command.c_str());
 }
