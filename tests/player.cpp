@@ -1,22 +1,27 @@
+#include <process.h>
 #include <audiere.h>
 #include <speex/speex.h>
 #include <iostream>
 #include <cstdio>
+#include <conio.h>
 using namespace std;
 using namespace audiere;
-int main(int argc, char* argv[]) {
+bool Quit = false;
+bool Previous = false;
+bool Next = false;
+void Thread(void* Filename) {
 void* Decoder = speex_decoder_init(&speex_wb_mode);
 SpeexBits Bits;
 speex_bits_init(&Bits);
 short Buffer[320];
 short Buffer1[32000];
 AudioDevicePtr Device(OpenDevice());
-FILE* Book = fopen(argv[1], "rb");
+FILE* Book = fopen((char*)Filename, "rb");
 if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
-return 1;
+return;
 }
 SampleFormat SF = SF_S16;
 OutputStreamPtr Stream;
@@ -30,11 +35,20 @@ for (int i = 0; i < NumSections; i++) {
 fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
-cout << "Type in the section you want to go to: " << endl;
-int Section;
-cin >> Section;
-fseek(Book, Array[Section], SEEK_SET);
-while (!feof(Book)) {
+int CurrentSection = 0;
+while (!feof(Book) || Quit) {
+if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
+if (Next) {
+CurrentSection += 1;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+Next = false;
+}
+if (Previous) {
+CurrentSection -= 1;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+Previous = false;
+}
+
 for (int i = 0; i < 32000; i+=320) {
 if (feof(Book)) break;
 fread(&Bytes, 2, 1, Book);
@@ -51,4 +65,15 @@ speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
+}
+void Input() {
+char Key = getch(); 
+if (Key == 'b') Next = true;
+if (Key == 'z') Previous = false;
+if (Key == 'q') Quit = true;
+}
+int main(int argc, char* argv[]) {
+_beginthread(Thread, 0, argv[1]);
+while (!Quit) Input();
+return 0;
 }
