@@ -1,9 +1,12 @@
-#include <process.h>
 #include <audiere.h>
 #include <speex/speex.h>
 #include <iostream>
 #include <cstdio>
+#ifdef WIN32
+#include <process.h>
 #include <conio.h>
+#include <windows.h>
+#endif
 using namespace std;
 using namespace audiere;
 bool Quit = false;
@@ -85,6 +88,7 @@ if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
+SetConsoleTitle("ABF Player");
 _beginthread(Thread, 0, argv[1]);
 while (!Quit) Input();
 return 0;
