@@ -39,11 +39,23 @@ int CurrentSection = 0;
 while (!feof(Book) || Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Next) {
+if (CurrentSection >= NumSections - 1) {
+Next = false;
+CurrentSection = NumSections-1;
+continue;
+}
+Stream->stop();
 CurrentSection += 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Next = false;
 }
 if (Previous) {
+if (CurrentSection == 0) {
+Previous = false;
+continue;
+}
+if (CurrentSection >= NumSections) CurrentSection = NumSections-1;
+Stream->stop();
 CurrentSection -= 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Previous = false;
