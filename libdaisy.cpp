@@ -9,7 +9,7 @@ This is the class implementation for LibDaisy.
 #include "libdaisy.h"
 using namespace ABF;
 using namespace std;
-Daisy::Daisy(string Path, bool _Open): _Meta("none"), _Valid(false) {
+Daisy::Daisy(string Path, bool _Open): _Meta("none"), _Valid(false), _LastPosition(0) {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
@@ -19,7 +19,7 @@ _Path = Path;
 if (_Open) Open();
 
 }
-Daisy::Daisy(const char* Path, bool _Open): _Meta("none"), _Valid(false) {
+Daisy::Daisy(const char* Path, bool _Open): _Meta("none"), _Valid(false), _LastPosition(0) {
 string Temp = Path;
 char* c = (char*)Temp[Temp.length()];
 if (c != FILE_SEP) _Path = Temp + FILE_SEP;
@@ -137,22 +137,21 @@ return _Path + Line;
 }
 bool Daisy::OpenSmil() {
 // This contains the last position from where we had a smil file.
-static int LastPosition = 0;
 // We'll make this easier by locating the body first.
-if (LastPosition == 0)
-LastPosition = FindBody();
+if (_LastPosition == 0)
+_LastPosition = FindBody();
 else {
-_Ncc.seekg(LastPosition, ios::beg);
+_Ncc.seekg(_LastPosition, ios::beg);
 }
 string Filename = FindSmil();
 if (Filename == "nomore" || Filename == "notfound") {
-LastPosition = _Ncc.tellg();
+_LastPosition = _Ncc.tellg();
 return false;
 }
 _Smil.close();
 _Smil.clear();
 _Smil.open(Filename.c_str());
-LastPosition = _Ncc.tellg();
+_LastPosition = _Ncc.tellg();
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
 _Ncc.seekg(0, ios::beg);
 return true;
@@ -173,6 +172,7 @@ Line.erase(Position2);
 MP3 = Line;
 }
 _Meta = _Path + MP3;
+cout << "MP3 file is " << _Meta << endl;
 return _Meta.c_str();
 }
 void Daisy::Validate() {
@@ -183,12 +183,11 @@ fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
 string& Daisy::ExtractSectionTitle() { 
-static int LastPosition = 0;
-if (!LastPosition) {
+if (!_LastPosition) {
 _Ncc.seekg(0, ios::beg);
-LastPosition = FindBody();
+_LastPosition = FindBody();
 }
-else _Ncc.seekg(LastPosition, ios::beg);
+else _Ncc.seekg(_LastPosition, ios::beg);
 string Line;
 while (1) {
 getline(_Ncc, Line);
@@ -205,7 +204,7 @@ else break;
 }
 
 }
-LastPosition = _Ncc.tellg();
+_LastPosition = _Ncc.tellg();
 Line.erase(Line.rfind("</a>"));
 Line.erase(0, Line.rfind(">")+1);
 _SectionTitle = Line;
@@ -214,13 +213,12 @@ return _SectionTitle;
 }
 string& Daisy::GetPath() { return _Path; }
 unsigned short Daisy::GetNumSections() {
-Daisy Temp(GetPath());
-string Title;
+int Last = _Ncc.tellg();
+_Ncc.seekg(0, ios::beg);
+_Ncc.seekg(FindBody(), ios::beg);
 unsigned short NumSections = 0;
-while (1) {
-Title = Temp.ExtractSectionTitle();
-if (Title != "nomore") ++NumSections;
-else break;
-}
+while (ExtractSectionTitle() != "nomore") ++NumSections;
+_Ncc.seekg(Last, ios::beg);
+_LastPosition = Last;
 return NumSections;
 }
