@@ -69,7 +69,7 @@ delete[] Array;
 void Input() {
 char Key = getch(); 
 if (Key == 'b') Next = true;
-if (Key == 'z') Previous = false;
+if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
