@@ -41,7 +41,6 @@ if (!_OpenSmil) return true;
 OpenSmil();
 if (_Smil.is_open()) return true;
 else {
-cout << "Cannot open first Smil file." << endl;
 return false;
 }
 }
@@ -51,7 +50,6 @@ _Ncc.close();
 _Smil.close();
 }
 Daisy::~Daisy() { 
-cout << "Closing files, cleaning up." << endl;
 Close(); 
 }
 void Daisy::Replace(string& Value) {
@@ -151,7 +149,6 @@ if (Filename == "nomore" || Filename == "notfound") {
 LastPosition = _Ncc.tellg();
 return false;
 }
-cout << "SMIL filename is " << Filename << endl;
 _Smil.close();
 _Smil.clear();
 _Smil.open(Filename.c_str());
@@ -176,7 +173,6 @@ Line.erase(Position2);
 MP3 = Line;
 }
 _Meta = _Path + MP3;
-cout << "MP3 file: " << _Meta << endl;
 return _Meta.c_str();
 }
 void Daisy::Validate() {
@@ -200,8 +196,14 @@ if (Line.find("</body>") != string::npos) {
 _SectionTitle = "nomore";
 return _SectionTitle;
 }
-if (Line.find("<h") == string::npos) continue;
+if (Line.find("<h") != string::npos) {
+if (Line.find("<a") == string::npos) {
+getline(_Ncc, Line);
 break;
+}
+else break;
+}
+
 }
 LastPosition = _Ncc.tellg();
 Line.erase(Line.rfind("</a>"));
