@@ -69,6 +69,7 @@ Value = Temp;
 }
 
 string& Daisy::ExtractMetaInfo(string& Name) {
+_Ncc.seekg(0, ios::beg);
 string Line;
 int Position = 0;
 while (1) {
@@ -172,7 +173,9 @@ Line.erase(Position2);
 MP3 = Line;
 }
 _Meta = _Path + MP3;
+#ifdef DEBUG
 cout << "MP3 file is " << _Meta << endl;
+#endif
 return _Meta.c_str();
 }
 void Daisy::Validate() {
