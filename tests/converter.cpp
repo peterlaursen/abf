@@ -25,6 +25,27 @@ cout << "Error, not a valid daisy book." << endl;
 return 1;
 }
 FILE* fout = fopen(argv[2], "wb+");
+// We're at the start. Write identification.
+fwrite("ABF", 1, 3, fout);
+// Next we define an unsigned short to hold the header size.
+unsigned short HeaderSize = 0;
+string Author = D.ExtractMetaInfo(string("dc:creator"));
+string Title = D.ExtractMetaInfo(string("dc:title"));
+cout << "Author: " << Author << endl;
+cout << "Title: " << Title << endl;
+HeaderSize += (sizeof(short) + Title.length() + sizeof(short) + Author.length() + sizeof(short));
+cout << "Size of header: " << HeaderSize << endl;
+fwrite(&HeaderSize, sizeof(short), 1, fout);
+cout << "File Position: " << ftell(fout) << endl;
+unsigned short Length = sizeof(short);
+Length = Title.length();
+fwrite(&Length, sizeof(short), 1, fout);
+const char* Buffer = Title.c_str();
+fwrite(Buffer, 1, Length, fout);
+Length = Author.length();
+fwrite(&Length, sizeof(short), 1, fout);
+Buffer = Author.c_str();
+fwrite(Buffer, 1, Length, fout);
 unsigned short Sections = D.GetNumSections();
 fwrite(&Sections, sizeof(short), 1, fout);
 int Size = 0;
@@ -36,7 +57,8 @@ fwrite(&Size, sizeof(int), 1, fout);
 unsigned short Section = 0;
 while (D.OpenSmil()) {
 int Position = ftell(fout);
-fseek(fout, 2, SEEK_SET);
+// Seek past "ABF" and header size.
+fseek(fout, 5 + HeaderSize, SEEK_SET);
 for (int i = 0; i < Section; i++) fseek(fout, 6, SEEK_CUR);
 // We are now at the beginning of a section header.
 fseek(fout, 2, SEEK_CUR);

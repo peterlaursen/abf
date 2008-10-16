@@ -2,6 +2,7 @@
 #include <speex/speex.h>
 #include <iostream>
 #include <cstdio>
+#include <string>
 #ifdef WIN32
 #include <process.h>
 #include <conio.h>
@@ -31,6 +32,26 @@ OutputStreamPtr Stream;
 char Input[200];
 unsigned short Bytes;
 // We'll need to read our newly added headers.
+fseek(Book, 3, SEEK_SET);
+unsigned short HeaderSize;
+fread(&HeaderSize, sizeof(short), 1, Book);
+unsigned short TitleLength = 0, AuthorLength = 0;
+fread(&TitleLength, sizeof(short), 1, Book);
+char* Title = new char[TitleLength] + 1;
+fread(Title, 1, TitleLength, Book);
+Title[TitleLength] = '\0';
+fread(&AuthorLength, sizeof(short), 1, Book);
+char* Author = new char[AuthorLength] + 1;
+fread(Author, 1, AuthorLength, Book);
+Author[AuthorLength] = '\0';
+{
+char ConTitle[255];
+GetConsoleTitle(ConTitle, 255);
+string Temp = ConTitle;
+Temp += " - ";
+Temp += Title;
+SetConsoleTitle(Temp.c_str());
+}
 unsigned short NumSections;
 fread(&NumSections, sizeof(short), 1, Book);
 int* Array = new int[NumSections];
@@ -39,6 +60,7 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
+cout << "Author: " << Author << endl << "Title: " << Title << endl;
 while (!feof(Book) || Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Next) {
@@ -63,7 +85,6 @@ CurrentSection -= 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
-
 for (int i = 0; i < 32000; i+=320) {
 if (feof(Book)) break;
 fread(&Bytes, 2, 1, Book);
@@ -80,6 +101,8 @@ speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
+delete[] Title;
+delete[] Author;
 }
 void Input() {
 char Key = getch(); 
