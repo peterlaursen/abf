@@ -31,6 +31,7 @@ break;
 }
 Stream = OpenSound(Device, D.GetMP3FileName(), true);
 Stream->play();
+Sleep(300);
 }
 cout << "Destroying objects" << endl;
 return;
