@@ -29,8 +29,11 @@ FILE* fout = fopen(argv[2], "wb+");
 fwrite("ABF", 1, 3, fout);
 // Next we define an unsigned short to hold the header size.
 unsigned short HeaderSize = 0;
-string Author = D.ExtractMetaInfo(string("dc:creator"));
-string Title = D.ExtractMetaInfo(string("dc:title"));
+string MetaString("dc:creator");
+string Author = D.ExtractMetaInfo(MetaString);
+
+MetaString = "dc:title";
+string Title = D.ExtractMetaInfo(MetaString);
 cout << "Author: " << Author << endl;
 cout << "Title: " << Title << endl;
 HeaderSize += (sizeof(short) + Title.length() + sizeof(short) + Author.length() + sizeof(short));
