@@ -7,13 +7,20 @@
 #include <process.h>
 #include <conio.h>
 #include <windows.h>
+#else
+#include <pthread.h>
+//#include "compat.h"
 #endif
 using namespace std;
 using namespace audiere;
 bool Quit = false;
 bool Previous = false;
 bool Next = false;
+#ifdef WIN32
 void Thread(void* Filename) {
+#else
+void* Thread(void* Filename) {
+#endif
 void* Decoder = speex_decoder_init(&speex_wb_mode);
 SpeexBits Bits;
 speex_bits_init(&Bits);
@@ -25,7 +32,12 @@ if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
+
+#ifdef WIN32
 return;
+#else
+return 0;
+#endif
 }
 SampleFormat SF = SF_S16;
 OutputStreamPtr Stream;
@@ -44,6 +56,7 @@ fread(&AuthorLength, sizeof(short), 1, Book);
 char* Author = new char[AuthorLength] + 1;
 fread(Author, 1, AuthorLength, Book);
 Author[AuthorLength] = '\0';
+#ifdef WIN32
 {
 char ConTitle[255];
 GetConsoleTitle(ConTitle, 255);
@@ -52,6 +65,7 @@ Temp += " - ";
 Temp += Title;
 SetConsoleTitle(Temp.c_str());
 }
+#endif
 unsigned short NumSections;
 fread(&NumSections, sizeof(short), 1, Book);
 int* Array = new int[NumSections];
@@ -105,14 +119,23 @@ delete[] Title;
 delete[] Author;
 }
 void Input() {
-char Key = getch(); 
+char Key = getchar(); 
 if (Key == 'b') Next = true;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
+if (argc != 2) {
+cout << "You must provide me with a book to play." << endl;
+return 1;
+}
+#ifdef WIN32
 SetConsoleTitle("ABF Player");
 _beginthread(Thread, 0, argv[1]);
+#else
+pthread_t id;
+pthread_create(&id, 0, Thread, argv[1]);
+#endif
 while (!Quit) Input();
 return 0;
 }
