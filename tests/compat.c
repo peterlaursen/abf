@@ -13,4 +13,5 @@ tcsetattr( STDIN_FILENO, TCSANOW, &newt );
 ch = getchar();
 tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
 return ch;
-}--------------------------------------------------------------------------------
+}
+

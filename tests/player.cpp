@@ -9,7 +9,7 @@
 #include <windows.h>
 #else
 #include <pthread.h>
-//#include "compat.h"
+#include "compat.h"
 #endif
 using namespace std;
 using namespace audiere;
@@ -119,7 +119,7 @@ delete[] Title;
 delete[] Author;
 }
 void Input() {
-char Key = getchar(); 
+char Key = getch(); 
 if (Key == 'b') Next = true;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
