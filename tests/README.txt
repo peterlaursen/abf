@@ -2,10 +2,15 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.1
+Version 0.2
 Copyright (C) 2008 Peter Laursen.
 
 Thank you for downloading and trying out these products. We are confident that they will bring you a lot of satisfaction. If not, we're not prepared to give you your money back (you didn't pay for these programs, I trust).
+
+CHANGES SINCE LAST RELEASE:
+
+1) Fixed a problem in LibDaisy that sometimes prevented it from getting the requested metadata.
+2) Added more headers to the audio book format. This means that any converted books will not be immediately playable on the new player.
 
 THE CONVERTER:
 
