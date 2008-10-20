@@ -16,6 +16,16 @@ using namespace audiere;
 bool Quit = false;
 bool Previous = false;
 bool Next = false;
+bool DetectHeader(FILE* Book) {
+char Buffer[4];
+Buffer[3] = '\0';
+fread(Buffer, 1, 3, Book);
+if (strcmp(Buffer, "ABF") != 0) {
+cout << "Old header." << endl;
+return false;
+}
+return true;
+}
 #ifdef WIN32
 void Thread(void* Filename) {
 #else
@@ -44,6 +54,14 @@ OutputStreamPtr Stream;
 char Input[200];
 unsigned short Bytes;
 // We'll need to read our newly added headers.
+bool HeaderType = DetectHeader(Book);
+unsigned short NumSections = 0;
+if (!HeaderType) {
+cout << "WARNING: These audio books have been encoded using an older format of the headers. The player still supports this format, but it is strongly recommended that you re-encode your audio books." << endl;
+fseek(Book, 0, SEEK_SET);
+fread(&NumSections, sizeof(short), 1, Book);
+}
+else {
 fseek(Book, 3, SEEK_SET);
 unsigned short HeaderSize;
 fread(&HeaderSize, sizeof(short), 1, Book);
@@ -66,15 +84,16 @@ Temp += Title;
 SetConsoleTitle(Temp.c_str());
 }
 #endif
-unsigned short NumSections;
 fread(&NumSections, sizeof(short), 1, Book);
+delete[] Author;
+delete[] Title;
+}
 int* Array = new int[NumSections];
 for (int i = 0; i < NumSections; i++) {
 fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
-cout << "Author: " << Author << endl << "Title: " << Title << endl;
 while (!feof(Book) || Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Next) {
@@ -115,8 +134,6 @@ speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
-delete[] Title;
-delete[] Author;
 }
 void Input() {
 char Key = getch(); 
