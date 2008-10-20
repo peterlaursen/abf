@@ -29,16 +29,21 @@ FILE* fout = fopen(argv[2], "wb+");
 fwrite("ABF", 1, 3, fout);
 // Next we define an unsigned short to hold the header size.
 unsigned short HeaderSize = 0;
+unsigned short Major = 1, Minor = 0;
 string MetaString("dc:creator");
 string Author = D.ExtractMetaInfo(MetaString);
-
 MetaString = "dc:title";
 string Title = D.ExtractMetaInfo(MetaString);
+MetaString = "ncc:totalTime";
+string Time = D.ExtractMetaInfo(MetaString);
 cout << "Author: " << Author << endl;
 cout << "Title: " << Title << endl;
-HeaderSize += (sizeof(short) + Title.length() + sizeof(short) + Author.length() + sizeof(short));
+cout << "This book lasts " << Time << endl;
+HeaderSize += (4 + sizeof(short) + Title.length() + sizeof(short) + Author.length() + sizeof(short) + Time.length() + sizeof(short));
 cout << "Size of header: " << HeaderSize << endl;
 fwrite(&HeaderSize, sizeof(short), 1, fout);
+fwrite(&Major, sizeof(short), 1, fout);
+fwrite(&Minor, sizeof(short), 1, fout);
 cout << "File Position: " << ftell(fout) << endl;
 unsigned short Length = sizeof(short);
 Length = Title.length();
@@ -48,6 +53,10 @@ fwrite(Buffer, 1, Length, fout);
 Length = Author.length();
 fwrite(&Length, sizeof(short), 1, fout);
 Buffer = Author.c_str();
+fwrite(Buffer, 1, Length, fout);
+Length = Time.length();
+fwrite(&Length, sizeof(short), 1, fout);
+Buffer = Time.c_str();
 fwrite(Buffer, 1, Length, fout);
 unsigned short Sections = D.GetNumSections();
 fwrite(&Sections, sizeof(short), 1, fout);
@@ -83,7 +92,10 @@ SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
 SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[4096];
-FILE* temp = fopen("temp.raw", "wb");
+const char* Path = getenv("tmp");
+string Filename = Path;
+Filename += "\\temp.raw";
+FILE* temp = fopen(Filename.c_str(), "wb");
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
@@ -97,7 +109,10 @@ Encode(fout);
 return;
 }
 void Encode(FILE* fout) {
-FILE* fin = fopen("temp.raw", "rb");
+const char* Path = getenv("TMP");
+string Filename = Path;
+Filename += "\\temp.raw";
+FILE* fin = fopen(Filename.c_str(), "rb");
 // Initialize Speex.
 void* Encoder = speex_encoder_init(&speex_wb_mode);
 SpeexBits Bits;
@@ -119,8 +134,11 @@ speex_encoder_destroy(Encoder);
 speex_bits_destroy(&Bits);
 fclose(fin);
 #ifdef WIN32
-system("del temp.raw");
+string Command = "del ";
+Command += Filename;
 #else
-system("rm temp.raw");
+string Command = "rm ";
+Command += Filename;
 #endif
+system(Command.c_str());
 }
