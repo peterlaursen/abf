@@ -92,7 +92,10 @@ SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
 SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[4096];
-FILE* temp = fopen("temp.raw", "wb");
+const char* Path = getenv("tmp");
+string Filename = Path;
+Filename += "\\temp.raw";
+FILE* temp = fopen(Filename.c_str(), "wb");
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
@@ -106,7 +109,10 @@ Encode(fout);
 return;
 }
 void Encode(FILE* fout) {
-FILE* fin = fopen("temp.raw", "rb");
+const char* Path = getenv("TMP");
+string Filename = Path;
+Filename += "\\temp.raw";
+FILE* fin = fopen(Filename.c_str(), "rb");
 // Initialize Speex.
 void* Encoder = speex_encoder_init(&speex_wb_mode);
 SpeexBits Bits;
@@ -128,8 +134,11 @@ speex_encoder_destroy(Encoder);
 speex_bits_destroy(&Bits);
 fclose(fin);
 #ifdef WIN32
-system("del temp.raw");
+string Command = "del ";
+Command += Filename;
 #else
-system("rm temp.raw");
+string Command = "rm ";
+Command += Filename;
 #endif
+system(Command.c_str());
 }
