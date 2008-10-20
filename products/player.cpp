@@ -65,6 +65,9 @@ else {
 fseek(Book, 3, SEEK_SET);
 unsigned short HeaderSize;
 fread(&HeaderSize, sizeof(short), 1, Book);
+unsigned short Major, Minor;
+fread(&Major, sizeof(short), 1, Book);
+fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength = 0, AuthorLength = 0;
 fread(&TitleLength, sizeof(short), 1, Book);
 char* Title = new char[TitleLength] + 1;
@@ -84,9 +87,16 @@ Temp += Title;
 SetConsoleTitle(Temp.c_str());
 }
 #endif
+unsigned short TimeLength = 0;
+fread(&TimeLength, sizeof(short), 1, Book);
+char* Time = new char[TimeLength+1];
+fread(Time, 1, TimeLength, Book);
+Time[TimeLength] = '\0';
+cout << "Author: " << Author << endl << "Title: " << Title << endl << "This book lasts " << Time << endl;
 fread(&NumSections, sizeof(short), 1, Book);
 delete[] Author;
 delete[] Title;
+delete[] Time;
 }
 int* Array = new int[NumSections];
 for (int i = 0; i < NumSections; i++) {
