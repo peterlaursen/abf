@@ -14,6 +14,10 @@ This is the header file for LibDaisy.
 #else
 #define SHARED __declspec(dllimport)
 #endif
+#ifdef DOTNET
+#define SHARED
+#endif
+
 #else
 #define SHARED
 #define FILE_SEP "/"
