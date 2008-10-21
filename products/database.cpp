@@ -1,8 +1,18 @@
 #include <iostream>
 #include <cstdio>
 #include <string>
+#include <cstdlib>
 #include "database.h"
 using namespace std;
+static bool Initialized = false;
+static string DBName;
+void Init() {
+DBName = getenv("HOMEDRIVE");
+char* Home = getenv("HOMEPATH");
+DBName += Home;
+DBName += "\\.abfplayer.db";
+Initialized = true;
+}
 int Callback(void* Type, int NumRows, char** Results, char** Columns) {
 bool* Found = (bool*)Type;
 *Found = true;
@@ -16,8 +26,11 @@ int* p_lastposition = (int*)Type;
 return 0;
 }
 void SaveLastPosition(FILE* fin, char* Title) {
+if (!Initialized) {
+Init();
+}
 sqlite3* DB;
-sqlite3_open("ABFConverter.db", &DB);
+sqlite3_open(DBName.c_str(), &DB);
 char Position[40];
 itoa(ftell(fin), Position, 10);
 // Detect if the book has already been stored in the database. This might be done in a different way, but this way is the easiest.
@@ -59,7 +72,9 @@ Query += "';";
 int LastPosition = 0;
 int* p_lastposition = &LastPosition;
 sqlite3* DB;
-sqlite3_open("ABFConverter.db", &DB);
+if (!Initialized) Init();
+
+sqlite3_open(DBName.c_str(), &DB);
 sqlite3_exec(DB, Query.c_str(), Callback2, p_lastposition, 0);
 return LastPosition;
 }
