@@ -18,6 +18,8 @@ bool Quit = false;
 bool Previous = false;
 bool Next = false;
 bool Paused = false;
+bool VolumeUp = false;
+bool VolumeDown = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -117,6 +119,7 @@ break;
 fseek(Book, LastPosition, SEEK_SET);
 }
 } // End of if (LastPosition > 0)
+float Volume = 1.0;
 while (!Quit) {
 if (feof(Book)) break;		
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
@@ -124,6 +127,22 @@ if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
+}
+if (VolumeDown) {
+if (Volume == 0.0f) {
+VolumeDown = false;
+continue;
+}
+Volume -= 0.1f;
+VolumeDown = false;
+}
+if (VolumeUp) {
+if (Volume >= 1.0) {
+VolumeUp = false;
+continue;
+}
+Volume += 0.1f;
+VolumeUp = false;
 }
 if (Next) {
 if (CurrentSection >= NumSections - 1) {
@@ -156,10 +175,11 @@ speex_decode_int(Decoder, &Bits, Buffer);
 for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
 }
 Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
+Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
-SaveLastPosition(Book, Title);
+if (Quit) SaveLastPosition(Book, Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
@@ -175,6 +195,8 @@ if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
+if (Key == '<') VolumeDown = true;
+if (Key == '>') VolumeUp = true;
 }
 int main(int argc, char* argv[]) {
 if (argc != 2) {
