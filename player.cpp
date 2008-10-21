@@ -16,6 +16,7 @@ using namespace audiere;
 bool Quit = false;
 bool Previous = false;
 bool Next = false;
+bool Paused = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -106,6 +107,11 @@ fread(&Array[i], sizeof(int), 1, Book);
 int CurrentSection = 0;
 while (!feof(Book) || Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
+// Check the global Input parameters
+if (Paused) {
+if (Stream->isPlaying()) Stream->stop();
+continue;
+}
 if (Next) {
 if (CurrentSection >= NumSections - 1) {
 Next = false;
@@ -148,6 +154,8 @@ delete[] Array;
 void Input() {
 char Key = getch(); 
 if (Key == 'b') Next = true;
+if (Key == 'v' || Key == 'c') Paused = true;
+if (Key == 'x') Paused = false;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
