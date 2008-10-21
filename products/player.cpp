@@ -106,6 +106,17 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
+int LastPosition = GetLastPosition(Title);
+if (LastPosition > 0) {
+cout << "Last Position: " << LastPosition << endl;
+for (int i = 0; i < NumSections; i++) {
+if (LastPosition < Array[i]) {
+CurrentSection = i-1;
+break;
+}
+fseek(Book, LastPosition, SEEK_SET);
+}
+} // End of if (LastPosition > 0)
 while (!Quit) {
 if (feof(Book)) break;		
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
