@@ -1,3 +1,4 @@
+#include "sqlite3.h"
 #include <audiere.h>
 #include <speex/speex.h>
 #include <iostream>
@@ -17,6 +18,7 @@ bool Quit = false;
 bool Previous = false;
 bool Next = false;
 bool Paused = false;
+void SaveLastPosition(FILE* fin, char* Title);
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -57,6 +59,9 @@ unsigned short Bytes;
 // We'll need to read our newly added headers.
 bool HeaderType = DetectHeader(Book);
 unsigned short NumSections = 0;
+char* Title = 0;
+char* Author = 0;
+char* Time = 0;
 if (!HeaderType) {
 cout << "WARNING: These audio books have been encoded using an older format of the headers. The player still supports this format, but it is strongly recommended that you re-encode your audio books." << endl;
 fseek(Book, 0, SEEK_SET);
@@ -71,11 +76,11 @@ fread(&Major, sizeof(short), 1, Book);
 fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength = 0, AuthorLength = 0;
 fread(&TitleLength, sizeof(short), 1, Book);
-char* Title = new char[TitleLength] + 1;
+Title = new char[TitleLength] + 1;
 fread(Title, 1, TitleLength, Book);
 Title[TitleLength] = '\0';
 fread(&AuthorLength, sizeof(short), 1, Book);
-char* Author = new char[AuthorLength] + 1;
+Author = new char[AuthorLength] + 1;
 fread(Author, 1, AuthorLength, Book);
 Author[AuthorLength] = '\0';
 #ifdef WIN32
@@ -90,14 +95,11 @@ SetConsoleTitle(Temp.c_str());
 #endif
 unsigned short TimeLength = 0;
 fread(&TimeLength, sizeof(short), 1, Book);
-char* Time = new char[TimeLength+1];
+Time = new char[TimeLength+1];
 fread(Time, 1, TimeLength, Book);
 Time[TimeLength] = '\0';
 cout << "Author: " << Author << endl << "Title: " << Title << endl << "This book lasts " << Time << endl;
 fread(&NumSections, sizeof(short), 1, Book);
-delete[] Author;
-delete[] Title;
-delete[] Time;
 }
 int* Array = new int[NumSections];
 for (int i = 0; i < NumSections; i++) {
@@ -105,7 +107,8 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
-while (!feof(Book) || Quit) {
+while (!Quit) {
+if (feof(Book)) break;		
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 // Check the global Input parameters
 if (Paused) {
@@ -146,10 +149,14 @@ Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
 Stream->play();
 while (Stream->isPlaying());
 }
+SaveLastPosition(Book, Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
+delete[] Author;
+delete[] Title;
+delete[] Time;
 }
 void Input() {
 char Key = getch(); 
@@ -166,11 +173,36 @@ return 1;
 }
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-_beginthread(Thread, 0, argv[1]);
+HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 #else
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
 while (!Quit) Input();
+WaitForSingleObject(ThreadHandle, INFINITE);
 return 0;
+}
+void SaveLastPosition(FILE* fin, char* Title) {
+sqlite3* DB;
+sqlite3_open("ABFConverter.db", &DB);
+char Position[40];
+itoa(ftell(fin), Position, 10);
+string UpdateQuery = "update audiobooks set position=";
+UpdateQuery += Position;
+UpdateQuery += " where title='";
+UpdateQuery+=Title;
+UpdateQuery+="';";
+cout << "Update query: " << UpdateQuery << endl;
+sqlite3_exec(DB, UpdateQuery.c_str(), 0, 0, 0);
+		string Query = "insert into audiobooks values('";
+Query += Title;
+Query += "', ";
+Query += Position;
+Query += ");";
+cout << Query << endl;
+char* Error;
+sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
+sqlite3_free(Error);
+sqlite3_close(DB);
+sqlite3_shutdown();
 }
