@@ -1,6 +1,6 @@
-#include "sqlite3.h"
 #include <audiere.h>
 #include <speex/speex.h>
+#include "database.h"
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -18,7 +18,6 @@ bool Quit = false;
 bool Previous = false;
 bool Next = false;
 bool Paused = false;
-void SaveLastPosition(FILE* fin, char* Title);
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -181,28 +180,4 @@ pthread_create(&id, 0, Thread, argv[1]);
 while (!Quit) Input();
 WaitForSingleObject(ThreadHandle, INFINITE);
 return 0;
-}
-void SaveLastPosition(FILE* fin, char* Title) {
-sqlite3* DB;
-sqlite3_open("ABFConverter.db", &DB);
-char Position[40];
-itoa(ftell(fin), Position, 10);
-string UpdateQuery = "update audiobooks set position=";
-UpdateQuery += Position;
-UpdateQuery += " where title='";
-UpdateQuery+=Title;
-UpdateQuery+="';";
-cout << "Update query: " << UpdateQuery << endl;
-sqlite3_exec(DB, UpdateQuery.c_str(), 0, 0, 0);
-		string Query = "insert into audiobooks values('";
-Query += Title;
-Query += "', ";
-Query += Position;
-Query += ");";
-cout << Query << endl;
-char* Error;
-sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
-sqlite3_free(Error);
-sqlite3_close(DB);
-sqlite3_shutdown();
 }
