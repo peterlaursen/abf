@@ -14,3 +14,4 @@ return 1;
 }
 cout << "This book contains " << D.GetNumSections() << " sections." << endl;
 }
+
