@@ -11,6 +11,7 @@ DBName = getenv("HOMEDRIVE");
 char* Home = getenv("HOMEPATH");
 DBName += Home;
 DBName += "\\.abfplayer.db";
+if (!DBExists()) CreateDatabase();
 Initialized = true;
 }
 int Callback(void* Type, int NumRows, char** Results, char** Columns) {
@@ -77,4 +78,16 @@ if (!Initialized) Init();
 sqlite3_open(DBName.c_str(), &DB);
 sqlite3_exec(DB, Query.c_str(), Callback2, p_lastposition, 0);
 return LastPosition;
+}
+bool DBExists() {
+FILE* fin = fopen(DBName.c_str(), "rb");
+if (!fin) return false;
+fclose(fin);
+}
+void CreateDatabase() {
+sqlite3_initialize();
+sqlite3* DB;
+sqlite3_open_v2(DBName.c_str(), &DB, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0);
+sqlite3_exec(DB, "create table audiobooks(title varchar(255) not null, lastposition int not null);", 0, 0, 0);
+sqlite3_close(DB);
 }
