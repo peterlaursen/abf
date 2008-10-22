@@ -92,7 +92,11 @@ SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
 SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[4096];
-char* TempFile = _tempnam(".\\", "ABFConv");
+#ifdef WIN32
+char* TempFile = tempnam(".\\", "ABFConv");
+#else
+char* TempFile = tempnam("./", "ABFConv");
+#endif
 cout << "Temporary file name: " << TempFile << endl;
 FILE* temp = fopen(TempFile, "wb");
 while (1) {

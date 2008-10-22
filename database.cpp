@@ -1,3 +1,4 @@
+#include <sstream>
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -7,10 +8,15 @@ using namespace std;
 static bool Initialized = false;
 static string DBName;
 void Init() {
+#ifdef WIN32
 DBName = getenv("HOMEDRIVE");
 char* Home = getenv("HOMEPATH");
 DBName += Home;
 DBName += "\\.abfplayer.db";
+#else
+DBName = getenv("HOME");
+DBName += "/.abfplayer.db";
+#endif
 if (!DBExists()) CreateDatabase();
 Initialized = true;
 }
@@ -32,8 +38,12 @@ Init();
 }
 sqlite3* DB;
 sqlite3_open(DBName.c_str(), &DB);
-char Position[40];
-itoa(ftell(fin), Position, 10);
+const char* Position;
+ostringstream os;
+os << ftell(fin);
+string Temp = os.str();
+Position = Temp.c_str();
+
 // Detect if the book has already been stored in the database. This might be done in a different way, but this way is the easiest.
 string Exists = "select * from audiobooks where title = '";
 Exists += Title;
