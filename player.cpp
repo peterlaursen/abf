@@ -1,5 +1,6 @@
 #include <audiere.h>
 #include <speex/speex.h>
+#include "database.h"
 #include <iostream>
 #include <cstdio>
 #include <string>
@@ -16,6 +17,9 @@ using namespace audiere;
 bool Quit = false;
 bool Previous = false;
 bool Next = false;
+bool Paused = false;
+bool VolumeUp = false;
+bool VolumeDown = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -56,6 +60,9 @@ unsigned short Bytes;
 // We'll need to read our newly added headers.
 bool HeaderType = DetectHeader(Book);
 unsigned short NumSections = 0;
+char* Title = 0;
+char* Author = 0;
+char* Time = 0;
 if (!HeaderType) {
 cout << "WARNING: These audio books have been encoded using an older format of the headers. The player still supports this format, but it is strongly recommended that you re-encode your audio books." << endl;
 fseek(Book, 0, SEEK_SET);
@@ -70,11 +77,11 @@ fread(&Major, sizeof(short), 1, Book);
 fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength = 0, AuthorLength = 0;
 fread(&TitleLength, sizeof(short), 1, Book);
-char* Title = new char[TitleLength] + 1;
+Title = new char[TitleLength] + 1;
 fread(Title, 1, TitleLength, Book);
 Title[TitleLength] = '\0';
 fread(&AuthorLength, sizeof(short), 1, Book);
-char* Author = new char[AuthorLength] + 1;
+Author = new char[AuthorLength] + 1;
 fread(Author, 1, AuthorLength, Book);
 Author[AuthorLength] = '\0';
 #ifdef WIN32
@@ -89,14 +96,11 @@ SetConsoleTitle(Temp.c_str());
 #endif
 unsigned short TimeLength = 0;
 fread(&TimeLength, sizeof(short), 1, Book);
-char* Time = new char[TimeLength+1];
+Time = new char[TimeLength+1];
 fread(Time, 1, TimeLength, Book);
 Time[TimeLength] = '\0';
 cout << "Author: " << Author << endl << "Title: " << Title << endl << "This book lasts " << Time << endl;
 fread(&NumSections, sizeof(short), 1, Book);
-delete[] Author;
-delete[] Title;
-delete[] Time;
 }
 int* Array = new int[NumSections];
 for (int i = 0; i < NumSections; i++) {
@@ -104,8 +108,42 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
-while (!feof(Book) || Quit) {
+int LastPosition = GetLastPosition(Title);
+if (LastPosition > 0) {
+cout << "Last Position: " << LastPosition << endl;
+for (int i = 0; i < NumSections; i++) {
+if (LastPosition < Array[i]) {
+CurrentSection = i-1;
+break;
+}
+fseek(Book, LastPosition, SEEK_SET);
+}
+} // End of if (LastPosition > 0)
+float Volume = 1.0;
+while (!Quit) {
+if (feof(Book)) break;		
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
+// Check the global Input parameters
+if (Paused) {
+if (Stream->isPlaying()) Stream->stop();
+continue;
+}
+if (VolumeDown) {
+if (Volume == 0.0f) {
+VolumeDown = false;
+continue;
+}
+Volume -= 0.1f;
+VolumeDown = false;
+}
+if (VolumeUp) {
+if (Volume >= 1.0) {
+VolumeUp = false;
+continue;
+}
+Volume += 0.1f;
+VolumeUp = false;
+}
 if (Next) {
 if (CurrentSection >= NumSections - 1) {
 Next = false;
@@ -137,19 +175,28 @@ speex_decode_int(Decoder, &Bits, Buffer);
 for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
 }
 Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
+Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
+if (Quit) SaveLastPosition(Book, Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
+delete[] Author;
+delete[] Title;
+delete[] Time;
 }
 void Input() {
 char Key = getch(); 
 if (Key == 'b') Next = true;
+if (Key == 'v' || Key == 'c') Paused = true;
+if (Key == 'x') Paused = false;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
+if (Key == '<') VolumeDown = true;
+if (Key == '>') VolumeUp = true;
 }
 int main(int argc, char* argv[]) {
 if (argc != 2) {
@@ -158,11 +205,12 @@ return 1;
 }
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-_beginthread(Thread, 0, argv[1]);
+HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 #else
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
 while (!Quit) Input();
+WaitForSingleObject(ThreadHandle, INFINITE);
 return 0;
 }
