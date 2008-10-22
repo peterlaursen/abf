@@ -211,6 +211,10 @@ pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
 while (!Quit) Input();
+#ifdef WIN32
 WaitForSingleObject(ThreadHandle, INFINITE);
+#else
+pthread_join(id, 0);
+#endif
 return 0;
 }
