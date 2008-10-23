@@ -7,5 +7,6 @@ void CreateDatabase();
 bool DBExists();
 void SaveLastPosition(FILE*, char*);
 int GetLastPosition(char* Title);
+void DeletePosition(char*);
 
 #endif

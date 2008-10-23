@@ -120,8 +120,7 @@ fseek(Book, LastPosition, SEEK_SET);
 }
 } // End of if (LastPosition > 0)
 float Volume = 1.0;
-while (!Quit) {
-if (feof(Book)) break;		
+while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 // Check the global Input parameters
 if (Paused) {
@@ -180,6 +179,7 @@ Stream->play();
 while (Stream->isPlaying());
 }
 if (Quit) SaveLastPosition(Book, Title);
+else DeletePosition(Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);

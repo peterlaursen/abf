@@ -101,3 +101,13 @@ sqlite3_open_v2(DBName.c_str(), &DB, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0
 sqlite3_exec(DB, "create table audiobooks(title varchar(255) not null, lastposition int not null);", 0, 0, 0);
 sqlite3_close(DB);
 }
+void DeletePosition(char* Title) {
+string Query = "delete from audiobooks where title = '";
+Query += Title;
+Query += "';";
+sqlite3* DB;
+sqlite3_open(DBName.c_str(), &DB);
+sqlite3_exec(DB, Query.c_str(), 0, 0, 0);
+sqlite3_close(DB);
+return;
+}
