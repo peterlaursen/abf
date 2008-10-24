@@ -23,7 +23,6 @@ oldt = newt;
     newt.c_cc[VMIN] = 1;
     newt.c_cc[VTIME] = 0;
     tcsetattr(0, TCSANOW, &newt);
-int peek_character = -1;
 unsigned char ch;
 int nread;
     if (peek_character != -1) {
