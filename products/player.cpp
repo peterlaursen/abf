@@ -20,6 +20,9 @@ bool Next = false;
 bool Paused = false;
 bool VolumeUp = false;
 bool VolumeDown = false;
+bool FirstSection = false;
+bool LastSection = false;
+bool BookIsFinished = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -123,6 +126,16 @@ float Volume = 1.0;
 while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 // Check the global Input parameters
+if (FirstSection) {
+CurrentSection = 0;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+FirstSection = false;
+}
+if (LastSection) {
+CurrentSection = NumSections - 1;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+LastSection = false;
+}
 if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
@@ -179,6 +192,7 @@ Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
+if (!Quit) BookIsFinished = true;
 if (Quit) SaveLastPosition(Title, LastPosition);
 else DeletePosition(Title);
 speex_bits_destroy(&Bits);
@@ -191,6 +205,8 @@ delete[] Time;
 }
 void Input() {
 char Key = getch(); 
+if (Key == 'f') FirstSection = true;
+if (Key == 'l') LastSection = true;
 if (Key == 'b') Next = true;
 if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
@@ -211,7 +227,7 @@ HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
-while (!Quit) {
+while (!Quit && !BookIsFinished) {
 	if (kbhit()) Input();
 }
 #ifdef WIN32
