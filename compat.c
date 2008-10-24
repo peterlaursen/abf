@@ -3,7 +3,7 @@
 #include <termios.h>
 #include <unistd.h>
 static struct termios oldt, newt;
-
+static int peek_character = -1;
 int getch() {
 int ch;
 tcgetattr( STDIN_FILENO, &oldt );
@@ -38,7 +38,6 @@ return 1;
     if(nread == 1)
     {
         peek_character = ch;
-tcsetattr(0, TCSANOW, &oldt);
         return 1;
     }
 tcsetattr(0, TCSANOW, &oldt);
