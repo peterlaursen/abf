@@ -49,7 +49,7 @@ if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
-
+Quit = true;
 #ifdef WIN32
 return;
 #else
@@ -180,7 +180,9 @@ Previous = false;
 }
 LastPosition = ftell(Book);
 for (int i = 0; i < 32000; i+=320) {
-if (feof(Book)) break;
+if (feof(Book)) {
+break;
+}
 fread(&Bytes, 2, 1, Book);
 fread(Input, 1, Bytes, Book);
 speex_bits_read_from(&Bits, Input, Bytes);
