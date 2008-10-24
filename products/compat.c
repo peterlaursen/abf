@@ -27,7 +27,6 @@ int peek_character = -1;
 unsigned char ch;
 int nread;
     if (peek_character != -1) {
-tcsetattr(0, TCSANOW, &oldt);
 return 1;
 }
     newt.c_cc[VMIN]=0;
@@ -40,6 +39,5 @@ return 1;
         peek_character = ch;
         return 1;
     }
-tcsetattr(0, TCSANOW, &oldt);
     return 0;
 }
