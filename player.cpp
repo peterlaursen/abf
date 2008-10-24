@@ -165,6 +165,7 @@ CurrentSection -= 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
+LastPosition = ftell(Book);
 for (int i = 0; i < 32000; i+=320) {
 if (feof(Book)) break;
 fread(&Bytes, 2, 1, Book);
@@ -178,7 +179,7 @@ Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
-if (Quit) SaveLastPosition(Book, Title);
+if (Quit) SaveLastPosition(Title, LastPosition);
 else DeletePosition(Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
@@ -210,7 +211,9 @@ HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
-while (!Quit) Input();
+while (!Quit) {
+	if (kbhit()) Input();
+}
 #ifdef WIN32
 WaitForSingleObject(ThreadHandle, INFINITE);
 #else
