@@ -10,8 +10,12 @@
 using namespace std;
 using namespace audiere;
 bool Quit = false;
+bool BookIsFinished = false;
 bool Previous = false;
 bool Next = false;
+bool Paused = false;
+bool FirstSection = false;
+bool LastSection = false;
 void Thread(void* Filename) {
 void* Decoder = speex_decoder_init(&speex_wb_mode);
 SpeexBits Bits;
@@ -37,8 +41,19 @@ char* Title = new char[TitleLength+1];
 Title[TitleLength] = '\0';
 fread(Title, 1, TitleLength, Book);
 cout << "Book Title: " << Title << endl;
+fread(&TitleLength, sizeof(short), 1, Book);
+char* Author = new char[TitleLength+1];
+Author[TitleLength] = '\0';
+fread(Author, 1, TitleLength, Book);
+cout << "Author: " << Author << endl;
+fread(&TitleLength, sizeof(short), 1, Book);
+char* Time = new char[TitleLength+1];
+fread(Time, 1, TitleLength, Book);
+Time[TitleLength] = '\0';
+cout << Time << endl;
 unsigned short NumSections;
 fread(&NumSections, sizeof(short), 1, Book);
+cout << NumSections << endl;
 int* Array = new int[NumSections];
 for (int i = 0; i < NumSections; i++) {
 fseek(Book, 2, SEEK_CUR);
@@ -47,6 +62,21 @@ fread(&Array[i], sizeof(int), 1, Book);
 int CurrentSection = 0;
 while (!feof(Book) || Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
+if (Paused) {
+Stream->stop();
+continue;
+}
+if (FirstSection) {
+CurrentSection = 0;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+FirstSection = false;
+}
+if (LastSection) {
+CurrentSection = NumSections-1;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+LastSection = false;
+}
+
 if (Next) {
 if (CurrentSection >= NumSections - 1) {
 Next = false;
@@ -86,16 +116,28 @@ speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
 delete[] Array;
+delete[] Title;
+delete[] Author;
+delete[] Time;
 }
 void Input() {
 char Key = getch(); 
 if (Key == 'b') Next = true;
+if (Key == 'v' || Key == 'c') Paused = true;
+if (Key == 'x') Paused = false;
+if (Key == 'f') FirstSection = true;
+if (Key == 'l') LastSection = true;
 if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
 SetConsoleTitle("ABF Player");
-_beginthread(Thread, 0, argv[1]);
-while (!Quit) Input();
+HANDLE Thread = (HANDLE)_beginthread(Thread, 0, argv[1]);
+while (!Quit && !BookIsFinished) {
+if (kbhit()) Input();
+Sleep(250);
+}
+}
+WaitForSingleObject(Thread);
 return 0;
 }
