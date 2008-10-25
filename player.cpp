@@ -31,6 +31,12 @@ OutputStreamPtr Stream;
 char Input[200];
 unsigned short Bytes;
 // We'll need to read our newly added headers.
+unsigned short TitleLength;
+fread(&TitleLength, 2, 1, Book);
+char* Title = new char[TitleLength+1];
+Title[TitleLength] = '\0';
+fread(Title, 1, TitleLength, Book);
+cout << "Book Title: " << Title << endl;
 unsigned short NumSections;
 fread(&NumSections, sizeof(short), 1, Book);
 int* Array = new int[NumSections];
