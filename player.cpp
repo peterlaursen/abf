@@ -81,10 +81,20 @@ fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength = 0, AuthorLength = 0;
 fread(&TitleLength, sizeof(short), 1, Book);
 Title = new char[TitleLength] + 1;
+if (!Title) {
+cout << "Failed to allocate memory for title." << endl;
+Quit = true;
+return;
+}
 fread(Title, 1, TitleLength, Book);
 Title[TitleLength] = '\0';
 fread(&AuthorLength, sizeof(short), 1, Book);
 Author = new char[AuthorLength] + 1;
+if (!Author) {
+cout << "Couldn't allocate memory for the author." << endl;
+Quit = true;
+return;
+}
 fread(Author, 1, AuthorLength, Book);
 Author[AuthorLength] = '\0';
 #ifdef WIN32
@@ -100,12 +110,24 @@ SetConsoleTitle(Temp.c_str());
 unsigned short TimeLength = 0;
 fread(&TimeLength, sizeof(short), 1, Book);
 Time = new char[TimeLength+1];
+if (!Time) {
+cout << "Couldn't allocate memory for time." << endl;
+Quit = true;
+return;
+}
 fread(Time, 1, TimeLength, Book);
 Time[TimeLength] = '\0';
 cout << "Author: " << Author << endl << "Title: " << Title << endl << "This book lasts " << Time << endl;
 fread(&NumSections, sizeof(short), 1, Book);
+cout << "This book contains " << NumSections << " sections." << endl;
 }
 int* Array = new int[NumSections];
+if (!Array) {
+cout << "Could not allocate memory for the int array." << endl;
+Quit = true;
+return;
+}
+
 for (int i = 0; i < NumSections; i++) {
 fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
@@ -231,6 +253,7 @@ pthread_create(&id, 0, Thread, argv[1]);
 #endif
 while (!Quit && !BookIsFinished) {
 	if (kbhit()) Input();
+Sleep(250);
 }
 #ifdef WIN32
 WaitForSingleObject(ThreadHandle, INFINITE);

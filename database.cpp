@@ -92,6 +92,7 @@ bool DBExists() {
 FILE* fin = fopen(DBName.c_str(), "rb");
 if (!fin) return false;
 fclose(fin);
+return true;
 }
 void CreateDatabase() {
 sqlite3_initialize();
