@@ -60,7 +60,7 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
-while (!feof(Book) || Quit) {
+while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Paused) {
 Stream->stop();
@@ -132,12 +132,11 @@ if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
 SetConsoleTitle("ABF Player");
-HANDLE Thread = (HANDLE)_beginthread(Thread, 0, argv[1]);
+HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[1]);
 while (!Quit && !BookIsFinished) {
 if (kbhit()) Input();
 Sleep(250);
 }
-}
-WaitForSingleObject(Thread);
+WaitForSingleObject(ThreadID, INFINITE);
 return 0;
 }
