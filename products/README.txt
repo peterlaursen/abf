@@ -2,7 +2,7 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.21
+Version 0.2
 Copyright (C) 2008 Peter Laursen.
 
 WHAT'S NEW IN VERSION 0.2?
@@ -45,8 +45,6 @@ This is a very simple player for the ABF audio book format. We do not support an
 keyboard commands:
 
 Key - Description
-f - Move to the first section.
-l - Move to the last section.
 b - Move to the next section as defined by the Daisy book.
 v or c - Pause the daisy book
 x - Resume playback
