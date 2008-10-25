@@ -20,9 +20,6 @@ bool Next = false;
 bool Paused = false;
 bool VolumeUp = false;
 bool VolumeDown = false;
-bool FirstSection = false;
-bool LastSection = false;
-bool BookIsFinished = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -49,7 +46,7 @@ if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
-Quit = true;
+
 #ifdef WIN32
 return;
 #else
@@ -81,20 +78,10 @@ fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength = 0, AuthorLength = 0;
 fread(&TitleLength, sizeof(short), 1, Book);
 Title = new char[TitleLength] + 1;
-if (!Title) {
-cout << "Failed to allocate memory for title." << endl;
-Quit = true;
-return;
-}
 fread(Title, 1, TitleLength, Book);
 Title[TitleLength] = '\0';
 fread(&AuthorLength, sizeof(short), 1, Book);
 Author = new char[AuthorLength] + 1;
-if (!Author) {
-cout << "Couldn't allocate memory for the author." << endl;
-Quit = true;
-return;
-}
 fread(Author, 1, AuthorLength, Book);
 Author[AuthorLength] = '\0';
 #ifdef WIN32
@@ -110,24 +97,12 @@ SetConsoleTitle(Temp.c_str());
 unsigned short TimeLength = 0;
 fread(&TimeLength, sizeof(short), 1, Book);
 Time = new char[TimeLength+1];
-if (!Time) {
-cout << "Couldn't allocate memory for time." << endl;
-Quit = true;
-return;
-}
 fread(Time, 1, TimeLength, Book);
 Time[TimeLength] = '\0';
 cout << "Author: " << Author << endl << "Title: " << Title << endl << "This book lasts " << Time << endl;
 fread(&NumSections, sizeof(short), 1, Book);
-cout << "This book contains " << NumSections << " sections." << endl;
 }
 int* Array = new int[NumSections];
-if (!Array) {
-cout << "Could not allocate memory for the int array." << endl;
-Quit = true;
-return;
-}
-
 for (int i = 0; i < NumSections; i++) {
 fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
@@ -145,19 +120,10 @@ fseek(Book, LastPosition, SEEK_SET);
 }
 } // End of if (LastPosition > 0)
 float Volume = 1.0;
-while (!feof(Book) && !Quit) {
+while (!Quit) {
+if (feof(Book)) break;		
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 // Check the global Input parameters
-if (FirstSection) {
-CurrentSection = 0;
-fseek(Book, Array[CurrentSection], SEEK_SET);
-FirstSection = false;
-}
-if (LastSection) {
-CurrentSection = NumSections - 1;
-fseek(Book, Array[CurrentSection], SEEK_SET);
-LastSection = false;
-}
 if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
@@ -202,9 +168,7 @@ Previous = false;
 }
 LastPosition = ftell(Book);
 for (int i = 0; i < 32000; i+=320) {
-if (feof(Book)) {
-break;
-}
+if (feof(Book)) break;
 fread(&Bytes, 2, 1, Book);
 fread(Input, 1, Bytes, Book);
 speex_bits_read_from(&Bits, Input, Bytes);
@@ -216,9 +180,7 @@ Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
-if (!Quit) BookIsFinished = true;
 if (Quit) SaveLastPosition(Title, LastPosition);
-else DeletePosition(Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
@@ -229,8 +191,6 @@ delete[] Time;
 }
 void Input() {
 char Key = getch(); 
-if (Key == 'f') FirstSection = true;
-if (Key == 'l') LastSection = true;
 if (Key == 'b') Next = true;
 if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
@@ -251,10 +211,7 @@ HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
-while (!Quit && !BookIsFinished) {
-	if (kbhit()) Input();
-Sleep(250);
-}
+while (!Quit) Input();
 #ifdef WIN32
 WaitForSingleObject(ThreadHandle, INFINITE);
 #else
