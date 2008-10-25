@@ -20,6 +20,9 @@ bool Next = false;
 bool Paused = false;
 bool VolumeUp = false;
 bool VolumeDown = false;
+bool FirstSection = false;
+bool LastSection = false;
+bool BookIsFinished = false;
 bool DetectHeader(FILE* Book) {
 char Buffer[4];
 Buffer[3] = '\0';
@@ -46,7 +49,7 @@ if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
-
+Quit = true;
 #ifdef WIN32
 return;
 #else
@@ -120,10 +123,19 @@ fseek(Book, LastPosition, SEEK_SET);
 }
 } // End of if (LastPosition > 0)
 float Volume = 1.0;
-while (!Quit) {
-if (feof(Book)) break;		
+while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 // Check the global Input parameters
+if (FirstSection) {
+CurrentSection = 0;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+FirstSection = false;
+}
+if (LastSection) {
+CurrentSection = NumSections - 1;
+fseek(Book, Array[CurrentSection], SEEK_SET);
+LastSection = false;
+}
 if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
@@ -166,8 +178,11 @@ CurrentSection -= 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
+LastPosition = ftell(Book);
 for (int i = 0; i < 32000; i+=320) {
-if (feof(Book)) break;
+if (feof(Book)) {
+break;
+}
 fread(&Bytes, 2, 1, Book);
 fread(Input, 1, Bytes, Book);
 speex_bits_read_from(&Bits, Input, Bytes);
@@ -179,7 +194,9 @@ Stream->setVolume(Volume);
 Stream->play();
 while (Stream->isPlaying());
 }
-if (Quit) SaveLastPosition(Book, Title);
+if (!Quit) BookIsFinished = true;
+if (Quit) SaveLastPosition(Title, LastPosition);
+else DeletePosition(Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
@@ -190,6 +207,8 @@ delete[] Time;
 }
 void Input() {
 char Key = getch(); 
+if (Key == 'f') FirstSection = true;
+if (Key == 'l') LastSection = true;
 if (Key == 'b') Next = true;
 if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
@@ -210,7 +229,9 @@ HANDLE ThreadHandle = (HANDLE*)_beginthread(Thread, 0, argv[1]);
 pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
-while (!Quit) Input();
+while (!Quit && !BookIsFinished) {
+	if (kbhit()) Input();
+}
 #ifdef WIN32
 WaitForSingleObject(ThreadHandle, INFINITE);
 #else

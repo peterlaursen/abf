@@ -5,7 +5,8 @@
 using std::FILE;
 void CreateDatabase();
 bool DBExists();
-void SaveLastPosition(FILE*, char*);
+void SaveLastPosition(char*, int);
 int GetLastPosition(char* Title);
+void DeletePosition(char*);
 
 #endif
