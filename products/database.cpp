@@ -6,17 +6,18 @@
 #include "database.h"
 using namespace std;
 static bool Initialized = false;
-static string DBName = "\"";
+static string DBName;
 void Init() {
 #ifdef WIN32
 DBName += getenv("HOMEDRIVE");
 char* Home = getenv("HOMEPATH");
 DBName += Home;
-DBName += "\\.abfplayer.db\"";
+DBName += "\\.abfplayer.db";
 #else
 DBName += getenv("HOME");
-DBName += "/.abfplayer.db\"";
+DBName += "/.abfplayer.db";
 #endif
+cout << "Database location: " << DBName << endl;
 if (!DBExists()) CreateDatabase();
 Initialized = true;
 }
@@ -37,7 +38,10 @@ if (!Initialized) {
 Init();
 }
 sqlite3* DB;
-sqlite3_open(DBName.c_str(), &DB);
+if (sqlite3_open_v2(DBName.c_str(), &DB, SQLITE_OPEN_READWRITE, 0) != SQLITE_OK) {
+cout << "An error occurred opening the database: " << sqlite3_errmsg(DB) << endl;
+return;}
+
 const char* Position;
 ostringstream os;
 os << LastPosition;
@@ -51,14 +55,17 @@ Exists += "';";
 bool MyFound = false;
 bool* Found = &MyFound;
 sqlite3_exec(DB, Exists.c_str(), Callback, Found, 0);
+cout << Exists << endl;
 char* Error;
 if (MyFound) {
+cout << "The title was found." << endl;
 string UpdateQuery = "update audiobooks set lastposition = ";
 UpdateQuery += Position;
 UpdateQuery += " where title = '";
 UpdateQuery += Title;
 UpdateQuery += "';";
 sqlite3_exec(DB, UpdateQuery.c_str(),0,0, &Error);
+cout << UpdateQuery << endl;
 if (Error) {
 cout << "An error must have occurred: " << Error << endl;
 sqlite3_free(Error);
@@ -72,8 +79,8 @@ Query += Position;
 Query += ");";
 sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
 sqlite3_free(Error);
+cout << "Query: " << Query << endl << "Hopefully, everything's saved by now." << endl;
 sqlite3_close(DB);
-sqlite3_shutdown();
 }
 int GetLastPosition(char* Title) {
 string Query = "select lastposition from audiobooks where title = '";

@@ -29,6 +29,7 @@ if (!Book) {
 cout << "The book was not found." << endl;
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
+Quit = true;
 return;
 }
 SampleFormat SF = SF_S16;
