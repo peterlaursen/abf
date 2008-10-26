@@ -1,5 +1,6 @@
 #include <audiere.h>
 #include <speex/speex.h>
+#include "database.h"
 #include <iostream>
 #include <cstdio>
 #ifdef WIN32
@@ -60,6 +61,17 @@ fseek(Book, 2, SEEK_CUR);
 fread(&Array[i], sizeof(int), 1, Book);
 }
 int CurrentSection = 0;
+int LastPosition = GetLastPosition(Title);
+if (LastPosition > 0) {
+fseek(Book, LastPosition, SEEK_SET);
+// Set CurrentSection to the correct section
+for (int i = 0; i < NumSections; i++) {
+if (Array[i] > LastPosition) {
+CurrentSection = i-1;
+break;
+}
+}
+}
 while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Paused) {
@@ -99,9 +111,12 @@ CurrentSection -= 1;
 fseek(Book, Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
-
+LastPosition = ftell(Book);
 for (int i = 0; i < 32000; i+=320) {
-if (feof(Book)) break;
+if (feof(Book)) {
+BookIsFinished = true;
+break;
+}
 fread(&Bytes, 2, 1, Book);
 fread(Input, 1, Bytes, Book);
 speex_bits_read_from(&Bits, Input, Bytes);
@@ -112,6 +127,8 @@ Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
 Stream->play();
 while (Stream->isPlaying());
 }
+if (Quit) SaveLastPosition(Title, LastPosition);
+else DeletePosition(Title);
 speex_bits_destroy(&Bits);
 speex_decoder_destroy(Decoder);
 fclose(Book);
