@@ -6,16 +6,16 @@
 #include "database.h"
 using namespace std;
 static bool Initialized = false;
-static string DBName;
+static string DBName = "\"";
 void Init() {
 #ifdef WIN32
-DBName = getenv("HOMEDRIVE");
+DBName += getenv("HOMEDRIVE");
 char* Home = getenv("HOMEPATH");
 DBName += Home;
-DBName += "\\.abfplayer.db";
+DBName += "\\.abfplayer.db\"";
 #else
-DBName = getenv("HOME");
-DBName += "/.abfplayer.db";
+DBName += getenv("HOME");
+DBName += "/.abfplayer.db\"";
 #endif
 if (!DBExists()) CreateDatabase();
 Initialized = true;
