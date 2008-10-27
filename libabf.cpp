@@ -109,7 +109,7 @@ fseek(fout, HeaderSize, SEEK_SET);
 int Size = 0;
 for (unsigned short i = 0; i < _NumSections; i++) {
 fwrite(&i, sizeof(short), 1, fout);
-fwrite(&Size, sizeof(short), 1, fout);
+fwrite(&Size, sizeof(int), 1, fout);
 }
 }
 void AbfEncoder::WriteSection() {
