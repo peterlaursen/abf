@@ -197,8 +197,6 @@ else _Valid = false;
 fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
-/*
-Originally, this method was part of the library. We did not need it after all, but it might come in useful later.
 string& Daisy::ExtractSectionTitle() { 
 if (!_LastPosition) {
 _Ncc.seekg(0, ios::beg);
