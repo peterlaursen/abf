@@ -37,6 +37,11 @@ OutputStreamPtr Stream;
 char Input[200];
 unsigned short Bytes;
 // We'll need to read our newly added headers.
+fseek(Book, 3, SEEK_SET);
+unsigned short HeaderSize = 0, Major = 0, Minor = 0;
+fread(&HeaderSize, sizeof(short), 1, Book);
+fread(&Major, sizeof(short), 1, Book);
+fread(&Minor, sizeof(short), 1, Book);
 unsigned short TitleLength;
 fread(&TitleLength, 2, 1, Book);
 char* Title = new char[TitleLength+1];
@@ -76,7 +81,7 @@ break;
 while (!feof(Book) && !Quit) {
 if (ftell(Book) > Array[CurrentSection+1]) CurrentSection += 1;
 if (Paused) {
-Stream->stop();
+if (Stream->isPlaying()) Stream->stop();
 continue;
 }
 if (FirstSection) {
