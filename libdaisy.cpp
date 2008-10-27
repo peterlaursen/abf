@@ -56,7 +56,8 @@ void Daisy::Replace(string& Value) {
 string Temp = Value;
 int Erased=0;
 for (int i = 0; i < Value.length(); i++) {
-if (Value[i] == -61) {
+// I arrived at this value by doing an analysis of what character triggered the odd problem with the Danish characters not being displayed correctly.
+	if (Value[i] == -61) {
 if (Value[i+1] == -72)
 Temp[i-Erased] = 'ø';
 if (Value[i+1] == -90)
@@ -87,13 +88,18 @@ Position = Line.find(Name);
 if (Position == string::npos) continue;
 else {
 Position = Line.find("content=\"");
+// The first quote character is after the content= thing. It is noted that if any spaces exist, this will actually give problems. We bypass the content=" part and start searching 10 characters in front of position.
 int Position2 = Line.find('\"', Position+10);
+// Get the substring. Again, we bypass content=". We only get the characters we need.
 string Content = Line.substr(Position+9, Position2 - Position);
+// Look for Danish characters and replace them.
 Replace(Content);
+// We need to look for scheme. If we find it, we erase it.
 int Position3 = Content.find("scheme");
 if (Position3 != string::npos) {
 Content.erase(Position3);
 _Ncc.seekg(0, ios::beg);
+// Remove the last quote and a > character
 _Meta = Content.substr(0, Content.length() - 2);
 return _Meta;
 }
@@ -124,15 +130,21 @@ string Line;
 while (1) {
 getline(_Ncc, Line);
 if (Line.find("</body>") != string::npos) return "nomore";
+// Bypass page numbers
 if (Line.find("<span") != string::npos) continue;
 int Position = Line.find("href=\"");
 if (Position == string::npos) continue;
+// Bypass href="
 Position += 6;
 int Position2 = Line.find("#", Position);
 if (Position2 == string::npos) return string("# notfound");
+// Remove everything up to and including the " character
 Line.erase(0, Position);
+// Position 2 is invalid, search again
 Position2 = Line.find("#");
+// Remove everything after Position2
 Line.erase(Position2);
+// Return the absolute path
 return _Path + Line;
 }
 }
@@ -185,6 +197,8 @@ else _Valid = false;
 fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
+/*
+Originally, this method was part of the library. We did not need it after all, but it might come in useful later.
 string& Daisy::ExtractSectionTitle() { 
 if (!_LastPosition) {
 _Ncc.seekg(0, ios::beg);
@@ -220,6 +234,7 @@ int Last = _Ncc.tellg();
 _Ncc.seekg(0, ios::beg);
 _Ncc.seekg(FindBody(), ios::beg);
 unsigned short NumSections = 0;
+// This is a cheap trick: The ExtractSectionTitle() remains public, but it is not currently used in any of the programs.
 while (ExtractSectionTitle() != "nomore") ++NumSections;
 _Ncc.seekg(Last, ios::beg);
 _LastPosition = Last;
