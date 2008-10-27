@@ -48,6 +48,8 @@ void Replace(string& Value);
 string FindSmil();
 // This function helps OpenSmil() and other functions.
 int FindBody();
+// ExtractSectionTitle gives you back the title of the next section in the book. Currently, this function is only used by GetNumSections(). This function is private.
+string& ExtractSectionTitle();
 public:
 // Let us add the constructors and destructors. Note that they are not implemented here.
 // We overload the constructor. The reason behind this is that we may either want to use an already-existing string or a string we get from, say, command line.
@@ -64,15 +66,11 @@ bool IsValid();
 bool Open(bool _OpenSmil = false);
 bool OpenSmil();
 string& ExtractMetaInfo(string& Value);
-// Get the current content of meta info string, may not be necessary.
-string const GetMetaInfo() const { return _Meta; }
 // Close the open file descriptors.
 // The destructor internally calls the Close function, but it seemed wise to make it public anyway.
 void Close();
 // Let's get the MP3 file too.
 const char* GetMP3FileName();
-// ExtractSectionTitle gives you back the title of the next section in the book.
-string& ExtractSectionTitle();
 // I completely forgot to add a function that returns us the path of the Daisy book.
 string& GetPath();
 // Returns the number of sections in this Daisy book.
