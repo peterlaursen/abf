@@ -30,7 +30,12 @@ return 1;
 }
 FILE* fout = fopen(argv[2], "wb+");
 unsigned short Sections = D.GetNumSections();
-int Offset = 0;
+fwrite("ABF", 1, 3, fout);
+unsigned short Offset = 0;
+fwrite(&Offset, sizeof(short), 1, fout);
+unsigned short Major = 1, Minor = 0;
+fwrite(&Major, sizeof(short), 1, fout);
+fwrite(&Minor, sizeof(short), 1, fout);
 string StrTitle = D.ExtractMetaInfo(string("dc:title"));
 unsigned short Length = StrTitle.length();
 fwrite(&Length, 2, 1, fout);
@@ -48,6 +53,9 @@ char* Time = (char*)StrTime.c_str();
 fwrite(Time, 1, Length, fout);
 fwrite(&Sections, sizeof(short), 1, fout);
 Offset = ftell(fout);
+fseek(fout, 3, SEEK_SET);
+fwrite(&Offset, sizeof(short), 1, fout);
+fseek(fout, Offset, SEEK_SET);
 int Size = 0;
 for (unsigned short i = 0; i < Sections; i++) {
 fwrite(&i, sizeof(short), 1, fout);
@@ -56,13 +64,13 @@ fwrite(&Size, sizeof(int), 1, fout);
 
 unsigned short Section = 0;
 while (D.OpenSmil()) {
-int Position = ftell(fout);
+Size = ftell(fout);
 fseek(fout, Offset, SEEK_SET);
 for (int i = 0; i < Section; i++) fseek(fout, 6, SEEK_CUR);
 // We are now at the beginning of a section header.
 fseek(fout, 2, SEEK_CUR);
-fwrite(&Position, sizeof(int), 1, fout);
-fseek(fout, Position, SEEK_SET);
+fwrite(&Size, sizeof(int), 1, fout);
+fseek(fout, Size, SEEK_SET);
 Decode(D, fout);
 ++Section;
 }
