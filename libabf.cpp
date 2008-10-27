@@ -70,5 +70,65 @@ AbfDecoder::~AbfDecoder() {
 delete[] Array;
 }
 void AbfDecoder::fclose() { std::fclose(fin); }
-
+AbfEncoder::AbfEncoder(char* Filename) {
+fout = fopen(Filename, "wb+");
+Encoder = speex_encoder_init(&speex_wb_mode);
+speex_bits_init(&Bits);
+}
+AbfEncoder::~AbfEncoder() {
+fclose(fout);
+speex_encoder_destroy(Encoder);
+speex_bits_destroy(&Bits);
+}
+void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
+void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
+void AbfEncoder::SetTime(const char* Time) { _Time = Time; }
+void AbfEncoder::SetNumSections(unsigned short NumSections) { _NumSections = NumSections; }
+void AbfEncoder::WriteHeader() {
+fseek(fout, 0, SEEK_SET);
+fwrite("ABF", 1, 3, fout);
+HeaderSize = 0;
+fwrite(&HeaderSize, sizeof(short), 1, fout);
+unsigned short Major = 1, Minor = 0;
+fwrite(&Major, sizeof(short), 1, fout);
+fwrite(&Minor, sizeof(short), 1, fout);
+unsigned short Length = _Title.length();
+fwrite(&Length, sizeof(short), 1, fout);
+fwrite(_Title.c_str(), 1, Length, fout);
+Length = _Author.length();
+fwrite(&Length, sizeof(short), 1, fout);
+fwrite(_Author.c_str(), 1, Length, fout);
+Length = _Time.length();
+fwrite(&Length, sizeof(short), 1, fout);
+fwrite(_Time.c_str(), 1, Length, fout);
+fwrite(&_NumSections, sizeof(short), 1, fout);
+HeaderSize = ftell(fout);
+fseek(fout, 3, SEEK_SET);
+fwrite(&HeaderSize, sizeof(short), 1, fout);
+fseek(fout, HeaderSize, SEEK_SET);
+int Size = 0;
+for (unsigned short i = 0; i < _NumSections; i++) {
+fwrite(&i, sizeof(short), 1, fout);
+fwrite(&Size, sizeof(short), 1, fout);
+}
+}
+void AbfEncoder::WriteSection() {
+static int CurrentSection = 0;
+int Position = ftell(fout);
+fseek(fout, HeaderSize, SEEK_SET);
+for (int i = 0; i < CurrentSection; i++) fseek(fout, 6, SEEK_CUR);
+// We are now at the beginning of a section header.
+fseek(fout, 2, SEEK_CUR);
+fwrite(&Position, sizeof(int), 1, fout);
+fseek(fout, Position, SEEK_SET);
+CurrentSection += 1;
+}
+void AbfEncoder::Encode(short* Input) {
+speex_bits_reset(&Bits);
+speex_encode_int(Encoder, Input, &Bits);
+char Output[200];
+unsigned short Bytes = speex_bits_write(&Bits, Output, 200);
+fwrite(&Bytes, sizeof(short), 1, fout);
+fwrite(Output, sizeof(char), Bytes, fout);
+}
 }
