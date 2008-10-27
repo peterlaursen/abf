@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <conio.h>
 #endif
+#include <libabf.h>
 #include <libdaisy.h>
 #include <audiere.h>
 #include <speex/speex_resampler.h>
@@ -16,8 +17,8 @@
 using namespace ABF;
 using namespace std;
 using namespace audiere;
-void Decode(Daisy&, FILE*);
-void Encode(FILE*, char* Temp);
+void Decode(Daisy&, AbfEncoder& AE);
+void Encode(AbfEncoder& AE, char* Temp);
 int main(int argc, char* argv[]) {
 if (argc != 3) {
 cout << "Usage: " << argv[0] << " <path to daisy book> <output file>" << endl;
@@ -28,57 +29,23 @@ if (!D.IsValid()) {
 cout << "Error, not a valid daisy book." << endl;
 return 1;
 }
-FILE* fout = fopen(argv[2], "wb+");
-unsigned short Sections = D.GetNumSections();
-fwrite("ABF", 1, 3, fout);
-unsigned short Offset = 0;
-fwrite(&Offset, sizeof(short), 1, fout);
-unsigned short Major = 1, Minor = 0;
-fwrite(&Major, sizeof(short), 1, fout);
-fwrite(&Minor, sizeof(short), 1, fout);
+AbfEncoder AE(argv[2]);
+AE.SetNumSections(D.GetNumSections());
 string StrTitle = D.ExtractMetaInfo(string("dc:title"));
-unsigned short Length = StrTitle.length();
-fwrite(&Length, 2, 1, fout);
-char* Title = (char*)StrTitle.c_str();
-fwrite(Title, 1, Length, fout);
+AE.SetTitle(StrTitle.c_str());
 string StrAuthor = D.ExtractMetaInfo(string("dc:creator"));
-Length = StrAuthor.length();
-fwrite(&Length, sizeof(short), 1, fout);
-char* Author = (char*)StrAuthor.c_str();
-fwrite(Author, 1, Length, fout);
+AE.SetAuthor(StrAuthor.c_str());
 string StrTime = D.ExtractMetaInfo(string("ncc:totalTime"));
-Length = StrTime.length();
-fwrite(&Length, sizeof(short), 1, fout);
-char* Time = (char*)StrTime.c_str();
-fwrite(Time, 1, Length, fout);
-fwrite(&Sections, sizeof(short), 1, fout);
-Offset = ftell(fout);
-fseek(fout, 3, SEEK_SET);
-fwrite(&Offset, sizeof(short), 1, fout);
-fseek(fout, Offset, SEEK_SET);
-int Size = 0;
-for (unsigned short i = 0; i < Sections; i++) {
-fwrite(&i, sizeof(short), 1, fout);
-fwrite(&Size, sizeof(int), 1, fout);
-}
-
-unsigned short Section = 0;
+AE.SetTime(StrTime.c_str());
+AE.WriteHeader();
 while (D.OpenSmil()) {
-Size = ftell(fout);
-fseek(fout, Offset, SEEK_SET);
-for (int i = 0; i < Section; i++) fseek(fout, 6, SEEK_CUR);
-// We are now at the beginning of a section header.
-fseek(fout, 2, SEEK_CUR);
-fwrite(&Size, sizeof(int), 1, fout);
-fseek(fout, Size, SEEK_SET);
-Decode(D, fout);
-++Section;
+AE.WriteSection();
+Decode(D, AE);
 }
-fclose(fout);
 cout << "The book has been converted successfully." << endl;
 return 0;
 }
-void Decode(Daisy& D, FILE* fout) {
+void Decode(Daisy& D, AbfEncoder& AE) {
 unsigned int Size = 4096, Processed = 4096;
 short Resampled[4096];
 SampleSourcePtr Source = OpenSampleSource(D.GetMP3FileName());
@@ -98,30 +65,18 @@ fwrite(Resampled, sizeof(short), Processed, temp);
 }
 speex_resampler_destroy(State);
 fclose(temp);
-Encode(fout, TempFile);
+Encode(AE, TempFile);
 return;
 }
-void Encode(FILE* fout, char* TempFile) {
+void Encode(AbfEncoder& AE, char* TempFile) {
 FILE* fin = fopen(TempFile, "rb");
 // Initialize Speex.
-void* Encoder = speex_encoder_init(&speex_wb_mode);
-SpeexBits Bits;
-speex_bits_init(&Bits);
-int FrameSize;
-speex_encoder_ctl(Encoder, SPEEX_GET_FRAME_SIZE, &FrameSize);
-short Input[400];
+short Input[320];
 unsigned short BytesToRead;
 while (!feof(fin)) {
 fread(Input, 2, 320, fin);
-speex_bits_reset(&Bits);
-speex_encode_int(Encoder, Input, &Bits);
-char Output[400];
-unsigned short Bytes = speex_bits_write(&Bits, Output, 400);
-fwrite(&Bytes, sizeof(short), 1, fout);
-fwrite(Output, sizeof(char), Bytes, fout);
+AE.Encode(Input);
 }
-speex_encoder_destroy(Encoder);
-speex_bits_destroy(&Bits);
 fclose(fin);
 #ifdef WIN32
 DeleteFile(TempFile);
