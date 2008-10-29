@@ -19,6 +19,8 @@ bool Next = false;
 bool Paused = false;
 bool FirstSection = false;
 bool LastSection = false;
+bool VolumeUp = false;
+bool VolumeDown = 0;
 void Thread(void* Filename) {
 AbfDecoder AD((char*)Filename);
 bool IsValid = AD.Validate();
@@ -46,8 +48,27 @@ break;
 }
 }
 }
+float Volume = 1.0f;
 while (!AD.feof() && !Quit) {
+// Ensure that CurrentSection is up-to-date
 if (AD.ftell() > Array[CurrentSection+1]) CurrentSection += 1;
+// The rest of this loop processes key presses.
+if (VolumeDown) {
+if (Volume == 0.0f) {
+VolumeDown = false;
+continue;
+}
+Volume -= 0.1f;
+VolumeDown = false;
+}
+if (VolumeUp) {
+if (Volume >= 1.0f) {
+VolumeUp = false;
+continue;
+}
+Volume += 0.1f;
+VolumeUp = false;
+}
 if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
@@ -85,6 +106,7 @@ CurrentSection -= 1;
 fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
+// This bit pre-buffers input and decodes the output
 LastPosition = ftell(AD.GetFileHandle());
 for (int i = 0; i < 32000; i+=320) {
 if (AD.feof()) {
@@ -95,7 +117,9 @@ AD.Decode(Buffer);
 for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
 }
 Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
+Stream->setVolume(Volume);
 Stream->play();
+// Wait until the playback is finished, then go run the loop again
 while (Stream->isPlaying());
 }
 if (Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
@@ -103,6 +127,8 @@ else DeletePosition(AD.GetTitle());
 }
 void Input() {
 char Key = getch(); 
+if (Key == '<') VolumeDown = true;
+if (Key == '>') VolumeUp = true;
 if (Key == 'b') Next = true;
 if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
