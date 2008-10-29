@@ -30,6 +30,7 @@ Quit = true;
 return;
 }
 AD.ReadHeader();
+cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetTime() << endl;
 #ifdef WIN32
 // Put this into a scope of its own so that it vanishes as soon as possible.
 {
