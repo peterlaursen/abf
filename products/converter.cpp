@@ -51,7 +51,8 @@ return 0;
 void Decode(Daisy& D, AbfEncoder& AE) {
 unsigned int Size = 4096, Processed = 4096;
 short Resampled[4096];
-SampleSourcePtr Source = OpenSampleSource(D.GetMP3FileName());
+string Filename = D.GetMP3FileName();
+SampleSourcePtr Source = OpenSampleSource(Filename.c_str());
 int SampleRate, NumChannels;
 SampleFormat SF;
 Source->getFormat(NumChannels, SampleRate, SF);
