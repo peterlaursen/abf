@@ -30,6 +30,14 @@ Quit = true;
 return;
 }
 AD.ReadHeader();
+cout << "Commands you can use in the player: " << endl;
+cout << "Key - Description" << endl;
+cout << "f - Go to first section" << endl;
+cout << "l - go to last section" << endl;
+cout << "x - Play, c or v - Pause" << endl;
+cout << "b - Next section, z - Previous section" << endl;
+cout << "< - Volume Down, > - Volume Up" << endl;
+cout << "q - Quit" << endl;
 cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetTime() << endl;
 #ifdef WIN32
 // Put this into a scope of its own so that it vanishes as soon as possible.
