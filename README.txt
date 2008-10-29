@@ -5,6 +5,16 @@ DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 Version 0.21
 Copyright (C) 2008 Peter Laursen.
 
+What's New in Version 0.21?
+
+* A lot of minor bug fixes have made it into this release.
+* Better handling of the saved position in the player.
+* Both programs now internally use the same ABF library. This has mostly been of no consequence to users, but for me (or the ones who looked at the source code), it was hell to work with.
+* The converter has also had various smaller bug fixes.
+* The old header of the audio format is no longer supported in this player.
+* The converter now shows you what file it is currently converting out of the total number of files it needs to process.
+* Two new keyboard commands have been added to the player: f takes you directly to the beginning of the book, l takes you to the last section of the book.
+
 WHAT'S NEW IN VERSION 0.2?
 
 Many things have been updated in this latest version of the programs. Here is a short list:
@@ -16,7 +26,7 @@ Many things have been updated in this latest version of the programs. Here is a 
 
 INTRODUCTION:
 
-Thank you for downloading and trying out these products. We are confident that they will bring you a lot of satisfaction. If not, we're not prepared to give you your money back (you didn't pay for these programs, I trust).
+Thank you for downloading and trying out these products. We are confident that they will bring you a lot of satisfaction. 
 
 THE CONVERTER:
 
@@ -34,8 +44,9 @@ Type
 converter e: d:\audiobooks\MyAudioBook.abf
 and press enter.
 2) A console window should now appear. When that window is gone, your book has been converted. To find it, simply browse to d:\audiobooks and look for the file with the .abf file extension.
+While the converter is converting, it shows what file it is currently converting out of the total number of files.
 
-That is all there is to it. If you need help, send me an email (or catch me on Messenger or Skype).
+That is all there is to it. If you need help, send me an email 
 
 THE PLAYER:
 
@@ -48,7 +59,7 @@ Key - Description
 f - Move to the first section.
 l - Move to the last section.
 b - Move to the next section as defined by the Daisy book.
-v or c - Pause the daisy book
+v or c - Pause the ABF book
 x - Resume playback
 z - Move to the previous section
 < - The less than character lowers the volume.

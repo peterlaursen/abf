@@ -38,8 +38,11 @@ AE.SetAuthor(StrAuthor.c_str());
 string StrTime = D.ExtractMetaInfo(string("ncc:totalTime"));
 AE.SetTime(StrTime.c_str());
 AE.WriteHeader();
+unsigned short File = 0;
 while (D.OpenSmil()) {
 AE.WriteSection();
+++File;
+cout << "Converting file " << File << " of " << D.GetNumSections() << endl;
 Decode(D, AE);
 }
 cout << "The book has been converted successfully." << endl;
@@ -56,7 +59,6 @@ SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[4096];
 char* TempFile = tempnam(".\\", "ABFConv");
 FILE* temp = fopen(TempFile, "wb");
-cout << "Temporary File: " << TempFile << endl;
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
