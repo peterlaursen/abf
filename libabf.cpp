@@ -50,7 +50,6 @@ void AbfDecoder::Decode(short* Output) {
 unsigned short Bytes;
 char Input[320];
 fread(&Bytes, 2, 1, fin);
-printf("I am to read %d bytes.\n", Bytes);
 fread(Input, 1, Bytes, fin);
 speex_bits_read_from(&Bits, Input, Bytes);
 speex_decode_int(Decoder, &Bits, Output);
