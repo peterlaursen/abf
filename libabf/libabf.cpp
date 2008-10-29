@@ -21,7 +21,6 @@ void AbfDecoder::ReadHeader() {
 fread(&HeaderSize, sizeof(short), 1, fin);
 fread(&Major, sizeof(short), 1, fin);
 fread(&Minor, sizeof(short), 1, fin);
-printf("Header Size: %d, Major: %d, Minor: %d\n", HeaderSize, Major, Minor);
 unsigned short TitleLength;
 fread(&TitleLength, sizeof(short), 1, fin);
 Title = new char[TitleLength+1];
