@@ -30,6 +30,17 @@ Quit = true;
 return;
 }
 AD.ReadHeader();
+#ifdef WIN32
+// Put this into a scope of its own so that it vanishes as soon as possible.
+{
+char ConTitle[255];
+GetConsoleTitle(ConTitle, 255);
+string Temp = ConTitle;
+Temp += " - ";
+Temp += AD.GetTitle();
+SetConsoleTitle(Temp.c_str());
+}
+#endif
 short Buffer[320];
 short Buffer1[32000];
 AudioDevicePtr Device(OpenDevice());
