@@ -115,6 +115,7 @@ break;
 }
 }
 int Daisy::FindBody() {
+_Ncc.seekg(0, ios::beg);
 string Line;
 while (1) {
 getline(_Ncc, Line);
@@ -122,10 +123,12 @@ if (Line.find("<body>") == string::npos) continue;
 // We encountered end of file and didn't find what we were looking for
 if (_Ncc.eof()) return -1;
 // We have indeed found the body.
-return _Ncc.tellg();
+_LastPosition = _Ncc.tellg();
+return _LastPosition;
 }
 }
 string Daisy::FindSmil() {
+_Ncc.seekg(_LastPosition, ios::beg);
 string Line;
 while (1) {
 getline(_Ncc, Line);
@@ -145,6 +148,7 @@ Position2 = Line.find("#");
 // Remove everything after Position2
 Line.erase(Position2);
 // Return the absolute path
+_LastPosition = _Ncc.tellg();
 return _Path + Line;
 }
 }
@@ -158,7 +162,6 @@ _Ncc.seekg(_LastPosition, ios::beg);
 }
 string Filename = FindSmil();
 if (Filename == "nomore" || Filename == "notfound") {
-_LastPosition = _Ncc.tellg();
 return false;
 }
 _Smil.close();
@@ -166,7 +169,6 @@ _Smil.clear();
 _Smil.open(Filename.c_str());
 _LastPosition = _Ncc.tellg();
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
-_Ncc.seekg(0, ios::beg);
 return true;
 }
 const char* Daisy::GetMP3FileName() {
