@@ -30,12 +30,14 @@ cout << "Error, not a valid daisy book." << endl;
 return 1;
 }
 AbfEncoder AE(argv[2]);
-AE.SetNumSections(D.GetNumSections());
-string StrTitle = D.ExtractMetaInfo(string("dc:title"));
+string Meta = "dc:title";
+string StrTitle = D.ExtractMetaInfo(Meta);
 AE.SetTitle(StrTitle.c_str());
-string StrAuthor = D.ExtractMetaInfo(string("dc:creator"));
+Meta = "dc:creator";
+string StrAuthor = D.ExtractMetaInfo(Meta);
 AE.SetAuthor(StrAuthor.c_str());
-string StrTime = D.ExtractMetaInfo(string("ncc:totalTime"));
+Meta = "ncc:totalTime";
+string StrTime = D.ExtractMetaInfo(Meta);
 AE.SetTime(StrTime.c_str());
 AE.WriteHeader();
 unsigned short File = 0;
