@@ -8,7 +8,12 @@
 #include <process.h>
 #include <conio.h>
 #include <windows.h>
+#else
+#include "compat.h"
+#include <unistd.h>
+#include <pthread.h>
 #endif
+
 using namespace std;
 using namespace audiere;
 using namespace ABF;
@@ -21,13 +26,21 @@ bool FirstSection = false;
 bool LastSection = false;
 bool VolumeUp = false;
 bool VolumeDown = 0;
+#ifdef WIN32
 void Thread(void* Filename) {
+#else
+void* Thread(void* Filename) {
+#endif
 AbfDecoder AD((char*)Filename);
 bool IsValid = AD.Validate();
 if (!IsValid) {
 cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
 Quit = true;
+#ifdef WIN32
 return;
+#else
+return 0;
+#endif
 }
 AD.ReadHeader();
 cout << "Commands you can use in the player: " << endl;
@@ -158,12 +171,30 @@ if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
+#ifdef WIN32
 SetConsoleTitle("ABF Player");
 HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[1]);
+#else
+pthread* id;
+pthread_create(&id, 0, Thread, argv[1]);
+
+#endif
 while (!Quit && !BookIsFinished) {
+#ifdef WIN32
 if (kbhit()) Input();
+#else
+Input();
+#endif
+#ifdef WIN32
 Sleep(250);
+#else
+usleep(250);
+#endif
 }
+#ifdef WIN32
 WaitForSingleObject(ThreadID, INFINITE);
+#else
+pthread_join(id, 0);
+#endif
 return 0;
 }
