@@ -1,4 +1,3 @@
-#include <audiere.h>
 #include <speex/speex.h>
 #include "database.h"
 #include <iostream>
@@ -15,7 +14,6 @@
 #endif
 
 using namespace std;
-using namespace audiere;
 using namespace ABF;
 bool Quit = false;
 bool BookIsFinished = false;
@@ -65,9 +63,6 @@ SetConsoleTitle(Temp.c_str());
 #endif
 short Buffer[320];
 short Buffer1[32000];
-AudioDevicePtr Device(OpenDevice());
-SampleFormat SF = SF_S16;
-OutputStreamPtr Stream;
 int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
@@ -103,7 +98,7 @@ Volume += 0.1f;
 VolumeUp = false;
 }
 if (Paused) {
-if (Stream->isPlaying()) Stream->stop();
+// Replace with something Mac specific
 continue;
 }
 if (FirstSection) {
@@ -117,13 +112,13 @@ fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 LastSection = false;
 }
 
-if (Next) {
+if (Next) 
 if (CurrentSection >= AD.GetNumSections() - 1) {
 Next = false;
 CurrentSection = AD.GetNumSections()-1;
 continue;
 }
-Stream->stop();
+// Replace with something Mac specific
 CurrentSection += 1;
 fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 Next = false;
@@ -134,7 +129,7 @@ Previous = false;
 continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
-Stream->stop();
+// Replace with something Mac specific
 CurrentSection -= 1;
 fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 Previous = false;
@@ -149,11 +144,11 @@ break;
 AD.Decode(Buffer);
 for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
 }
-Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
-Stream->setVolume(Volume);
-Stream->play();
+//Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
+//Stream->setVolume(Volume);
+//Stream->play();
 // Wait until the playback is finished, then go run the loop again
-while (Stream->isPlaying());
+//while (Stream->isPlaying());
 }
 if (Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
