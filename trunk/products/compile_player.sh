@@ -1,1 +1,1 @@
-g++ -o player -I ../libabf -I ../libdaisy -I ~/libs/audiere/include -I ~/libs/speex/include libdb.so player.cpp /usr/local/lib/libaudiere.so /usr/local/lib/libspeex.so.6 ../libabf/libabf.cpp libdb.so compat.c
+g++ -I ../libabf -I /opt/local/include player.cpp database.cpp sqlite3.o ../libabf/libabf.cpp /System/Library/Frameworks/AudioToolbox.framework/AudioToolbox  /opt/local/lib/libspeex.a compat.c

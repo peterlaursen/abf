@@ -1,3 +1,4 @@
+#include <AudioToolbox/AudioToolbox.h>
 #include <speex/speex.h>
 #include "database.h"
 #include <iostream>
@@ -24,12 +25,45 @@ bool FirstSection = false;
 bool LastSection = false;
 bool VolumeUp = false;
 bool VolumeDown = 0;
+void OutputCallback(void* AD, AudioQueueRef Queue, AudioQueueBufferRef Buffer) {
+AbfDecoder* Decoder = (AbfDecoder*)AD;
+short TempBuffer[320];
+short* AudioData = (short*)Buffer->mAudioData;
+for (int i = 0; i < 32000; i++) {
+Decoder->Decode(TempBuffer);
+for (int j = 0; j < 320; j++) AudioData[i+j] = TempBuffer[j];
+
+}
+}
 #ifdef WIN32
 void Thread(void* Filename) {
 #else
 void* Thread(void* Filename) {
 #endif
 AbfDecoder AD((char*)Filename);
+// Initialize the Mac specific stuff if possible.
+AudioQueueRef Stream;
+AudioQueueBufferRef AQBuffer1, AQBuffer2, AQBuffer3;
+
+AudioStreamBasicDescription StreamDesc;
+StreamDesc.mSampleRate = 16000;
+StreamDesc.mFormatID = kAudioFormatLinearPCM;
+StreamDesc.mBytesPerPacket = 2;
+StreamDesc.mFramesPerPacket = 1;
+StreamDesc.mBytesPerFrame = 2;
+StreamDesc.mChannelsPerFrame = 1;
+StreamDesc.mBitsPerChannel = 16;
+// Try to allocate the audio buffers.
+OSStatus Status = AudioQueueNewOutput(&StreamDesc, OutputCallback, &AD, NULL, NULL, 0, &Stream);
+if (Status < 0) {
+cout << "An error must have occurred." << endl;
+Quit = true;
+return 0;
+}
+AudioQueueAllocateBuffer(Stream, 32000*sizeof(short), &AQBuffer1);
+AudioQueueAllocateBuffer(Stream, 32000*sizeof(short), &AQBuffer2);
+AudioQueueAllocateBuffer(Stream, 32000*sizeof(short), &AQBuffer3);
+
 bool IsValid = AD.Validate();
 if (!IsValid) {
 cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
@@ -77,6 +111,10 @@ break;
 }
 }
 float Volume = 1.0f;
+AudioQueueEnqueueBuffer(Stream, AQBuffer1, 0, NULL);
+
+AudioQueuePrime(Stream, 0, 0);
+
 while (!AD.feof() && !Quit) {
 // Ensure that CurrentSection is up-to-date
 if (AD.ftell() > Array[CurrentSection+1]) CurrentSection += 1;
@@ -98,7 +136,8 @@ Volume += 0.1f;
 VolumeUp = false;
 }
 if (Paused) {
-// Replace with something Mac specific
+AudioQueuePause(Stream);
+
 continue;
 }
 if (FirstSection) {
@@ -112,7 +151,7 @@ fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 LastSection = false;
 }
 
-if (Next) 
+if (Next) {
 if (CurrentSection >= AD.GetNumSections() - 1) {
 Next = false;
 CurrentSection = AD.GetNumSections()-1;
@@ -135,23 +174,11 @@ fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
 // This bit pre-buffers input and decodes the output
-LastPosition = ftell(AD.GetFileHandle());
-for (int i = 0; i < 32000; i+=320) {
-if (AD.feof()) {
-BookIsFinished = true;
-break;
-}
-AD.Decode(Buffer);
-for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
-}
-//Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
-//Stream->setVolume(Volume);
-//Stream->play();
-// Wait until the playback is finished, then go run the loop again
-//while (Stream->isPlaying());
+LastPosition = AD.ftell();
 }
 if (Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
+AudioQueueDispose(Stream, false);
 }
 void Input() {
 char Key = getch(); 
@@ -170,7 +197,7 @@ int main(int argc, char* argv[]) {
 SetConsoleTitle("ABF Player");
 HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[1]);
 #else
-pthread* id;
+pthread_t id;
 pthread_create(&id, 0, Thread, argv[1]);
 
 #endif
