@@ -47,9 +47,9 @@ os << LastPosition;
 string Temp = os.str();
 Position = Temp.c_str();
 // Detect if the book has already been stored in the database. This might be done in a different way, but this way is the easiest.
-string Exists = "select * from audiobooks where title = '";
+string Exists = "select * from audiobooks where title = \"";
 Exists += Title;
-Exists += "';";
+Exists += "\";";
 // Pass the Found pointer, which is pointing to MyFound, into the callback function. If the callback is called, the MyFound variable will be true.
 bool MyFound = false;
 bool* Found = &MyFound;
@@ -58,9 +58,9 @@ char* Error;
 if (MyFound) {
 string UpdateQuery = "update audiobooks set lastposition = ";
 UpdateQuery += Position;
-UpdateQuery += " where title = '";
+UpdateQuery += " where title = \"";
 UpdateQuery += Title;
-UpdateQuery += "';";
+UpdateQuery += "\";";
 sqlite3_exec(DB, UpdateQuery.c_str(),0,0, &Error);
 if (Error) {
 cout << "An error must have occurred: " << Error << endl;
@@ -68,9 +68,9 @@ sqlite3_free(Error);
 }
 return;
 }
-		string Query = "insert into audiobooks values('";
+		string Query = "insert into audiobooks values(\"";
 Query += Title;
-Query += "', ";
+Query += "\", ";
 Query += Position;
 Query += ");";
 sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
@@ -78,9 +78,9 @@ sqlite3_free(Error);
 sqlite3_close(DB);
 }
 int GetLastPosition(char* Title) {
-string Query = "select lastposition from audiobooks where title = '";
+string Query = "select lastposition from audiobooks where title = \"";
 Query += Title;
-Query += "';";
+Query += "\";";
 int LastPosition = 0;
 int* p_lastposition = &LastPosition;
 sqlite3* DB;
@@ -104,9 +104,9 @@ sqlite3_exec(DB, "create table audiobooks(title varchar(255) not null, lastposit
 sqlite3_close(DB);
 }
 void DeletePosition(char* Title) {
-string Query = "delete from audiobooks where title = '";
+string Query = "delete from audiobooks where title = \"";
 Query += Title;
-Query += "';";
+Query += "\";";
 sqlite3* DB;
 sqlite3_open(DBName.c_str(), &DB);
 sqlite3_exec(DB, Query.c_str(), 0, 0, 0);
