@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{2234610C-0AAA-4079-92AA-67EDF171E4B5}
 AppName=ABF Products
-AppVerName=ABF Products 0.21
+AppVerName=ABF Products 0.22
 AppPublisher=ABF Project
 AppPublisherURL=http://mosedal.net/abf
 AppSupportURL=http://mosedal.net/abf
@@ -15,7 +15,7 @@ AppUpdatesURL=http://mosedal.net/abf
 DefaultDirName={pf}\ABF\Products
 DefaultGroupName=ABF\ABF Products
 OutputDir=D:\svn\abf\code\trunk\products
-OutputBaseFilename=Products-0.21-win32-setup
+OutputBaseFilename=Products-0.22-win32-setup
 LicenseFile=d:\svn\abf\code\trunk\products\license.txt
 InfoBeforeFile=d:\svn\abf\code\trunk\products\readme.txt
 Compression=lzma

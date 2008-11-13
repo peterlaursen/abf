@@ -51,8 +51,8 @@ cout << "The book has been converted successfully." << endl;
 return 0;
 }
 void Decode(Daisy& D, AbfEncoder& AE) {
-unsigned int Size = 4096, Processed = 4096;
-short Resampled[4096];
+unsigned int Size = 4096, Processed = 8192;
+short Resampled[8192];
 string Filename = D.GetMP3FileName();
 SampleSourcePtr Source = OpenSampleSource(Filename.c_str());
 int SampleRate, NumChannels;

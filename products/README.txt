@@ -2,8 +2,15 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.21
+Version 0.22
 Copyright (C) 2008 Peter Laursen.
+
+What's New in Version 0.22:
+
+This is only a bugfix release:
+1) If a book's title contained an apostrophe, the position was not saved. This bug has now been resolved.
+
+2) If the audio was below the target sample rate of 16Khz, the converter wouldn't convert the audio properly. This bug has also been resolved.
 
 What's New in Version 0.21?
 
