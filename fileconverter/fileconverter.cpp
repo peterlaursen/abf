@@ -29,9 +29,8 @@ unsigned short NumSections;
 fin >> NumSections;
 AE.SetNumSections(NumSections);
 AE.WriteHeader();
-
+// Flush the stream by removing the newline character
 getline(fin, Line);
-cout << "Line: " << Line << endl;
 string Filename;
 while (!fin.eof()) {
 AE.WriteSection();
@@ -43,8 +42,8 @@ fin.close();
 return 0;
 }
 void Decode(const char* Filename, AbfEncoder& AE) {
-unsigned int Size = 4096, Processed = 4096;
-short Resampled[4096];
+unsigned int Size = 4096, Processed = 8192;
+short Resampled[8192];
 SampleSourcePtr Source = OpenSampleSource(Filename);
 int SampleRate, NumChannels;
 SampleFormat SF;
