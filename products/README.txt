@@ -7,10 +7,11 @@ Copyright (C) 2008 Peter Laursen.
 
 What's New in Version 0.22:
 
-This is only a bugfix release:
+This release does not have too many new features. But there are a few worth mentioning:
 1) If a book's title contained an apostrophe, the position was not saved. This bug has now been resolved.
-
 2) If the audio was below the target sample rate of 16Khz, the converter wouldn't convert the audio properly. This bug has also been resolved.
+3) It is now possible to go to a random section with the g key.
+4) It is possible to skip to a new time by entering the position in minutes. This feature is still not perfect, but it is better than nothing.
 
 What's New in Version 0.21?
 
