@@ -17,8 +17,10 @@
 using namespace std;
 using namespace audiere;
 using namespace ABF;
+// Status variables:
 bool Quit = false;
 bool BookIsFinished = false;
+// Variables to do with actions
 bool Previous = false;
 bool Next = false;
 bool Paused = false;
@@ -26,6 +28,37 @@ bool FirstSection = false;
 bool LastSection = false;
 bool VolumeUp = false;
 bool VolumeDown = 0;
+bool GoToSection = false;
+bool JumpTime = false;
+bool JumpToTime(AbfDecoder& AD) {
+// This function will (hopefully) allow people to jump to various time positions within an audio book.
+int HeaderSize = AD.GetHeaderSize() + (6*AD.GetNumSections());
+cout << endl << "Type in the position you want to go to in minutes: " << endl;
+int Minutes;
+cin >> Minutes;
+if (Minutes < 0) return false;
+// Turn our minutes into seconds
+cin.ignore(10000, '\n');
+cout << endl << "We are to go to the position " << Minutes << " minutes." << endl;
+Minutes *= 60;
+cout << "This is " << Minutes << " seconds." << endl;
+// Convert this into frames. 50 frames per second.
+Minutes *= 50;
+cout << "All in all, we need to go to frames position " << Minutes << endl;
+int LastPosition = AD.ftell();
+fseek(AD.GetFileHandle(), HeaderSize, SEEK_SET);
+FILE* Handle = AD.GetFileHandle();
+unsigned short FrameSize;
+for (int i = 0; i < Minutes; i++) {
+if (fread(&FrameSize, sizeof(short), 1, Handle) <= 0) {
+cout << "Cannot read from file, returning 0." << endl;
+fseek(Handle, LastPosition, SEEK_SET);
+return false;
+}
+fseek(Handle, FrameSize, SEEK_CUR);
+}
+return true;
+}
 #ifdef WIN32
 void Thread(void* Filename) {
 #else
@@ -106,6 +139,27 @@ if (Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
 }
+if (GoToSection) {
+Stream->stop();
+cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
+unsigned short NewSection;
+cin >> NewSection;
+--NewSection;
+if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
+CurrentSection = NewSection;
+fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+cin.ignore(10000, '\n');
+GoToSection = false;
+}
+if (JumpTime) {
+Stream->stop();
+if (!JumpToTime(AD)) continue;
+// Set current section
+for (int i = 0; i < AD.GetNumSections(); i++) {
+if (Array[i] >= AD.ftell()) break;
+}
+JumpTime = false;
+}
 if (FirstSection) {
 CurrentSection = 0;
 fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
@@ -162,6 +216,8 @@ void Input() {
 char Key = getch(); 
 if (Key == '<') VolumeDown = true;
 if (Key == '>') VolumeUp = true;
+if (Key == 'g') GoToSection = true;
+if (Key == 'j') JumpTime = true;
 if (Key == 'b') Next = true;
 if (Key == 'v' || Key == 'c') Paused = true;
 if (Key == 'x') Paused = false;
