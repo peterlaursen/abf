@@ -41,5 +41,6 @@ Name: "{group}\{cm:UninstallProgram,Products}"; Filename: "{uninstallexe}"
 Root: HKCR; Subkey: ".abf"; ValueType: string; ValueName: ""; ValueData: "ABFAudioBook"; Flags: uninsdeletevalue
  Root: HKCR; Subkey: "ABFAudioBook"; ValueType: string; ValueName: ""; ValueData: "ABF Audio Book"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "ABFAudioBook\shell\open\command"; ValueType: string;ValueName: ""; ValueData: """{app}\PLAYER.EXE"" ""%1"""
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app};"; Flags: uninsdeletekeyifempty
-                                                        
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app};"; Flags: uninsdeletekey
+                                                        [UninstallDelete]
+                                                                         Type: files; Name: "{%USERPROFILE}\.abfplayer.db";
