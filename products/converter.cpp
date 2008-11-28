@@ -39,6 +39,7 @@ AE.SetAuthor(StrAuthor.c_str());
 Meta = "ncc:totalTime";
 string StrTime = D.ExtractMetaInfo(Meta);
 AE.SetTime(StrTime.c_str());
+AE.SetNumSections(D.GetNumSections());
 AE.WriteHeader();
 unsigned short File = 0;
 while (D.OpenSmil()) {
