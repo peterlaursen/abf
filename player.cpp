@@ -37,21 +37,18 @@ cout << endl << "Type in the position you want to go to in minutes: " << endl;
 int Minutes;
 cin >> Minutes;
 if (Minutes < 0) return false;
-// Turn our minutes into seconds
+// Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
-cout << endl << "We are to go to the position " << Minutes << " minutes." << endl;
 Minutes *= 60;
-cout << "This is " << Minutes << " seconds." << endl;
 // Convert this into frames. 50 frames per second.
 Minutes *= 50;
-cout << "All in all, we need to go to frames position " << Minutes << endl;
 int LastPosition = AD.ftell();
 fseek(AD.GetFileHandle(), HeaderSize, SEEK_SET);
 FILE* Handle = AD.GetFileHandle();
 unsigned short FrameSize;
 for (int i = 0; i < Minutes; i++) {
 if (fread(&FrameSize, sizeof(short), 1, Handle) <= 0) {
-cout << "Cannot read from file, returning 0." << endl;
+cout << "Cannot read from file, returning false." << endl;
 fseek(Handle, LastPosition, SEEK_SET);
 return false;
 }
@@ -78,10 +75,10 @@ return 0;
 AD.ReadHeader();
 cout << "Commands you can use in the player: " << endl;
 cout << "Key - Description" << endl;
-cout << "f - Go to first section" << endl;
-cout << "l - go to last section" << endl;
+cout << "f - Go to first section, l - go to last section" << endl;
 cout << "x - Play, c or v - Pause" << endl;
 cout << "b - Next section, z - Previous section" << endl;
+cout << "g - go to section, j - jump to time" << endl;
 cout << "< - Volume Down, > - Volume Up" << endl;
 cout << "q - Quit" << endl;
 cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetTime() << endl;
