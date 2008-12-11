@@ -25,7 +25,7 @@ bool IsOpen() { return _IsOpen; }
  char* GetAuthor();
  char* GetTime();
 unsigned short GetNumSections();
-unsigned short GetHeaderSize();
+unsigned short GetHeaderSize() { return HeaderSize; }
 unsigned short GetMajor();
 unsigned short GetMinor();
 bool feof();
