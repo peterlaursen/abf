@@ -36,11 +36,15 @@ int HeaderSize = AD.GetHeaderSize() + (6*AD.GetNumSections());
 cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: " << endl;
 int Minutes;
+#ifndef WIN32
 nocbreak();
 echo();
+#endif
 cin >> Minutes;
+#ifndef WIN32
 cbreak();
 noecho();
+#endif
 if (Minutes < 0) return false;
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
@@ -143,14 +147,18 @@ continue;
 }
 if (GoToSection) {
 Stream->stop();
+#ifndef WIN32
 echo();
 nocbreak();
+#endif
 cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
 unsigned short NewSection;
 cin.clear();
 cin >> NewSection;
+#ifndef WIN32
 cbreak();
 noecho();
+#endif
 --NewSection;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
