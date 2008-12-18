@@ -1,1 +1,1 @@
-gcc -o player -I ../libabf -I ../libdaisy -I ~/libs/audiere/include -I ~/libs/speex/include sqlite3.c database.cpp player.cpp /usr/local/lib/libaudiere.so /usr/local/lib/libspeex.so.6 ../libabf/libabf.cpp compat.c -lcurses
+gcc -o player -I ../libabf -I ../libdaisy -I ~/libs/audiere/include -I ~/libs/speex/include sqlite3.c database.cpp player.cpp /usr/local/lib/libaudiere.so /usr/local/lib/libspeex.so.6 ../libabf/libabf.cpp -lcurses
