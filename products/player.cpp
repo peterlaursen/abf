@@ -9,9 +9,9 @@
 #include <conio.h>
 #include <windows.h>
 #else
-#include "compat.h"
 #include <unistd.h>
 #include <pthread.h>
+#include <curses.h>
 #endif
 
 using namespace std;
@@ -33,9 +33,14 @@ bool JumpTime = false;
 bool JumpToTime(AbfDecoder& AD) {
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 int HeaderSize = AD.GetHeaderSize() + (6*AD.GetNumSections());
+cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: " << endl;
 int Minutes;
+nocbreak();
+echo();
 cin >> Minutes;
+cbreak();
+noecho();
 if (Minutes < 0) return false;
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
@@ -138,14 +143,18 @@ continue;
 }
 if (GoToSection) {
 Stream->stop();
+echo();
+nocbreak();
 cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
 unsigned short NewSection;
+cin.clear();
 cin >> NewSection;
+cbreak();
+noecho();
 --NewSection;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
-cin.ignore(10000, '\n');
 GoToSection = false;
 }
 if (JumpTime) {
@@ -230,6 +239,15 @@ if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
+if (argc != 2) {
+cout << "You must specify an audio book to play." << endl;
+return 1;
+}
+#ifndef WIN32
+initscr();
+cbreak();
+noecho();
+#endif
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
 HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[1]);
@@ -254,6 +272,9 @@ usleep(250);
 WaitForSingleObject(ThreadID, INFINITE);
 #else
 pthread_join(id, 0);
+nocbreak();
+echo();
+endwin();
 #endif
 return 0;
 }
