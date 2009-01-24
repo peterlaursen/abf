@@ -170,7 +170,6 @@ Stream->stop();
 if (!JumpToTime(AD)) continue;
 // Set current section
 int Position = AD.ftell();
-cout << "File position: " << AD.ftell() << endl;
 for (int i = 0; i <= AD.GetNumSections(); i++) {
 if (Array[i] > Position) {
 CurrentSection = i;
@@ -178,7 +177,6 @@ break;
 }
 }
 JumpTime = false;
-cout << endl << "The current section is  " << CurrentSection << endl;
 }
 if (FirstSection) {
 CurrentSection = 0;
