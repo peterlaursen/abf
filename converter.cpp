@@ -87,6 +87,8 @@ fclose(fin);
 #ifdef WIN32
 DeleteFile(TempFile);
 #else
-system("rm temp.raw");
+string Command = "rm ";
+Command += TempFile;
+system((char*)Command.c_str());
 #endif
 }
