@@ -1,0 +1,1 @@
+g++ -I /opt/local/include/ -I /usr/local/include/ -I ../libdaisy/ -I ../libabf/ -o converter /opt/local/lib/libspeex.a /opt/local/lib/libspeexdsp.a /usr/local/lib/libaudiere-1.9.4.dylib ../libabf/libabf.cpp ../libdaisy/libdaisy.cpp converter.cpp
