@@ -3,10 +3,19 @@
 #include <cstdio>
 #include <string>
 #include <speex/speex.h>
+#ifdef WIN32
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
+#else
+#define SHARED
+#endif
 namespace ABF {
 using std::FILE;
 using std::string;
-class AbfDecoder {
+class SHARED AbfDecoder {
 int* Array;
 	void* Decoder;
 SpeexBits Bits;
@@ -36,7 +45,7 @@ int* GetSections();
 void Decode(short* Output);
 FILE* GetFileHandle();
 };
-class AbfEncoder {
+class SHARED AbfEncoder {
 void* Encoder;
 SpeexBits Bits;
 FILE* fout;
@@ -54,5 +63,9 @@ void WriteHeader();
 void WriteSection();
 void Encode(short* Input);
 };
+// Functions common to most of the programs developed so far...
+// DecodeToRawAudio
+SHARED char* DecodeToRawAudio(const char* Filename);
+SHARED bool EncodeABF(AbfEncoder& AE, char* TempFile);
 }
 #endif
