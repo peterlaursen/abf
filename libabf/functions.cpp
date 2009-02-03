@@ -30,7 +30,7 @@ SpeexResamplerState* State = speex_resampler_init(1, SampleRate, 16000, 8, 0);
 short Buffer[4096];
 #ifdef WIN32
 char* TempFile = tempnam(".\\", "ABFConv");
-Â#else
+#else
 char* TempFile = tempnam("./", "ABFConv");
 #endif
 FILE* temp = fopen(TempFile, "wb");
