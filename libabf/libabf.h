@@ -40,6 +40,7 @@ unsigned short GetMinor();
 bool feof();
 int ftell();
 void fclose();
+void Seek(long offset, int whence);
 void ReadHeader();
 int* GetSections();
 void Decode(short* Output);

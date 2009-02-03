@@ -52,16 +52,17 @@ Minutes *= 60;
 // Convert this into frames. 50 frames per second.
 Minutes *= 50;
 int LastPosition = AD.ftell();
-fseek(AD.GetFileHandle(), HeaderSize, SEEK_SET);
 FILE* Handle = AD.GetFileHandle();
-unsigned short FrameSize;
+cout << "File Handle Obtained." << endl;
+AD.Seek(HeaderSize, SEEK_SET);
+unsigned short FrameSize = 0;
 for (int i = 0; i < Minutes; i++) {
 if (fread(&FrameSize, sizeof(short), 1, Handle) <= 0) {
 cout << "Cannot read from file, returning false." << endl;
-fseek(Handle, LastPosition, SEEK_SET);
+AD.Seek(LastPosition, SEEK_SET);
 return false;
 }
-fseek(Handle, FrameSize, SEEK_CUR);
+AD.Seek(FrameSize, SEEK_CUR);
 }
 return true;
 }
@@ -111,7 +112,7 @@ int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
 if (LastPosition > 0) {
-fseek(AD.GetFileHandle(), LastPosition, SEEK_SET);
+AD.Seek(LastPosition, SEEK_SET);
 // Set CurrentSection to the correct section
 for (int i = 0; i < AD.GetNumSections(); i++) {
 if (Array[i] > LastPosition) {
@@ -162,7 +163,7 @@ noecho();
 --NewSection;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
-fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[CurrentSection], SEEK_SET);
 GoToSection = false;
 }
 if (JumpTime) {
@@ -180,12 +181,12 @@ JumpTime = false;
 }
 if (FirstSection) {
 CurrentSection = 0;
-fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[CurrentSection], SEEK_SET);
 FirstSection = false;
 }
 if (LastSection) {
 CurrentSection = AD.GetNumSections()-1;
-fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[CurrentSection], SEEK_SET);
 LastSection = false;
 }
 
@@ -197,7 +198,7 @@ continue;
 }
 Stream->stop();
 CurrentSection += 1;
-fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[CurrentSection], SEEK_SET);
 Next = false;
 }
 if (Previous) {
@@ -208,11 +209,11 @@ continue;
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Stream->stop();
 CurrentSection -= 1;
-fseek(AD.GetFileHandle(), Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[CurrentSection], SEEK_SET);
 Previous = false;
 }
 // This bit pre-buffers input and decodes the output
-LastPosition = ftell(AD.GetFileHandle());
+LastPosition = AD.ftell();
 for (int i = 0; i < 32000; i+=320) {
 if (AD.feof()) {
 BookIsFinished = true;

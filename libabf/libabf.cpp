@@ -3,6 +3,7 @@
 #include "libabf.h"
 using namespace std;
 namespace ABF {
+void AbfDecoder::Seek(long offset, int whence) { fseek(fin, offset, whence); }
 AbfDecoder::AbfDecoder(char* Filename) {
 Decoder = speex_decoder_init(&speex_wb_mode);
 speex_bits_init(&Bits);
