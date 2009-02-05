@@ -60,7 +60,26 @@ char* AbfDecoder::GetTitle() { return Title; }
 char* AbfDecoder::GetAuthor() { return Author; }
 char* AbfDecoder::GetTime() { return Time; }
 unsigned short AbfDecoder::GetNumSections() { return NumSections; }
-FILE* AbfDecoder::GetFileHandle() { return fin; }
+bool AbfDecoder::GoToPosition(int Minutes) {
+int HeaderSize = GetHeaderSize() + (6*GetNumSections());
+if (Minutes < 0) return false;
+Minutes *= 60;
+// Convert this into frames. 50 frames per second.
+Minutes *= 50;
+int LastPosition = ftell();
+Seek(HeaderSize, SEEK_SET);
+unsigned short FrameSize = 0;
+for (int i = 0; i < Minutes; i++) {
+if (fread(&FrameSize, sizeof(short), 1, fin) <= 0) {
+printf("Cannot read from file, returning false.");
+Seek(LastPosition, SEEK_SET);
+return false;
+}
+Seek(FrameSize, SEEK_CUR);
+}
+return true;
+}
+
 AbfDecoder::~AbfDecoder() {
 	fclose();
 	delete[] Title;

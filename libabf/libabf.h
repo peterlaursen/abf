@@ -44,7 +44,7 @@ void Seek(long offset, int whence);
 void ReadHeader();
 int* GetSections();
 void Decode(short* Output);
-FILE* GetFileHandle();
+bool GoToPosition(int Minutes);
 };
 class SHARED AbfEncoder {
 void* Encoder;

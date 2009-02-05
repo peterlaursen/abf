@@ -32,7 +32,6 @@ bool GoToSection = false;
 bool JumpTime = false;
 bool JumpToTime(AbfDecoder& AD) {
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
-int HeaderSize = AD.GetHeaderSize() + (6*AD.GetNumSections());
 cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: " << endl;
 int Minutes;
@@ -45,26 +44,9 @@ cin >> Minutes;
 cbreak();
 noecho();
 #endif
-if (Minutes < 0) return false;
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
-Minutes *= 60;
-// Convert this into frames. 50 frames per second.
-Minutes *= 50;
-int LastPosition = AD.ftell();
-FILE* Handle = AD.GetFileHandle();
-cout << "File Handle Obtained." << endl;
-AD.Seek(HeaderSize, SEEK_SET);
-unsigned short FrameSize = 0;
-for (int i = 0; i < Minutes; i++) {
-if (fread(&FrameSize, sizeof(short), 1, Handle) <= 0) {
-cout << "Cannot read from file, returning false." << endl;
-AD.Seek(LastPosition, SEEK_SET);
-return false;
-}
-AD.Seek(FrameSize, SEEK_CUR);
-}
-return true;
+return AD.GoToPosition(Minutes);
 }
 #ifdef WIN32
 void Thread(void* Filename) {
