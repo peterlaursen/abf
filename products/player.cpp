@@ -246,10 +246,13 @@ if (Key == 'z') Previous = true;
 if (Key == 'q') Quit = true;
 }
 int main(int argc, char* argv[]) {
-if (argc != 2) {
+if (argc < 2) {
 cout << "You must specify an audio book to play." << endl;
 return 1;
 }
+for (int i = 1; i < argc; i++) {
+BookIsFinished = false;
+if (Quit) break;
 #ifndef WIN32
 initscr();
 cbreak();
@@ -257,7 +260,7 @@ noecho();
 #endif
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[1]);
+HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[i]);
 #else
 pthread* id;
 pthread_create(&id, 0, Thread, argv[1]);
@@ -283,5 +286,6 @@ nocbreak();
 echo();
 endwin();
 #endif
+}
 return 0;
 }
