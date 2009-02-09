@@ -7,15 +7,15 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{2234610C-0AAA-4079-92AA-67EDF171E4B5}
 AppName=ABF Products
-AppVerName=ABF Products 0.22
+AppVerName=ABF Products 0.30-RC1
 AppPublisher=ABF Project
 AppPublisherURL=http://mosedal.net/abf
 AppSupportURL=http://mosedal.net/abf
 AppUpdatesURL=http://mosedal.net/abf
-DefaultDirName={pf}\ABF\Products
-DefaultGroupName=ABF\ABF Products
+DefaultDirName={pf}\ABF
+DefaultGroupName=ABF Products
 OutputDir=D:\svn\abf\code\trunk\products
-OutputBaseFilename=Products-0.22-win32-setup
+OutputBaseFilename=Products-0.30RC1-win32-setup
 LicenseFile=d:\svn\abf\code\trunk\products\license.txt
 InfoBeforeFile=d:\svn\abf\code\trunk\products\readme.txt
 Compression=lzma
@@ -26,6 +26,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
 Source: "D:\svn\abf\code\trunk\products\audiere.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "d:\svn\abf\code\trunk\libabf\libabf.dll"; DestDir: "{app}";
 Source: "D:\svn\abf\code\trunk\products\converter.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\svn\abf\code\trunk\products\libdaisy.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\svn\abf\code\trunk\products\libspeexdsp.dll"; DestDir: "{app}"; Flags: ignoreversion
@@ -41,6 +42,7 @@ Name: "{group}\{cm:UninstallProgram,Products}"; Filename: "{uninstallexe}"
 Root: HKCR; Subkey: ".abf"; ValueType: string; ValueName: ""; ValueData: "ABFAudioBook"; Flags: uninsdeletevalue
  Root: HKCR; Subkey: "ABFAudioBook"; ValueType: string; ValueName: ""; ValueData: "ABF Audio Book"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "ABFAudioBook\shell\open\command"; ValueType: string;ValueName: ""; ValueData: """{app}\PLAYER.EXE"" ""%1"""
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app};"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata}{app};"; Flags: uninsdeletekey
                                                         [UninstallDelete]
+; Remove the user's database with already played audio books.
                                                                          Type: files; Name: "{%USERPROFILE}\.abfplayer.db";

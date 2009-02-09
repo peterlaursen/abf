@@ -13,13 +13,13 @@
 #include <pthread.h>
 #include <curses.h>
 #endif
-
 using namespace std;
 using namespace audiere;
 using namespace ABF;
 // Status variables:
 bool Quit = false;
 bool BookIsFinished = false;
+AudioDevice* Device;
 // Variables to do with actions
 bool Previous = false;
 bool Next = false;
@@ -87,9 +87,8 @@ SetConsoleTitle(Temp.c_str());
 #endif
 short Buffer[320];
 short Buffer1[32000];
-AudioDevicePtr Device(OpenDevice());
 SampleFormat SF = SF_S16;
-OutputStreamPtr Stream;
+OutputStreamPtr Stream = 0;;
 int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
@@ -232,6 +231,8 @@ if (argc < 2) {
 cout << "You must specify an audio book to play." << endl;
 return 1;
 }
+// Open the audio device.
+Device = OpenDevice();
 for (int i = 1; i < argc; i++) {
 BookIsFinished = false;
 if (Quit) break;
