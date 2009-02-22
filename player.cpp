@@ -1,6 +1,7 @@
 #include <audiere.h>
 #include <speex/speex.h>
 #include "database.h"
+#include "player.h"
 #include <iostream>
 #include <cstdio>
 #include <libabf.h>
@@ -16,20 +17,8 @@
 using namespace std;
 using namespace audiere;
 using namespace ABF;
-// Status variables:
-bool Quit = false;
-bool BookIsFinished = false;
 AudioDevice* Device;
-// Variables to do with actions
-bool Previous = false;
-bool Next = false;
-bool Paused = false;
-bool FirstSection = false;
-bool LastSection = false;
-bool VolumeUp = false;
-bool VolumeDown = 0;
-bool GoToSection = false;
-bool JumpTime = false;
+PlayerStatus PS = Playing;
 bool JumpToTime(AbfDecoder& AD) {
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
@@ -57,7 +46,7 @@ AbfDecoder AD((char*)Filename);
 bool IsValid = AD.Validate();
 if (!IsValid) {
 cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
-Quit = true;
+PS = Quit;
 #ifdef WIN32
 return;
 #else
@@ -88,7 +77,7 @@ SetConsoleTitle(Temp.c_str());
 short Buffer[320];
 short Buffer1[32000];
 SampleFormat SF = SF_S16;
-OutputStreamPtr Stream = 0;;
+OutputStreamPtr Stream = 0;
 int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
@@ -103,31 +92,31 @@ break;
 }
 }
 float Volume = 1.0f;
-while (!AD.feof() && !Quit) {
+while (!AD.feof() && PS != Quit) {
 // Ensure that CurrentSection is up-to-date
 if (AD.ftell() > Array[CurrentSection+1]) CurrentSection += 1;
 // The rest of this loop processes key presses.
-if (VolumeDown) {
+if (PS == VolumeDown) {
 if (Volume == 0.0f) {
-VolumeDown = false;
+PS = Playing;
 continue;
 }
 Volume -= 0.1f;
-VolumeDown = false;
+PS = Playing;
 }
-if (VolumeUp) {
+if (PS == VolumeUp) {
 if (Volume >= 1.0f) {
-VolumeUp = false;
+PS = Playing;
 continue;
 }
 Volume += 0.1f;
-VolumeUp = false;
+PS = Playing;
 }
-if (Paused) {
+if (PS == Paused) {
 if (Stream->isPlaying()) Stream->stop();
 continue;
 }
-if (GoToSection) {
+if (PS == GoToSection) {
 Stream->stop();
 #ifndef WIN32
 echo();
@@ -145,9 +134,9 @@ noecho();
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-GoToSection = false;
+PS = Playing;
 }
-if (JumpTime) {
+if (PS == GoTime) {
 Stream->stop();
 if (!JumpToTime(AD)) continue;
 // Set current section
@@ -158,46 +147,45 @@ CurrentSection = i;
 break;
 }
 }
-JumpTime = false;
+PS = Playing;
 }
-if (FirstSection) {
+if (PS == FirstSection) {
 CurrentSection = 0;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-FirstSection = false;
+PS = Playing;
 }
-if (LastSection) {
+if (PS == LastSection) {
 CurrentSection = AD.GetNumSections()-1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-LastSection = false;
+PS = Playing;
 }
-
-if (Next) {
+if (PS == Next) {
 if (CurrentSection >= AD.GetNumSections() - 1) {
-Next = false;
+PS = Playing;
 CurrentSection = AD.GetNumSections()-1;
 continue;
 }
 Stream->stop();
 CurrentSection += 1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-Next = false;
+PS = Playing;
 }
-if (Previous) {
+if (PS == Previous) {
 if (CurrentSection == 0) {
-Previous = false;
+PS = Playing;
 continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Stream->stop();
 CurrentSection -= 1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-Previous = false;
+PS = Playing;
 }
 // This bit pre-buffers input and decodes the output
 LastPosition = AD.ftell();
 for (int i = 0; i < 32000; i+=320) {
 if (AD.feof()) {
-BookIsFinished = true;
+PS = BookIsFinished;
 break;
 }
 AD.Decode(Buffer);
@@ -209,22 +197,22 @@ Stream->play();
 // Wait until the playback is finished, then go run the loop again
 while (Stream->isPlaying());
 }
-if (Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
+if (PS == Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
 }
 void Input() {
 char Key = getch(); 
-if (Key == '<') VolumeDown = true;
-if (Key == '>') VolumeUp = true;
-if (Key == 'g') GoToSection = true;
-if (Key == 'j') JumpTime = true;
-if (Key == 'b') Next = true;
-if (Key == 'v' || Key == 'c') Paused = true;
-if (Key == 'x') Paused = false;
-if (Key == 'f') FirstSection = true;
-if (Key == 'l') LastSection = true;
-if (Key == 'z') Previous = true;
-if (Key == 'q') Quit = true;
+if (Key == '<') PS = VolumeDown;
+if (Key == '>') PS = VolumeUp;
+if (Key == 'g') PS = GoToSection;
+if (Key == 'j') PS = GoTime;
+if (Key == 'b') PS = Next;
+if (Key == 'v' || Key == 'c') PS = Paused;
+if (Key == 'x') PS = Playing;
+if (Key == 'f') PS = FirstSection;
+if (Key == 'l') PS = LastSection;
+if (Key == 'z') PS = Previous;
+if (Key == 'q') PS = Quit;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) {
@@ -234,8 +222,8 @@ return 1;
 // Open the audio device.
 Device = OpenDevice();
 for (int i = 1; i < argc; i++) {
-BookIsFinished = false;
-if (Quit) break;
+PS = Playing;
+if (PS == Quit) break;
 #ifndef WIN32
 initscr();
 cbreak();
@@ -247,9 +235,8 @@ HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[i]);
 #else
 pthread* id;
 pthread_create(&id, 0, Thread, argv[1]);
-
 #endif
-while (!Quit && !BookIsFinished) {
+while (PS != Quit && PS != BookIsFinished) {
 #ifdef WIN32
 if (kbhit()) Input();
 #else
