@@ -6,7 +6,9 @@ This file contains various declarations that are used within the player.
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <audiere.h>
+#ifdef WIN32
 #include <windows.h>
+#endif
 #include <libabf.h>
 #ifdef WIN32
 void Prebuffer(void*);
