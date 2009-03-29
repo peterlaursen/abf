@@ -1,1 +1,1 @@
-g++ -DLINUX -I /opt/local/include/ -I ../libabf/ -I /usr/local/include/ -I /usr/include -I /opt/local/include -L/usr/local/lib -o abfplayer -laudiere  /opt/local/lib/libspeex.a ../libabf/libabf.cpp player.cpp database.cpp sqlite3.o -playlist.cpp -lcurses
+gcc -c sqlite3.c; g++ -o abfplayer -I ../libabf -I /opt/local/include -I /usr/local/include -L/opt/local/lib -L/usr/local/lib -laudiere -lspeex -lspeexdsp ../libabf/libabf.cpp sqlite3.o database.cpp playlist.cpp player.cpp -DLINUX -lcurses
