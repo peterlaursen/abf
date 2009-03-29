@@ -43,7 +43,7 @@ void Thread(void* Filename) {
 void* Thread(void* Filename) {
 #endif
 AbfDecoder AD((char*)Filename);
-bool IsValid = AD.Validate();
+bool IsValid = AD.IsValid();
 if (!IsValid) {
 cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
 PS = Quit;
@@ -53,7 +53,6 @@ return;
 return 0;
 #endif
 }
-AD.ReadHeader();
 cout << "Commands you can use in the player: " << endl;
 cout << "Key - Description" << endl;
 cout << "f - Go to first section, l - go to last section" << endl;
@@ -231,7 +230,7 @@ noecho();
 #endif
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-Thread TypeThreadID = (Thread*)_beginthread(Thread, 0, argv[i]);
+ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, argv[i]);
 #else
 ThreadType id;
 pthread_create(&id, 0, Thread, argv[1]);
