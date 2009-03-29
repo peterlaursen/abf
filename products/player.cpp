@@ -231,9 +231,9 @@ noecho();
 #endif
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-HANDLE ThreadID = (HANDLE)_beginthread(Thread, 0, argv[i]);
+Thread TypeThreadID = (Thread*)_beginthread(Thread, 0, argv[i]);
 #else
-pthread* id;
+ThreadType id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
 while (PS != Quit && PS != BookIsFinished) {
