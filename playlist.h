@@ -9,17 +9,21 @@ This contains a rough implementation of a playlist class.
 #include "player.h"
 #include <string>
 #include <vector>
-SHARED class PlayList {
-std::vector<std::string> PlayList;
+class PlayList {
+std::vector<std::string> Items;
 int NumberOfItems;
 int CurrentItem;
 public:
-PlayList(): NumberOfItems = 0, CurrentItem = 0 {}
+PlayList(): NumberOfItems(0), CurrentItem(0) {}
 void Add(std::string);
-void Add(std::string[]);
-void Remove(int BookNumber = this->CurrentItem);
+void Add(char*);
+void Remove(int BookNumber = 0);
 bool NextBook();
 bool PreviousBook();
+int GetCurrentBook();
+char* GetCurrentBookName();
+int GetTotalItems();
+
 };
 #endif
 

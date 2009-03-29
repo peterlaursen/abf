@@ -6,15 +6,16 @@ This file contains the implementation of a rough playlist class.
 
 #include "playlist.h"
 using namespace std;
-void PlayList::Add(string Item) { Items.push_back(Item); ++TotalItems; }
+void PlayList::Add(string Item) { Items.push_back(Item); ++NumberOfItems; }
 void PlayList::Add(char* Item) {
 string MyItem = Item;
 Add(MyItem);
 }
-bool Remove(int CurrentBook) {
-if (CurrentBook < TotalItems)
-return false;
-Items.remove(CurrentBook);
+void PlayList::Remove(int CurrentBook) {
+if (CurrentBook < NumberOfItems)
+return;
+Items.erase(Items.begin()+CurrentBook);
+--NumberOfItems;
 }
 
 bool PlayList::PreviousBook() {
@@ -23,8 +24,14 @@ if (CurrentItem == 0) return false;
 return true;
 }
 bool PlayList::NextBook() {
-if (CurrentItem > TotalItems - 1) return false;
+if (CurrentItem > NumberOfItems - 1) return false;
 ++CurrentItem;
 return true;
 }
 
+int PlayList::GetCurrentBook() { return CurrentItem; }
+char* PlayList::GetCurrentBookName() {
+string Book = Items[CurrentItem];
+return (char*)Book.c_str();
+}
+int PlayList::GetTotalItems() { return NumberOfItems; }
