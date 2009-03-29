@@ -15,6 +15,15 @@ void Prebuffer(void*);
 #else
 void* Prebuffer(void*);
 #endif
+#ifdef WIN32
+typedef HANDLE ThreadType;
+#endif
+#ifdef LINUX
+typedef pthread_t ThreadType;
+#endif
+#ifdef FREEBSD
+typedef thread* ThreadType;
+#endif
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
 Playing,
