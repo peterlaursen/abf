@@ -19,6 +19,18 @@ using namespace audiere;
 using namespace ABF;
 AudioDevice* Device;
 PlayerStatus PS = Playing;
+PlayList PL;
+void AddBookToPlaylist() {
+string NewBook;
+cout << "Type in the book to add." << endl;
+getline(cin, NewBook);
+PL.Add(NewBook);
+}
+void RemoveBookFromPlaylist() {
+PL.Remove(PL.GetCurrentBook());
+if (PL.GetTotalItems() == 0);
+}
+
 bool JumpToTime(AbfDecoder& AD) {
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
@@ -42,7 +54,9 @@ void Thread(void* Filename) {
 #else
 void* Thread(void* Filename) {
 #endif
-AbfDecoder AD((char*)Filename);
+char* Temp = (char*)Filename;
+cout << "Inside thread: " << Temp << endl;
+AbfDecoder AD(Temp);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
 cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
@@ -158,6 +172,18 @@ CurrentSection = AD.GetNumSections()-1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
+if (PS == NextBook || PS == PreviousBook) break;
+if (PS == AddBook) {
+Stream->stop();
+AddBookToPlaylist();
+PS = Playing;
+}
+if (PS == RemoveBook) {
+Stream->stop();
+RemoveBookFromPlaylist();
+PS = NextBook;
+break;
+}
 if (PS == Next) {
 if (CurrentSection >= AD.GetNumSections() - 1) {
 PS = Playing;
@@ -196,11 +222,13 @@ Stream->play();
 // Wait until the playback is finished, then go run the loop again
 while (Stream->isPlaying());
 }
-if (PS == Quit) SaveLastPosition(AD.GetTitle(), LastPosition);
+if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
 }
 void Input() {
 char Key = getch(); 
+if (Key == 'a') PS = AddBook;
+if (Key == 'r') PS = RemoveBook;
 if (Key == '<') PS = VolumeDown;
 if (Key == '>') PS = VolumeUp;
 if (Key == 'g') PS = GoToSection;
@@ -211,6 +239,8 @@ if (Key == 'x') PS = Playing;
 if (Key == 'f') PS = FirstSection;
 if (Key == 'l') PS = LastSection;
 if (Key == 'z') PS = Previous;
+if (Key == 'B') PS = NextBook;
+if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
 }
 int main(int argc, char* argv[]) {
@@ -220,22 +250,40 @@ return 1;
 }
 // Open the audio device.
 Device = OpenDevice();
-for (int i = 1; i < argc; i++) {
-PS = Playing;
+for (int i = 1; i < argc; i++) PL.Add(argv[i]);
+char* Filename;
+while (PL.GetCurrentBook() < PL.GetTotalItems()){
 if (PS == Quit) break;
+if (PS == PreviousBook) {
+if (!PL.PreviousBook()) break;
+PS = Playing;
+}
+if (PS == NextBook) {
+if (PL.GetTotalItems() == 0) break;
+
+if (!PL.NextBook()) break;
+PS = Playing;
+}
+if (PS == BookIsFinished) {
+if (PL.GetTotalItems() == 1) break;
+PS = NextBook;
+continue;
+}
+
 #ifndef WIN32
 initscr();
 cbreak();
 noecho();
 #endif
+Filename = PL.GetCurrentBookName();
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, argv[i]);
+ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, Filename);
 #else
 ThreadType id;
 pthread_create(&id, 0, Thread, argv[1]);
 #endif
-while (PS != Quit && PS != BookIsFinished) {
+while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
 #ifdef WIN32
 if (kbhit()) Input();
 #else

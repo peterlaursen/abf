@@ -21,6 +21,7 @@ int* Array;
 SpeexBits Bits;
 FILE* fin;
 bool _IsOpen;
+bool _IsValid;
 char* Title;
 char* Author;
 char* Time;
@@ -32,7 +33,7 @@ AbfDecoder(char* Filename);
 ~AbfDecoder();
 void Initialize(char*);
 void Reset();
-
+bool IsValid() { return _IsValid; }
 bool IsOpen() { return _IsOpen; }
  char* GetTitle();
  char* GetAuthor();

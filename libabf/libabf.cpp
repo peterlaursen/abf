@@ -19,8 +19,9 @@ bool AbfDecoder::Validate() {
 char Buffer[4];
 Buffer[3] = '\0';
 fread(Buffer, 1, 3, fin);
-if (strcmp(Buffer, "ABF") == 0) return true;
-else return false;
+if (strcmp(Buffer, "ABF") == 0) _IsValid = true;
+else _IsValid = false;
+return _IsValid;
 }
 void AbfDecoder::ReadHeader() {
 fread(&HeaderSize, sizeof(short), 1, fin);
