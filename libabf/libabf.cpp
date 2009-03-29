@@ -5,11 +5,15 @@ using namespace std;
 namespace ABF {
 void AbfDecoder::Seek(long offset, int whence) { fseek(fin, offset, whence); }
 AbfDecoder::AbfDecoder(char* Filename) {
-Decoder = speex_decoder_init(&speex_wb_mode);
-speex_bits_init(&Bits);
+Initialize(Filename);
+}
+void AbfDecoder::Initialize(char* Filename) {
 fin = fopen(Filename, "rb");
 if (!fin) _IsOpen = false;
 else _IsOpen = true;
+if (Validate()) ReadHeader();
+Decoder = speex_decoder_init(&speex_wb_mode);
+speex_bits_init(&Bits);
 }
 bool AbfDecoder::Validate() {
 char Buffer[4];
@@ -81,7 +85,10 @@ return true;
 }
 
 AbfDecoder::~AbfDecoder() {
-	fclose();
+Reset();
+}
+void AbfDecoder::Reset() {
+fclose();
 	delete[] Title;
 	delete[] Author;
 	delete[] Time;

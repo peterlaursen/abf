@@ -25,10 +25,14 @@ char* Title;
 char* Author;
 char* Time;
 unsigned short HeaderSize, Major, Minor, NumSections;
+void ReadHeader();
+bool Validate();
 public:
 AbfDecoder(char* Filename);
 ~AbfDecoder();
-bool Validate();
+void Initialize(char*);
+void Reset();
+
 bool IsOpen() { return _IsOpen; }
  char* GetTitle();
  char* GetAuthor();
@@ -41,7 +45,6 @@ bool feof();
 int ftell();
 void fclose();
 void Seek(long offset, int whence);
-void ReadHeader();
 int* GetSections();
 void Decode(short* Output);
 bool GoToPosition(int Minutes);
