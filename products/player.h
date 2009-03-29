@@ -6,6 +6,7 @@ This file contains various declarations that are used within the player.
 #ifndef PLAYER_H
 #define PLAYER_H
 #include <audiere.h>
+#include "playlist.h"
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -28,6 +29,8 @@ enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
 Playing,
 Paused,
+PreviousBook,
+NextBook,
 Previous,
 Next,
 VolumeUp,
