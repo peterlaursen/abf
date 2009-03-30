@@ -21,10 +21,22 @@ AudioDevice* Device;
 PlayerStatus PS = Playing;
 PlayList PL;
 void AddBookToPlaylist() {
+#ifndef WIN32
+nocbreak();
+echo();
+#endif
+
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
+cout << "I received this as Input: " << NewBook << endl;
+
 PL.Add(NewBook);
+#ifndef WIN32
+cbreak();
+noecho();
+#endif
+
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -281,7 +293,7 @@ SetConsoleTitle("ABF Player");
 ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, Filename);
 #else
 ThreadType id;
-pthread_create(&id, 0, Thread, argv[1]);
+pthread_create(&id, 0, Thread, Filename);
 #endif
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
 #ifdef WIN32
