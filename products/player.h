@@ -23,7 +23,7 @@ typedef HANDLE ThreadType;
 typedef pthread_t ThreadType;
 #endif
 #ifdef FREEBSD
-typedef thread* ThreadType;
+typedef pthread* ThreadType;
 #endif
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning

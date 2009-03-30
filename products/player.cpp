@@ -29,8 +29,6 @@ echo();
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
-cout << "I received this as Input: " << NewBook << endl;
-
 PL.Add(NewBook);
 #ifndef WIN32
 cbreak();
@@ -67,7 +65,6 @@ void Thread(void* Filename) {
 void* Thread(void* Filename) {
 #endif
 char* Temp = (char*)Filename;
-cout << "Inside thread: " << Temp << endl;
 AbfDecoder AD(Temp);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
@@ -84,6 +81,7 @@ cout << "Key - Description" << endl;
 cout << "f - Go to first section, l - go to last section" << endl;
 cout << "x - Play, c or v - Pause" << endl;
 cout << "b - Next section, z - Previous section" << endl;
+cout << "B - Next book, Z = Previous book" << endl;
 cout << "g - go to section, j - jump to time" << endl;
 cout << "< - Volume Down, > - Volume Up" << endl;
 cout << "q - Quit" << endl;
