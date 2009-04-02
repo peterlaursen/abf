@@ -128,11 +128,13 @@ return _LastPosition;
 }
 }
 string Daisy::FindSmil() {
+static bool BodyFound = false;
 _Ncc.seekg(_LastPosition, ios::beg);
 string Line;
 while (1) {
+if (BodyFound) return "nomore";
 getline(_Ncc, Line);
-if (Line.find("</body>") != string::npos) return "nomore";
+if (Line.find("</body>") != string::npos) BodyFound = true;
 // Bypass page numbers
 if (Line.find("<span") != string::npos) continue;
 int Position = Line.find("href=\"");
@@ -200,33 +202,7 @@ fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
 string& Daisy::ExtractSectionTitle() { 
-if (!_LastPosition) {
-_Ncc.seekg(0, ios::beg);
-_LastPosition = FindBody();
-}
-else _Ncc.seekg(_LastPosition, ios::beg);
-string Line;
-while (1) {
-getline(_Ncc, Line);
-if (Line.find("</body>") != string::npos) {
-_SectionTitle = "nomore";
-return _SectionTitle;
-}
-if (Line.find("<h") != string::npos) {
-if (Line.find("<a") == string::npos) {
-getline(_Ncc, Line);
-break;
-}
-else break;
-}
-
-}
-_LastPosition = _Ncc.tellg();
-Line.erase(Line.rfind("</a>"));
-Line.erase(0, Line.rfind(">")+1);
-_SectionTitle = Line;
-Replace(_SectionTitle);
-return _SectionTitle;
+return string("notworking");
 }
 string& Daisy::GetPath() { return _Path; }
 unsigned short Daisy::GetNumSections() {
@@ -235,7 +211,14 @@ _Ncc.seekg(0, ios::beg);
 _Ncc.seekg(FindBody(), ios::beg);
 unsigned short NumSections = 0;
 // This is a cheap trick: The ExtractSectionTitle() remains public, but it is not currently used in any of the programs.
-while (ExtractSectionTitle() != "nomore") ++NumSections;
+string Line;
+while (1) {
+getline(_Ncc, Line);
+if (Line.find("href") != string::npos) {
+++NumSections;
+}
+if (Line.find("</body>") != string::npos) break;
+}
 _Ncc.seekg(Last, ios::beg);
 _LastPosition = Last;
 return NumSections;
