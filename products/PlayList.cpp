@@ -15,17 +15,30 @@ void PlayList::Remove(int CurrentBook) {
 if (CurrentBook >= NumberOfItems) return;
 Items.erase(Items.begin()+CurrentBook);
 if (NumberOfItems > 0) --NumberOfItems;
+if (NumberOfItems == 1) CurrentItem = 0;
 }
 
 bool PlayList::PreviousBook() {
-if (CurrentItem == 0) return false;
+if (CurrentItem == 0) return true;
 --CurrentItem;
 return true;
 }
 bool PlayList::NextBook() {
-if (CurrentItem > NumberOfItems - 1) return false;
+if (NumberOfItems == 1) {
+CurrentItem = 0;
+return true;
+}
+
+if (CurrentItem < NumberOfItems - 1) {
 ++CurrentItem;
 return true;
+}
+if (CurrentItem == NumberOfItems - 1 || CurrentItem > NumberOfItems - 1) {
+CurrentItem = NumberOfItems - 1;
+return true;
+}
+
+return false;
 }
 
 int PlayList::GetCurrentBook() { return CurrentItem; }
