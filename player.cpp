@@ -38,7 +38,7 @@ noecho();
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
-if (PL.GetTotalItems() == 0);
+if (PL.GetTotalItems() == 0) return;
 }
 
 bool JumpToTime(AbfDecoder& AD) {
@@ -191,7 +191,8 @@ PS = Playing;
 if (PS == RemoveBook) {
 Stream->stop();
 RemoveBookFromPlaylist();
-PS = NextBook;
+if (PL.GetTotalItems() >= 2 && PL.GetCurrentBook() + 1 <= PL.GetTotalItems() - 1) PS = PreviousBook;
+else PS = NextBook;
 break;
 }
 if (PS == Next) {
