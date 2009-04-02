@@ -255,10 +255,7 @@ if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
 }
 int main(int argc, char* argv[]) {
-if (argc < 2) {
-cout << "You must specify an audio book to play." << endl;
-return 1;
-}
+if (argc < 2) AddBookToPlaylist();
 // Open the audio device.
 Device = OpenDevice();
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
