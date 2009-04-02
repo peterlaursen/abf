@@ -12,8 +12,8 @@
 #include <cstdlib>
 #pragma comment(lib, "audiere.lib")
 #pragma comment(lib, "libdaisy.lib")
-#pragma comment(lib, "libspeexdsp_imp.lib")
-#pragma comment(lib, "libspeex_static.lib")
+#pragma comment(lib, "libspeexdsp.lib")
+#pragma comment(lib, "libspeex.lib")
 #pragma comment(lib, "libabf.lib")
 using namespace ABF;
 using namespace std;
