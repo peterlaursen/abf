@@ -255,6 +255,11 @@ if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
 }
 int main(int argc, char* argv[]) {
+#ifndef WIN32
+initscr();
+cbreak();
+noecho();
+#endif
 if (argc < 2) AddBookToPlaylist();
 // Open the audio device.
 Device = OpenDevice();
@@ -278,11 +283,6 @@ PS = NextBook;
 continue;
 }
 
-#ifndef WIN32
-initscr();
-cbreak();
-noecho();
-#endif
 Filename = PL.GetCurrentBookName();
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
