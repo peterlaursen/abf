@@ -202,7 +202,8 @@ fin.close();
 }
 bool Daisy::IsValid() { return _Valid; }
 string& Daisy::ExtractSectionTitle() { 
-return string("notworking");
+_SectionTitle = "notworking";
+return _SectionTitle;
 }
 string& Daisy::GetPath() { return _Path; }
 unsigned short Daisy::GetNumSections() {
