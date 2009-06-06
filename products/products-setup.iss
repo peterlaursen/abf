@@ -7,7 +7,7 @@
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
 AppId={{2234610C-0AAA-4079-92AA-67EDF171E4B5}
 AppName=ABF Products
-AppVerName=ABF Products 0.30-RC1
+AppVerName=ABF Products 0.30-Alpha1
 AppPublisher=ABF Project
 AppPublisherURL=http://mosedal.net/abf
 AppSupportURL=http://mosedal.net/abf

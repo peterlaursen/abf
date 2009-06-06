@@ -2,13 +2,18 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.30-RC1
+Version 0.30-Alpha1
 Copyright (C) 2008, 2009 Peter Laursen.
 
-What's New in Version 0.30-RC1:
+NOTE:
+
+This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
+
+What's New in Version 0.30-Alpha1:
 
 * When the player is launched from the command line, it is now possible to specify multiple files that the player is to play. The files will be played in the order they are specified.
 * Developers may take advantage of the new LibABF.dll file located in the installation directory. Unix-people should be looking for a .so file in /usr/local/lib.
+* Fixed a few bugs in the player, having to do with CurrentSection and Jump to Time.
 
 What's New in Version 0.22:
 
