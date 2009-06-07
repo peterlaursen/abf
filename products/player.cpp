@@ -166,7 +166,7 @@ if (!JumpToTime(AD)) continue;
 int Position = AD.ftell();
 for (int i = 0; i <= AD.GetNumSections(); i++) {
 if (Array[i] > Position) {
-CurrentSection = i;
+CurrentSection = i - 1;
 break;
 }
 }
