@@ -2,22 +2,12 @@ LIBDAISY
 
 A SIMPLE DESIGN DOCUMENT:
 
-LibDaisy contains the classes and functions for working with Daisy 2.02 books. The functions we are to use are currently scattered throughout the programs we have developed so far. It is our job to get a hold of these functions and combine them into a shared library. It is also our goal to create a .NET interface
+LibDaisy contains the classes and functions for working with Daisy 2.02 books. The functions we are to use are currently scattered throughout the programs we have developed so far. It is our job to get a hold of these functions and combine them into a shared library. This has been done with the invention of LibDaisy.
+It is also our goal to create a .NET interface - still not done. The library is to be re-designed anyway.
+The rest of this document was woefully out of date - therefore, it has been scrapped.
 
-THE LIBRARY:
+Problems with LibDaisy:
 
-The LibDaisy library will be built using classes and functions. The classes will be stored in a namespace called "ABF".
+Over the course of the development of ABF, LibDaisy has had a lot of bugs compared to the rest of the code. It has, historically, introduced many bugs to the converter. Character encoding has also shown itwelf to cause problems.
 
-DESIGN DECISIONS:
-
-1) The interface to the library will be stored in a single class called "Daisy". I originally considered static functions, but I believe they would not work too well.
-
-FUNCTION LIST:
-
-The class "Daisy" contains the following public functions:
-
-bool Open(): Opens the daisy book for reading - that means that it opens the "ncc.html" file
-void Close(): Closes the daisy book. This function will also be called from the destructor so that we can properly clean up after ourselves.
-vector<string> ExtractMetaInfo(): Extracts all the meta information and returns a vector<string> containing the information extracted.
-string ExtractMetaInfo(): Extracts the given meta info string and returns the value (see the Daisy 2.02 specification for valid values)
-ExtractMP3: Extracts the name of the next MP3 file. Returns the file name to be opened.
+Therefore, a new design of this library is imperative.
