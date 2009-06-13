@@ -15,7 +15,7 @@ AppUpdatesURL=http://mosedal.net/abf
 DefaultDirName={pf}\ABF
 DefaultGroupName=ABF Products
 OutputDir=D:\svn\abf\code\trunk\products
-OutputBaseFilename=Products-0.30RC1-win32-setup
+OutputBaseFilename=Products-0.30Alpha1-win32-setup
 LicenseFile=d:\svn\abf\code\trunk\products\license.txt
 InfoBeforeFile=d:\svn\abf\code\trunk\products\readme.txt
 Compression=lzma
@@ -28,7 +28,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Source: "D:\svn\abf\code\trunk\products\audiere.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "d:\svn\abf\code\trunk\libabf\libabf.dll"; DestDir: "{app}";
 Source: "D:\svn\abf\code\trunk\products\converter.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\svn\abf\code\trunk\products\libdaisy.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "D:\svn\abf\code\trunk\libdaisy\libdaisy.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\svn\abf\code\trunk\products\libspeexdsp.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "D:\svn\abf\code\trunk\products\player.exe"; DestDir: "{app}"; Flags: ignoreversion
         Source: "d:\svn\abf\code\trunk\products\readme.txt"; DestDir: "{app}"; flags: isreadme
@@ -37,12 +37,13 @@ Source: "D:\svn\abf\code\trunk\products\player.exe"; DestDir: "{app}"; Flags: ig
 [Icons]
 Name: "{group}\{cm:ProgramOnTheWeb,Products}"; Filename: "http://mosedal.net/abf"
 Name: "{group}\{cm:UninstallProgram,Products}"; Filename: "{uninstallexe}"
-        Name: "{group}\View README.TXT"; Filename: "{app}\readme.txt";
+        Name: "{group}\Documentation"; Filename: "{app}\readme.txt";
+Name: "{group}\Launch Player"; Filename: "{app}\player.exe";
                        [Registry]
 Root: HKCR; Subkey: ".abf"; ValueType: string; ValueName: ""; ValueData: "ABFAudioBook"; Flags: uninsdeletevalue
  Root: HKCR; Subkey: "ABFAudioBook"; ValueType: string; ValueName: ""; ValueData: "ABF Audio Book"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "ABFAudioBook\shell\open\command"; ValueType: string;ValueName: ""; ValueData: """{app}\PLAYER.EXE"" ""%1"""
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata}{app};"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{app};"; Flags: uninsdeletevalue
                                                         [UninstallDelete]
 ; Remove the user's database with already played audio books.
                                                                          Type: files; Name: "{%USERPROFILE}\.abfplayer.db";
