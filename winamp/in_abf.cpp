@@ -9,7 +9,7 @@
 
 #include <windows.h>
 
-#include "in2.h"
+#include <winamp/in2.h>
 #include <libabf.h>
 using namespace ABF;
 #pragma comment(lib, "libabf.lib")
@@ -207,12 +207,14 @@ void setoutputtime(int time_in_ms) {
 void setvolume(int volume) { mod.outMod->SetVolume(volume); }
 void setpan(int pan) { mod.outMod->SetPan(pan); }
 
-// this gets called when the use hits Alt+3 to get the file info.
+// this gets called when the user hits Alt+3 to get the file info.
 // if you need more info, ask me :)
 
 int infoDlg(const char *fn, HWND hwnd)
 {
-	// CHANGEME! Write your own info dialog code here
+char Message[1024];
+sprintf(Message, "ABF INFORMATION\r\nTitle: %s\r\nAuthor: %s\r\nThis book lasts %s\r\n", AD->GetTitle(), AD->GetAuthor(), AD->GetTime());
+MessageBox(hwnd, Message, "Information", MB_OK);
 	return 0;
 }
 
@@ -229,12 +231,7 @@ void getfileinfo(const char *filename, char *title, int *length_in_ms)
 	if (!filename || !*filename)  // currently playing file
 	{
 		if (length_in_ms) *length_in_ms=getlength();
-		if (title) // get non-path portion.of filename
-		{
-			char *p=lastfn+strlen(lastfn);
-			while (*p != '\\' && p >= lastfn) p--;
-			strcpy(title,++p);
-		}
+		if (title) title = AD->GetTitle();
 	}
 	else // some other file
 	{
