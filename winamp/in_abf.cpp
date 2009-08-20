@@ -1,21 +1,22 @@
 /*
-** Example Winamp .ABF input plug-in
-** Copyright (c) 2009, Peter Laursen.
+** Example Winamp .RAW input plug-in
+** Copyright (c) 1998, Justin Frankel/Nullsoft Inc.
 **
-** This plugin was based on the Example RAW plugin in the Winamp 5.5 SDK. I hope Winamp will be able to play the ABF audio books.
+** benski - Cinco de Mayo 2008
+**  Updated for Winamp 5.5 const-correct In_Module definition 
+**
 */
 
 #include <windows.h>
 
-#include "Winamp/in2.h"
+#include "in2.h"
 #include <libabf.h>
 using namespace ABF;
-// We need some pragma definitions.
+#pragma comment(lib, "libabf.lib")
 #pragma comment(lib, "libspeex.lib")
 #pragma comment(lib, "libspeexdsp.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
-#pragma comment(lib, "libabf.lib")
 // avoid CRT. Evil. Big. Bloated. Only uncomment this code if you are using 
 // 'ignore default libraries' in VC++. Keeps DLL size way down.
 // /*
@@ -45,10 +46,8 @@ int decode_pos_ms;		// current decoding position, in milliseconds.
 int paused;				// are we paused?
 volatile int seek_needed; // if != -1, it is the point that the decode 
 						  // thread should seek to, in ms.
+
 AbfDecoder* AD = NULL;
-
-HANDLE input_file=INVALID_HANDLE_VALUE; // input file handle
-
 volatile int killDecodeThread=0;			// the kill switch for the decode thread
 HANDLE thread_handle=INVALID_HANDLE_VALUE;	// the handle to the decode thread
 
@@ -58,14 +57,14 @@ DWORD WINAPI DecodeThread(LPVOID b); // the decode thread procedure
 void config(HWND hwndParent)
 {
 	MessageBox(hwndParent,
-		"This plugin cannot be configured. .ABF files have a fixed format.",
+		"This plugin has no configuration. .ABF has a fixed file format.",
 		"Configuration",MB_OK);
 	// if we had a configuration box we'd want to write it here (using DialogBox, etc)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Winamp Input Plugin\r\nCopyright (C) 2009 Peter Laursen\r\nhttp://mosedal.net/abf",
-		"About ABF Winamp Plugin",MB_OK);
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.0A1",
+		"About ABF Winamp Player",MB_OK);
 }
 
 void init() { 
@@ -86,22 +85,27 @@ int isourfile(const char *fn) {
 // called when winamp wants to play a file
 int play(const char *fn) 
 { 
-// Show our file name
-MessageBox(NULL, fn, "File", MB_OK);
-AD = new AbfDecoder((char*)fn);
-int maxlatency;
+	int maxlatency;
 	int thread_id;
 
 	paused=0;
 	decode_pos_ms=0;
 	seek_needed=-1;
+
+	
+	
+	// CHANGEME! Write your own file opening code here
+AD = new AbfDecoder((char*)fn);
 if (!AD->IsValid()) {
 		// we return error. 1 means to keep going in the playlist, -1
 		// means to stop the playlist.
 		return 1;
 	}
-// Read ABF Header
 
+	file_length=0; // GetFileSize(input_file,NULL);
+
+
+	
 	strcpy(lastfn,fn);
 
 	// -1 and -1 are to specify buffer and prebuffer lengths.
@@ -109,14 +113,13 @@ if (!AD->IsValid()) {
 	// really do.
 	maxlatency = mod.outMod->Open(SAMPLERATE,NCH,BPS, -1,-1); 
 
-	// maxlatency is the maxium latency between a outMod->Write() call and
+	// maxlatency is the maximum latency between a outMod->Write() call and
 	// when you hear those samples. In ms. Used primarily by the visualization
 	// system.
 
 	if (maxlatency < 0) // error opening device
 	{
-		CloseHandle(input_file);
-		input_file=INVALID_HANDLE_VALUE;
+delete AD;
 		return 1;
 	}
 	// dividing by 1000 for the first parameter of setinfo makes it
@@ -124,6 +127,9 @@ if (!AD->IsValid()) {
 	mod.SetInfo((SAMPLERATE*BPS*NCH)/1000,SAMPLERATE/1000,NCH,1);
 
 	// initialize visualization stuff
+	mod.SAVSAInit(maxlatency,SAMPLERATE);
+	mod.VSASetInfo(SAMPLERATE,NCH);
+
 	// set the output plug-ins default volume.
 	// volume is 0-255, -666 is a token for
 	// current volume.
@@ -132,7 +138,7 @@ if (!AD->IsValid()) {
 	// launch decode thread
 	killDecodeThread=0;
 	thread_handle = (HANDLE) 
-		CreateThread(NULL,0,(LPTHREAD_START_ROUTINE) DecodeThread,NULL,0,(LPDWORD)thread_id);
+		CreateThread(NULL,0,(LPTHREAD_START_ROUTINE) DecodeThread,NULL,0,(LPDWORD)&thread_id);
 	
 	return 0; 
 }
@@ -168,12 +174,13 @@ void stop() {
 	// CHANGEME! Write your own file closing code here
 delete AD;
 AD = NULL;
+
 }
 
 
 // returns length of playing track
 int getlength() {
-	return (file_length*10)/(SAMPLERATE/100*NCH*(BPS/8)); 
+return 1000;
 }
 
 
@@ -262,24 +269,30 @@ void eq_set(int on, char data[10], int preamp)
 }
 
 
-// render 576 samples into buf. 
+// render 640 samples into buf. 
 // this function is only used by DecodeThread. 
 
 // note that if you adjust the size of sample_buffer, for say, 1024
 // sample blocks, it will still work, but some of the visualization 
-// might not look as good as it could. Stick with 576 sample blocks
+// might not look as good as it could. Stick with 640 sample blocks
 // if you can, and have an additional auxiliary (overflow) buffer if 
 // necessary.. 
-int get_576_samples(char *buf)
+int get_640_samples(char *buf)
 {
 	int l;
 	// CHANGEME! Write your own sample getting code here
-	ReadFile(input_file,buf,576*NCH*(BPS/8),(LPDWORD)&l,NULL);
-	return l;
+short Output[320];
+static short AllOutput[640];
+for (int i = 0; i < 640; i += 320) {
+AD->Decode(Output);
+for (int j = 0; j < 320; j++) AllOutput[i+j] = Output[j];;
+}
+return 640;
 }
 
 
 
+/*
 DWORD WINAPI DecodeThread(LPVOID b)
 {
 	int done=0; // set to TRUE if decoding has finished
@@ -294,7 +307,6 @@ DWORD WINAPI DecodeThread(LPVOID b)
 			mod.outMod->Flush(decode_pos_ms); // flush output device and set 
 											  // output position to the seek position
 			offs = MulDiv(decode_pos_ms,SAMPLERATE,1000); // decode_pos_ms*SAMPLERATE/1000
-			SetFilePointer(input_file,offs*NCH*(BPS/8),NULL,FILE_BEGIN); // seek!
 		}
 
 		if (done) // done was set to TRUE during decoding, signaling eof
@@ -310,18 +322,18 @@ DWORD WINAPI DecodeThread(LPVOID b)
 			}
 			Sleep(10);		// give a little CPU time back to the system.
 		}
-		else if (mod.outMod->CanWrite() >= ((576*NCH*(BPS/8))*(mod.dsp_isactive()?2:1)))
+		else if (mod.outMod->CanWrite() >= ((640*NCH*(BPS/8))*(mod.dsp_isactive()?2:1)))
 			// CanWrite() returns the number of bytes you can write, so we check that
 			// to the block size. the reason we multiply the block size by two if 
 			// mod.dsp_isactive() is that DSP plug-ins can change it by up to a 
 			// factor of two (for tempo adjustment).
 		{	
-			int l=576*NCH*(BPS/8);			       // block length in bytes
-			static char sample_buffer[576*NCH*(BPS/8)*2]; 
+			int l=640*NCH*(BPS/8);			       // block length in bytes
+			static char sample_buffer[640*NCH*(BPS/8)*2]; 
 												   // sample buffer. twice as 
 												   // big as the blocksize
 
-			l=get_576_samples(sample_buffer);	   // retrieve samples
+			l=get_640_samples(sample_buffer);	   // retrieve samples
 			if (!l)			// no samples means we're at eof
 			{
 				done=1;
@@ -332,7 +344,7 @@ DWORD WINAPI DecodeThread(LPVOID b)
 				mod.SAAddPCMData((char *)sample_buffer,NCH,BPS,decode_pos_ms);	
 				mod.VSAAddPCMData((char *)sample_buffer,NCH,BPS,decode_pos_ms);
 				// adjust decode position variable
-				decode_pos_ms+=(576*1000)/SAMPLERATE;	
+				decode_pos_ms+=(640*1000)/SAMPLERATE;	
 
 				// if we have a DSP plug-in, then call it on our samples
 				if (mod.dsp_isactive()) 
@@ -351,6 +363,17 @@ DWORD WINAPI DecodeThread(LPVOID b)
 	}
 	return 0;
 }
+*/
+DWORD WINAPI DecodeThread(LPVOID b) {
+short Output[320], MyOutput[32000];
+while (!killDecodeThread) {
+AD->Decode(Output);
+mod.outMod->Write((char*)Output, 640);
+while (mod.outMod->IsPlaying());
+while (paused);
+}
+return 0;
+}
 
 
 // module definition.
@@ -358,10 +381,19 @@ DWORD WINAPI DecodeThread(LPVOID b)
 In_Module mod = 
 {
 	IN_VER,	// defined in IN2.H
-	"Nullsoft ABF Player, Version 0.30-Alpha1, Plugin Version 0.0A1  ",
+	"ABF Plugin Player v0.0 "
+	// winamp runs on both alpha systems and x86 ones. :)
+#ifdef __alpha
+	"(AXP)"
+#else
+	"(x86)"
+#endif
+	,
 	0,	// hMainWindow (filled in by winamp)
 	0,  // hDllInstance (filled in by winamp)
-	"ABF\0ABF Audio File (*.ABF)\0",
+	"ABF\0ABF Audio File (*.ABF)\0"
+	// this is a double-null limited list. "EXT\0Description\0EXT\0Description\0" etc.
+	,
 	0,	// is_seekable
 	1,	// uses output plug-in system
 	config,
@@ -377,7 +409,7 @@ In_Module mod =
 	ispaused,
 	stop,
 	
-0,
+	getlength,
 	getoutputtime,
 	setoutputtime,
 
@@ -402,3 +434,4 @@ extern "C" __declspec( dllexport ) In_Module * winampGetInModule2()
 {
 	return &mod;
 }
+
