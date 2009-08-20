@@ -8,7 +8,11 @@
 #include <windows.h>
 
 #include "Winamp/in2.h"
-
+// We need some pragma definitions.
+#pragma comment(lib, "libspeex.lib")
+#pragma comment(lib, "libspeexdsp.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "kernel32.lib")
 // avoid CRT. Evil. Big. Bloated. Only uncomment this code if you are using 
 // 'ignore default libraries' in VC++. Keeps DLL size way down.
 // /*
@@ -78,25 +82,24 @@ int isourfile(const char *fn) {
 // called when winamp wants to play a file
 int play(const char *fn) 
 { 
-	int maxlatency;
+// Show our file name
+int maxlatency;
 	int thread_id;
 
 	paused=0;
 	decode_pos_ms=0;
 	seek_needed=-1;
-
+ABFDecoder AD((char*)fn);
+AD.Validate();
+if (!AD.IsValid()) {
 	
 	
-	// CHANGEME! Write your own file opening code here
-	input_file = CreateFile(fn,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,
-		OPEN_EXISTING,FILE_ATTRIBUTE_NORMAL,NULL);
-	if (input_file == INVALID_HANDLE_VALUE) // error opening file
-	{
 		// we return error. 1 means to keep going in the playlist, -1
 		// means to stop the playlist.
 		return 1;
 	}
-
+// Read ABF Header
+AD.ReadHeader();
 	file_length=GetFileSize(input_file,NULL);
 
 
@@ -383,7 +386,7 @@ In_Module mod =
 	ispaused,
 	stop,
 	
-	getlength,
+0,
 	getoutputtime,
 	setoutputtime,
 
