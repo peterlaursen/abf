@@ -63,7 +63,7 @@ void config(HWND hwndParent)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.0A1",
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.01\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. It doesn't store your position. But it allows you to listen to the ABF audio books.",
 		"About ABF Winamp Player",MB_OK);
 }
 
@@ -249,10 +249,9 @@ void getfileinfo(const char *filename, char *title, int *length_in_ms)
 		}
 		if (title) // get non path portion of filename
 		{
-			const char *p=filename+strlen(filename);
-			while (*p != '\\' && p >= filename) p--;
-			strcpy(title,++p);
-		}
+AbfDecoder Temp((char*)filename);
+title = Temp.GetTitle();
+}
 	}
 }
 
