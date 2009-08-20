@@ -8,11 +8,14 @@
 #include <windows.h>
 
 #include "Winamp/in2.h"
+#include <libabf.h>
+using namespace ABF;
 // We need some pragma definitions.
 #pragma comment(lib, "libspeex.lib")
 #pragma comment(lib, "libspeexdsp.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "libabf.lib")
 // avoid CRT. Evil. Big. Bloated. Only uncomment this code if you are using 
 // 'ignore default libraries' in VC++. Keeps DLL size way down.
 // /*
@@ -32,7 +35,7 @@ BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lp
 #define BPS 16
 
 
-In_Module mod;			// the output module (filled in near the bottom of this file)
+extern In_Module mod;			// the output module (filled in near the bottom of this file)
 
 char lastfn[MAX_PATH];	// currently playing file (used for getting info on the current file)
 
@@ -42,6 +45,7 @@ int decode_pos_ms;		// current decoding position, in milliseconds.
 int paused;				// are we paused?
 volatile int seek_needed; // if != -1, it is the point that the decode 
 						  // thread should seek to, in ms.
+AbfDecoder* AD = NULL;
 
 HANDLE input_file=INVALID_HANDLE_VALUE; // input file handle
 
@@ -83,27 +87,21 @@ int isourfile(const char *fn) {
 int play(const char *fn) 
 { 
 // Show our file name
+MessageBox(NULL, fn, "File", MB_OK);
+AD = new AbfDecoder((char*)fn);
 int maxlatency;
 	int thread_id;
 
 	paused=0;
 	decode_pos_ms=0;
 	seek_needed=-1;
-ABFDecoder AD((char*)fn);
-AD.Validate();
-if (!AD.IsValid()) {
-	
-	
+if (!AD->IsValid()) {
 		// we return error. 1 means to keep going in the playlist, -1
 		// means to stop the playlist.
 		return 1;
 	}
 // Read ABF Header
-AD.ReadHeader();
-	file_length=GetFileSize(input_file,NULL);
 
-
-	
 	strcpy(lastfn,fn);
 
 	// -1 and -1 are to specify buffer and prebuffer lengths.
@@ -126,9 +124,6 @@ AD.ReadHeader();
 	mod.SetInfo((SAMPLERATE*BPS*NCH)/1000,SAMPLERATE/1000,NCH,1);
 
 	// initialize visualization stuff
-	mod.SAVSAInit(maxlatency,SAMPLERATE);
-	mod.VSASetInfo(SAMPLERATE,NCH);
-
 	// set the output plug-ins default volume.
 	// volume is 0-255, -666 is a token for
 	// current volume.
@@ -137,7 +132,7 @@ AD.ReadHeader();
 	// launch decode thread
 	killDecodeThread=0;
 	thread_handle = (HANDLE) 
-		CreateThread(NULL,0,(LPTHREAD_START_ROUTINE) DecodeThread,NULL,0,&thread_id);
+		CreateThread(NULL,0,(LPTHREAD_START_ROUTINE) DecodeThread,NULL,0,(LPDWORD)thread_id);
 	
 	return 0; 
 }
@@ -171,12 +166,8 @@ void stop() {
 	
 
 	// CHANGEME! Write your own file closing code here
-	if (input_file != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(input_file);
-		input_file=INVALID_HANDLE_VALUE;
-	}
-
+delete AD;
+AD = NULL;
 }
 
 
@@ -283,7 +274,7 @@ int get_576_samples(char *buf)
 {
 	int l;
 	// CHANGEME! Write your own sample getting code here
-	ReadFile(input_file,buf,576*NCH*(BPS/8),&l,NULL);
+	ReadFile(input_file,buf,576*NCH*(BPS/8),(LPDWORD)&l,NULL);
 	return l;
 }
 
@@ -407,7 +398,7 @@ In_Module mod =
 
 // exported symbol. Returns output module.
 
-__declspec( dllexport ) In_Module * winampGetInModule2()
+extern "C" __declspec( dllexport ) In_Module * winampGetInModule2()
 {
 	return &mod;
 }
