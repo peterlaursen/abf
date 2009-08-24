@@ -11,6 +11,7 @@
 
 #include <winamp/in2.h>
 #include <libabf.h>
+#include "database.h"
 using namespace ABF;
 #pragma comment(lib, "libabf.lib")
 #pragma comment(lib, "libspeex.lib")
@@ -103,7 +104,8 @@ if (!AD->IsValid()) {
 	}
 
 	file_length=0; // GetFileSize(input_file,NULL);
-
+int LastPosition = GetLastPosition(AD->GetTitle());
+if (LastPosition) AD->Seek(LastPosition, SEEK_SET);
 
 	
 	strcpy(lastfn,fn);
