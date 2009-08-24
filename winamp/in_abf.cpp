@@ -174,6 +174,9 @@ void stop() {
 	
 
 	// CHANGEME! Write your own file closing code here
+if (!AD->feof()) SaveLastPosition(AD->GetTitle(), AD->ftell());
+else DeletePosition(AD->GetTitle());
+
 delete AD;
 AD = NULL;
 
