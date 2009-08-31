@@ -372,6 +372,11 @@ AD->Decode(Output);
 mod.outMod->Write((char*)Output, 640);
 while (mod.outMod->IsPlaying());
 while (paused);
+if (AD->feof()) {
+PostMessage(mod.hMainWindow,WM_WA_MPEG_EOF,0,0);
+break;
+}
+
 }
 return 0;
 }
