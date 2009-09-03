@@ -12,26 +12,38 @@ AppPublisher=ABF Project
 AppPublisherURL=http://mosedal.net/abf
 AppSupportURL=http://mosedal.net/abf
 AppUpdatesURL=http://mosedal.net/abf
+ChangesEnvironment = yes
+Password = ABFTesting
 DefaultDirName={pf}\ABF
 DefaultGroupName=ABF Products
-OutputDir=D:\svn\abf\code\trunk\products
-OutputBaseFilename=Products-0.30Alpha1-win32-setup
-LicenseFile=d:\svn\abf\code\trunk\products\license.txt
-InfoBeforeFile=d:\svn\abf\code\trunk\products\readme.txt
+OutputDir=c:\users\peter2\trunk\products
+OutputBaseFilename=Products-0.30Alpha1-win32-setup-test
+LicenseFile=c:\users\peter2\trunk\products\license.txt
+InfoBeforeFile=c:\users\peter2\trunk\products\readme.txt
 Compression=lzma
 SolidCompression=yes
 ChangesAssociations=yes
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
-
+[Types]
+Name: "Standard"; Description: "Standard Product Installation";
+Name: "Experimental"; Description: "Install experimental converters";
+Name: "Players"; Description: "Player Only";
+Name: "Plugin"; Description: "Winamp Plugin Only";
+[Components]
+Name: "Standard"; Description: "Standard Product Installation"; Types: Standard Experimental;
+Name: "Nocon"; Description: "No Converters"; Types: Players;
+Name: "plugin"; Description: "Winamp Plugin"; Types: Plugin
+Name: "Experimental"; Description: "Experimental Converters"; Types: Experimental;
 [Files]
-Source: "D:\svn\abf\code\trunk\products\audiere.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "d:\svn\abf\code\trunk\libabf\libabf.dll"; DestDir: "{app}";
-Source: "D:\svn\abf\code\trunk\products\converter.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\svn\abf\code\trunk\libdaisy\libdaisy.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\svn\abf\code\trunk\products\libspeexdsp.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "D:\svn\abf\code\trunk\products\player.exe"; DestDir: "{app}"; Flags: ignoreversion
-        Source: "d:\svn\abf\code\trunk\products\readme.txt"; DestDir: "{app}"; flags: isreadme
+Source: "c:\mybackup\audiere\bin\audiere.dll"; DestDir: "{app}"; Components: Standard Nocon; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\libabf\libabf.dll"; DestDir: "{app}";
+Source: "c:\users\peter2\trunk\products\converter.exe"; DestDir: "{app}"; Components: Standard; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\libdaisy\libdaisy.dll"; DestDir: "{app}"; Components: Standard; Flags: ignoreversion
+Source: "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\products\player.exe"; DestDir: "{app}"; Components: Standard; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\products\readme.txt"; DestDir: "{app}"; flags: isreadme
+Source: "c:\users\peter2\trunk\fileconverter\fileconverter.exe"; DestDir: "{app}"; Components: Experimental; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -47,3 +59,4 @@ Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueDa
                                                         [UninstallDelete]
 ; Remove the user's database with already played audio books.
                                                                          Type: files; Name: "{%USERPROFILE}\.abfplayer.db";
+
