@@ -58,7 +58,7 @@ Name: "{group}\Launch Player"; Filename: "{app}\player.exe";
 Root: HKCR; Subkey: ".abf"; ValueType: string; ValueName: ""; ValueData: "ABFAudioBook"; Flags: uninsdeletevalue
  Root: HKCR; Subkey: "ABFAudioBook"; ValueType: string; ValueName: ""; ValueData: "ABF Audio Book"; Flags: uninsdeletekey
 Root: HKCR; Subkey: "ABFAudioBook\shell\open\command"; ValueType: string;ValueName: ""; ValueData: """{app}\PLAYER.EXE"" ""%1"""
-Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{app};"; Flags: uninsdeletevalue
+Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueData: "{olddata};{app};"; Check: AddToPath(ExpandConstant('{app}'));
                                                         [UninstallDelete]
 ; Remove the user's database with already played audio books.
                                                                          Type: files; Name: "{%USERPROFILE}\.abfplayer.db";
