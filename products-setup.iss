@@ -44,6 +44,9 @@ Source: "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"; DestDir: "{app}"; Flags:
 Source: "c:\users\peter2\trunk\products\player.exe"; DestDir: "{app}"; Components: Standard; Flags: ignoreversion
 Source: "c:\users\peter2\trunk\products\readme.txt"; DestDir: "{app}"; flags: isreadme
 Source: "c:\users\peter2\trunk\fileconverter\fileconverter.exe"; DestDir: "{app}"; Components: Experimental; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\winamp\in_abf.dll"; DestDir: " {pf}\winamp\plugins"; Components: Plugin; Check: CheckWinamp; Flags: ignoreversion
+Source: "c:\users\peter2\trunk\libabf\libabf.dll"; DestDir: "{pf}\winamp\plugins"; Components: Plugin; Check: CheckWinamp; Flags: ignoreversion
+Source: "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"; DestDir: "{pf}\winamp\plugins"; Components: Plugin; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
@@ -59,4 +62,31 @@ Root: HKCU; Subkey: "Environment"; ValueType: string; ValueName: "Path"; ValueDa
                                                         [UninstallDelete]
 ; Remove the user's database with already played audio books.
                                                                          Type: files; Name: "{%USERPROFILE}\.abfplayer.db";
+
+[Code]
+var
+WinampPresent: Boolean;
+WinampPath: String;
+
+function InitializeSetup(): Boolean;
+begin
+if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Winamp', 'UninstallString', WinampPath) then
+begin
+WinampPath := ExtractFileDir(WinampPath);
+WinampPresent := true;
+end;
+if WinampPresent then begin
+MsgBox('Winamp has been detected on your computer. Its path is ' + WinampPath + '.', mbInformation, MB_OK);
+end;
+
+Result := true;
+end;
+                                                                                  function CheckWinamp(): Boolean; begin
+                                                                                  Result := WinampPresent;
+                                                                                  end;
+function GetWinampPath(Param: String): String; begin
+MsgBox(WinampPath + ' is the Winamp Path. The parameter is ' + Param + '.', mbInformation, MB_OK);
+Result := WinampPath;
+end;
+
 
