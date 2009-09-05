@@ -67,7 +67,7 @@ Call CreateUninstaller
 SectionEnd
 Section /O "Experimental Converter"
 SectionIn 2
-StrCpy $INSTDIR $ABFInstallDir 
+StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "audiere.dll"
 File "..\fileconverter\fileconverter.exe"
@@ -76,6 +76,7 @@ File "readme.txt"
 File "converter.exe"
 File "player.exe"
 File "libdaisy.dll"
+File "libabf.dll"
 Call CreateUninstaller
 ReadRegStr $1 HKCU "Environment" "Path"
 WriteRegStr HKCU "Environment" "Path" "$1;$ABFInstallDir"
@@ -197,4 +198,5 @@ Delete "$0\libabf.dll"
 pop $0
 Delete "$PROFILE\.abfplayer.db"
 DeleteRegValue HKCU "Environment" "Path"
+ SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 SectionEnd
