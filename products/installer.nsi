@@ -195,4 +195,6 @@ StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
 Delete "$0\libabf.dll"
 pop $0
+Delete "$PROFILE\.abfplayer.db"
+DeleteRegValue HKCU "Environment" "Path"
 SectionEnd
