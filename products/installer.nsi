@@ -13,8 +13,6 @@ In order to discover what installation package we are to use, we'll try to packa
 ; Version used to generate this installer: NSIS 2.45
 
 */
-; Include the File functions header
-!include "FileFunc.nsh"
 ; Tell the user that this is a test-only installer.
 Function .onInit
 MessageBox MB_OK "This is a test installer. It will, in time, be able to install the ABF products."
@@ -34,6 +32,8 @@ Page license
 Page directory
 Page Components
 Page instfiles
+UninstPage uninstConfirm
+UninstPage InstFiles
 LicenseForceSelection radiobuttons "I have read and understood the license" "I have read but decline to accept generous license terms"
 LicenseData "license.txt"
 InstType "Ordinary Components"
@@ -57,14 +57,20 @@ File "libspeexdsp.dll"
 File "Readme.txt"
 Call CreateUninstaller
 SectionEnd
-Section "Experimental Converter"
+Section /O "Experimental Converter"
 SectionIn 2
-StrCpy $ABFInstallDir $INSTDIR
+StrCpy $INSTDIR $ABFInstallDir 
 SetOutPath $INSTDIR
+File "audiere.dll"
 File "..\fileconverter\fileconverter.exe"
+File "libspeexdsp.dll"
+File "readme.txt"
+File "converter.exe"
+File "player.exe"
+File "libdaisy.dll"
 Call CreateUninstaller
 SectionEnd
-Section "Player Only"
+Section /O "Player Only"
 SectionIn 3
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
@@ -117,6 +123,7 @@ FunctionEnd
 ; Try to install the Winamp Plugin if selected
 Section /O "Winamp Plugin"
 ; We'll try to access some registry values.
+CreateDirectory $INSTDIR
 SectionIn 4
 Call WinampPath
 StrCpy $0 "$0\plugins"
@@ -170,6 +177,7 @@ Section "Uninstall"
 Delete $INSTDIR\*.*
 RmDir $INSTDIR
 Call un.WinampPath
+StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
 Delete "$0\libabf.dll"
 pop $0
