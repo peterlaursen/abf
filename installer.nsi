@@ -13,6 +13,7 @@ In order to discover what installation package we are to use, we'll try to packa
 ; Version used to generate this installer: NSIS 2.45
 
 */
+!Include "winmessages.nsh"
 ; Tell the user that this is a test-only installer.
 Function .onInit
 MessageBox MB_OK "This is a test installer. It will, in time, be able to install the ABF products."
@@ -44,6 +45,7 @@ Var ABFInstallDir
 Function CreateUninstaller
 WriteUninstaller "$ABFInstallDir\ABFUninstaller.exe"
 FunctionEnd
+
 Section "Main Components (Required)"
 SectionIn 1 2
 StrCpy $ABFInstallDir $INSTDIR
@@ -55,7 +57,13 @@ File "player.exe"
 File "libabf.dll"
 File "libspeexdsp.dll"
 File "Readme.txt"
+ReadRegStr $1 HKCU "Environment" "Path"
+StrCpy $1 "$1;$ABFInstallDir"
+WriteRegStr HKCU "Environment" "Path" $1
 Call CreateUninstaller
+
+ SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+
 SectionEnd
 Section /O "Experimental Converter"
 SectionIn 2
@@ -69,6 +77,9 @@ File "converter.exe"
 File "player.exe"
 File "libdaisy.dll"
 Call CreateUninstaller
+ReadRegStr $1 HKCU "Environment" "Path"
+WriteRegStr HKCU "Environment" "Path" "$1;$ABFInstallDir"
+SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 SectionEnd
 Section /O "Player Only"
 SectionIn 3
@@ -78,6 +89,9 @@ File "libabf.dll"
 File "player.exe"
 File "audiere.dll"
 Call CreateUninstaller
+ReadRegStr $1 HKCU "Environment" "Path"
+WriteRegStr HKCU "Environment" "Path" "$1;$ABFInstallDir"
+SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 SectionEnd
 Function WinampPath
   Push $0
