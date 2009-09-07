@@ -72,7 +72,7 @@ function InitializeSetup(): Boolean;
 begin
 if RegQueryStringValue(HKLM, 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Winamp', 'UninstallString', WinampPath) then
 begin
-WinampPath := ExtractFileDir(WinampPath) + '\';
+WinampPath := ExtractFileDir(WinampPath) + '\plugins';
 WinampPresent := true;
 end;
 if WinampPresent then begin
@@ -88,6 +88,7 @@ function GetWinampPath(Param: String): String; begin
 MsgBox(WinampPath + ' is the Winamp Path. The parameter is ' + Param + '.', mbInformation, MB_OK);
 Result := WinampPath;
 end;
+
 
 
 
