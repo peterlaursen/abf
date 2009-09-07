@@ -1,26 +1,22 @@
 /*
 In order to discover what installation package we are to use, we'll try to package our ABF products using NSIS.
-;
-; This is done for a couple reasons:
-; * To learn this installer
-; * To make it easier to use with Winamp
-; * Because it has a unique way of doing things
-; * Because it can be run on FreeBSD.
-; 
-; Product Name: ABF Products
-; Copyright (C) 2008, 2009 Peter Laursen.
-; Contents: ABF Converter, ABF Player, Experimental File Converter, Winamp Plugin (if selected), ReadMe file, Required Libraries
-; Version used to generate this installer: NSIS 2.45
+This is done for a couple reasons:
+ * To learn this installer
+ * To make it easier to use with Winamp
+ * Because it has a unique way of doing things
+ * Because it can be run on FreeBSD.
+Product Name: ABF Products
+Copyright (C) 2008, 2009 Peter Laursen.
+Contents: ABF Converter, ABF Player, Experimental File Converter, Winamp Plugin (if selected), ReadMe file Required Libraries
+Version used to generate this installer: NSIS 2.45
 
 */
 !Include "winmessages.nsh"
 ; Tell the user that this is a test-only installer.
 Function .onInit
-MessageBox MB_OK "This is a test installer. It will, in time, be able to install the ABF products."
+MessageBox MB_OK "This is an alpha product. This means that the product has been tested, but you must expect some errors in the working code. These products are distributed for testing only and should not be used for mainline production yet."
 FunctionEnd
-; Set text on the title bar
-Caption "ABF Products 0.30-Alpha1 Test Installer."
-; Set the Installer name - not quite sure what this does...
+; Set the Installer name - This is shown on the title bar
 Name "ABF Products"
 ; Installer filename
 OutFile "installer.exe"
@@ -45,54 +41,55 @@ Var ABFInstallDir
 Function CreateUninstaller
 WriteUninstaller "$ABFInstallDir\ABFUninstaller.exe"
 FunctionEnd
-
-Section "Main Components (Required)"
+; This function performs some after-installation setup
+Function AfterFileCopying
+; Read the currently logged in user's path
+ReadRegStr $1 HKCU "Environment" "Path"
+; Write the previous path to the registry
+WriteRegStr HKCU "Software\ABFProducts" "PreviousPath" $1
+; Add the installation directory
+StrCpy $1 "$1;$ABFInstallDir"
+; Write the new path to the registry and send a message to Windows
+WriteRegStr HKCU "Environment" "Path" $1
+ SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+; Create the uninstaller
+Call CreateUninstaller
+FunctionEnd
+Section "Standard Working Components"
 SectionIn 1 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "d:\audiere-1.9.4-win32\bin\audiere.dll"
+File "c:\mybackup\audiere\bin\audiere.dll"
 File "converter.exe"
 File "player.exe"
-	File "libdaisy.dll"
-File "libabf.dll"
-File "libspeexdsp.dll"
+	File "..\libdaisy\libdaisy.dll"
+File "..\libabf\libabf.dll"
+File "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"
 File "Readme.txt"
-ReadRegStr $1 HKCU "Environment" "Path"
-StrCpy $1 "$1;$ABFInstallDir"
-WriteRegStr HKCU "Environment" "Path" $1
-Call CreateUninstaller
-
- SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-
+Call AfterFileCopying
 SectionEnd
 Section /O "Experimental Converter"
 SectionIn 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "audiere.dll"
+File "c:\mybackup\audiere\bin\audiere.dll"
 File "..\fileconverter\fileconverter.exe"
-File "libspeexdsp.dll"
+File "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"
 File "readme.txt"
 File "converter.exe"
 File "player.exe"
-File "libdaisy.dll"
-File "libabf.dll"
-Call CreateUninstaller
-ReadRegStr $1 HKCU "Environment" "Path"
-WriteRegStr HKCU "Environment" "Path" "$1;$ABFInstallDir"
-SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+File "..\libdaisy\libdaisy.dll"
+File "..\libabf\libabf.dll"
+Call AfterFileCopying
 SectionEnd
 Section /O "Player Only"
 SectionIn 3
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "libabf.dll"
+File "..\libabf\libabf.dll"
 File "player.exe"
-File "audiere.dll"
-Call CreateUninstaller
-ReadRegStr $1 HKCU "Environment" "Path"
-WriteRegStr HKCU "Environment" "Path" "$1;$ABFInstallDir"
-SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+File "c:\mybackup\audiere\bin\audiere.dll"
+Call AfterFileCopying
 SectionEnd
 Function WinampPath
   Push $0
@@ -143,8 +140,9 @@ SectionIn 4
 Call WinampPath
 StrCpy $0 "$0\plugins"
 SetOutPath $0
-File "in_abf.dll"
-File "libabf.dll"
+File "..\winamp\in_abf.dll"
+File "..\libabf\libabf.dll"
+; This section does not need to add or remove anything from the path, therefore, it needs only to create the uninstaller
 Call CreateUninstaller
 SectionEnd
 Function un.WinampPath
@@ -196,7 +194,17 @@ StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
 Delete "$0\libabf.dll"
 pop $0
+MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to remove the database containing audio book positions? If you are to re-install, please answer 'No' here." /SD IDYES IDNO path
 Delete "$PROFILE\.abfplayer.db"
-DeleteRegValue HKCU "Environment" "Path"
+path:
+Call un.RestorePath
  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 SectionEnd
+; A function only called from the uninstaller
+Function un.RestorePath
+push $0
+ReadRegStr $0 HKCU "Software\ABFProducts" "PreviousPath"
+WriteRegStr HKCU "Environment" "Path" $0
+Pop $0
+DeleteRegKey HKCU "Software\ABFProducts"
+FunctionEnd
