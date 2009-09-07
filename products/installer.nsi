@@ -91,7 +91,13 @@ File "player.exe"
 File "c:\mybackup\audiere\bin\audiere.dll"
 Call AfterFileCopying
 SectionEnd
-Function WinampPath
+/*
+The below function needs to be shared between the installer and uninstaller, since they cannot call each other's functions.
+
+To accomplish this, we wrap the WinampPath function in a macro definition, insert the macro twice and we should have a desired result.
+*/
+!Macro SharedWinampPath un
+Function ${un}WinampPath
   Push $0
   Push $1
   Push $2
@@ -132,8 +138,32 @@ Function WinampPath
   Pop $2
   Pop $1
 FunctionEnd
+!macroend
+/* Define another macro: We need to close Winamp if the user chooses to install the Winamp plugin.
+*/
+!Macro SharedWinampClose un
+Function ${un}CloseWinamp
+Push $4
+; The below loop executes until Winamp has been closed.
+loop:
+FindWindow $4 "Winamp v1.x"
+IntCmp $4 0 done
+MessageBox MB_ICONINFORMATION|MB_OK "Winamp is running. It needs to be closed before you can continue with the current operation."
+SendMessage $4 16 0 0
+Sleep 100
+goto loop
+done:
+pop $4
+FunctionEnd
+!MacroEnd
+!InsertMacro SharedWinampClose ""
+!InsertMacro SharedWinampClose "un."
+; Insert the macro twice
+!InsertMacro SharedWinampPath ""
+!InsertMacro SharedWinampPath "un."
 ; Try to install the Winamp Plugin if selected
 Section /O "Winamp Plugin"
+call CloseWinamp
 ; We'll try to access some registry values.
 CreateDirectory $INSTDIR
 SectionIn 4
@@ -145,51 +175,11 @@ File "..\libabf\libabf.dll"
 ; This section does not need to add or remove anything from the path, therefore, it needs only to create the uninstaller
 Call CreateUninstaller
 SectionEnd
-Function un.WinampPath
-  Push $0
-  Push $1
-  Push $2
-  ReadRegStr $0 HKLM \
-     "Software\Microsoft\Windows\CurrentVersion\Uninstall\Winamp" \ 
-     "UninstallString"
-  StrCmp $0 "" fin
-
-    StrCpy $1 $0 1 0 ; get firstchar
-    StrCmp $1 '"' "" getparent 
-      ; if first char is ", let's remove "'s first.
-      StrCpy $0 $0 "" 1
-      StrCpy $1 0
-      rqloop:
-        StrCpy $2 $0 1 $1
-        StrCmp $2 '"' rqdone
-        StrCmp $2 "" rqdone
-        IntOp $1 $1 + 1
-        Goto rqloop
-      rqdone:
-      StrCpy $0 $0 $1
-    getparent:
-    ; the uninstall string goes to an EXE, let's get the directory.
-    StrCpy $1 -1
-    gploop:
-      StrCpy $2 $0 1 $1
-      StrCmp $2 "" gpexit
-      StrCmp $2 "\" gpexit
-      IntOp $1 $1 - 1
-      Goto gploop
-    gpexit:
-    StrCpy $0 $0 $1
-
-    StrCmp $0 "" fin
-    IfFileExists $0\winamp.exe fin
-      StrCpy $0 ""
-  fin:
-  Pop $2
-  Pop $1
-FunctionEnd
 Section "Uninstall"
 Delete $INSTDIR\*.*
 RmDir $INSTDIR
 Call un.WinampPath
+Call Un.CloseWinamp
 StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
 Delete "$0\libabf.dll"
@@ -201,6 +191,7 @@ Call un.RestorePath
  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 SectionEnd
 ; A function only called from the uninstaller
+; The path is restored as it was at installation time. This is "faulty" but it's the best I can do currently.
 Function un.RestorePath
 push $0
 ReadRegStr $0 HKCU "Software\ABFProducts" "PreviousPath"
