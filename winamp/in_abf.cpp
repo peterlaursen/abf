@@ -13,9 +13,9 @@
 #include <libabf.h>
 #include "database.h"
 using namespace ABF;
-#pragma comment(lib, "libabf.lib")
+//#pragma comment(lib, "libabf.lib")
 #pragma comment(lib, "libspeex.lib")
-#pragma comment(lib, "libspeexdsp.lib")
+//#pragma comment(lib, "libspeexdsp.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
 // avoid CRT. Evil. Big. Bloated. Only uncomment this code if you are using 
