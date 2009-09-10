@@ -54,6 +54,21 @@ WriteRegStr HKCU "Environment" "Path" $1
  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
 ; Create the uninstaller
 Call CreateUninstaller
+; After this, create some start menu icons.
+CreateDirectory "$SMPROGRAMS\ABF Products"
+SetOutPath "$SMPROGRAMS\ABF Products"
+CreateShortCut "Documentation.lnk" "$ABFInstallDir\README.txt"
+CreateShortCut "Launch Player.lnk" "$ABFInstallDir\player.exe"
+CreateShortCut "Uninstall ABF Products.lnk" "$ABFInstallDir\ABFUninstaller.exe"
+CreateShortCut "$SMPROGRAMS\ABF Products\ABF Website.lnk" "http://mosedal.net/abf"
+; Try to set a file association
+StrCpy $5 "ABFAudioBook"
+WriteRegStr HKCR ".abf" "" $5
+WriteRegStr HKCR "ABFAudioBook" "" "ABF Audio Book"
+WriteRegStr HKCR "ABFAudioBook\shell\open\command" "" '"$ABFInstallDir\player.exe" "%1"'
+!define SHCNF_FLUSH        0x1000
+!define SHCNE_ASSOCCHANGED 0x08000000
+System::Call "shell32::SHChangeNotify(i,i,i,i) (${SHCNE_ASSOCCHANGED}, ${SHCNF_FLUSH}, 0, 0)"
 FunctionEnd
 Section "Standard Working Components"
 SectionIn 1 2
@@ -158,12 +173,13 @@ FunctionEnd
 !MacroEnd
 !InsertMacro SharedWinampClose ""
 !InsertMacro SharedWinampClose "un."
-; Insert the macro twice
+; Insert the SharedWinampPath macro twice
 !InsertMacro SharedWinampPath ""
 !InsertMacro SharedWinampPath "un."
 ; Try to install the Winamp Plugin if selected
 Section /O "Winamp Plugin"
 call CloseWinamp
+Sleep 200
 ; We'll try to access some registry values.
 CreateDirectory $INSTDIR
 SectionIn 4
@@ -171,18 +187,18 @@ Call WinampPath
 StrCpy $0 "$0\plugins"
 SetOutPath $0
 File "..\winamp\in_abf.dll"
-File "..\libabf\libabf.dll"
 ; This section does not need to add or remove anything from the path, therefore, it needs only to create the uninstaller
 Call CreateUninstaller
 SectionEnd
 Section "Uninstall"
 Delete $INSTDIR\*.*
 RmDir $INSTDIR
+Delete "$SMPROGRAMS\ABF Products\*.*"
+RmDir "$SMPROGRAMS\ABF Products"
 Call un.WinampPath
 Call Un.CloseWinamp
 StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
-Delete "$0\libabf.dll"
 pop $0
 MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to remove the database containing audio book positions? If you are to re-install, please answer 'No' here." /SD IDYES IDNO path
 Delete "$PROFILE\.abfplayer.db"
@@ -198,4 +214,8 @@ ReadRegStr $0 HKCU "Software\ABFProducts" "PreviousPath"
 WriteRegStr HKCU "Environment" "Path" $0
 Pop $0
 DeleteRegKey HKCU "Software\ABFProducts"
+DeleteRegKey HKCR ".abf"
+DeleteRegKey HKCR "ABFAudioBook"
+
+System::Call "shell32::SHChangeNotify(i,i,i,i) (${SHCNE_ASSOCCHANGED}, ${SHCNF_FLUSH}, 0, 0)"
 FunctionEnd
