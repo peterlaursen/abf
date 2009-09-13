@@ -3,7 +3,7 @@
 #include "libabf.h"
 using namespace std;
 namespace ABF {
-void AbfDecoder::Seek(long offset, int whence) { fseek(fin, offset, whence); }
+int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
 AbfDecoder::AbfDecoder(char* Filename) {
 Initialize(Filename);
 }
@@ -66,22 +66,27 @@ char* AbfDecoder::GetAuthor() { return Author; }
 char* AbfDecoder::GetTime() { return Time; }
 unsigned short AbfDecoder::GetNumSections() { return NumSections; }
 bool AbfDecoder::GoToPosition(int Minutes) {
-int HeaderSize = GetHeaderSize() + (6*GetNumSections());
+// If input is wrong, bail out
 if (Minutes < 0) return false;
+// Get the header size + the size of the sections array.
+int HeaderSize = GetHeaderSize() + (6*GetNumSections());
+// Convert the minutes into seconds.
 Minutes *= 60;
 // Convert this into frames. 50 frames per second.
 Minutes *= 50;
 int LastPosition = ftell();
+// Get the file size
+Seek(0, SEEK_END);
+long FileSize = this->ftell();
 Seek(HeaderSize, SEEK_SET);
-unsigned short FrameSize = 0;
-for (int i = 0; i < Minutes; i++) {
-if (fread(&FrameSize, sizeof(short), 1, fin) <= 0) {
-printf("Cannot read from file, returning false.");
+unsigned short FrameSize = 72;
+long SearchPosition = (Minutes*FrameSize) + HeaderSize;
+if (SearchPosition > FileSize) {
+printf("The book isn't that long.\n");
 Seek(LastPosition, SEEK_SET);
 return false;
 }
-Seek(FrameSize, SEEK_CUR);
-}
+Seek(SearchPosition, SEEK_SET);
 return true;
 }
 

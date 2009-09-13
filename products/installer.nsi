@@ -24,7 +24,7 @@ OutFile "installer.exe"
 RequestExecutionLevel admin
 ; Ask the compiler to compress using LZMA
 SetCompressor /solid lzma
-InstallDir "$PROGRAMFILES\abf-nsis\"
+InstallDir "$PROGRAMFILES\abf\"
 Page license
 Page directory
 Page Components
@@ -60,7 +60,7 @@ SetOutPath "$SMPROGRAMS\ABF Products"
 CreateShortCut "Documentation.lnk" "$ABFInstallDir\README.txt"
 CreateShortCut "Launch Player.lnk" "$ABFInstallDir\player.exe"
 CreateShortCut "Uninstall ABF Products.lnk" "$ABFInstallDir\ABFUninstaller.exe"
-CreateShortCut "$SMPROGRAMS\ABF Products\ABF Website.lnk" "http://mosedal.net/abf"
+CreateShortCut "ABF Website.lnk" "http://mosedal.net/abf"
 ; Try to set a file association
 StrCpy $5 "ABFAudioBook"
 WriteRegStr HKCR ".abf" "" $5
@@ -74,12 +74,12 @@ Section "Standard Working Components"
 SectionIn 1 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "c:\mybackup\audiere\bin\audiere.dll"
+File "d:\audiere-1.9.4-win32\bin\audiere.dll"
 File "converter.exe"
 File "player.exe"
 	File "..\libdaisy\libdaisy.dll"
 File "..\libabf\libabf.dll"
-File "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"
+File "d:\speex-1.2rc1\lib\libspeexdsp.dll"
 File "Readme.txt"
 Call AfterFileCopying
 SectionEnd
@@ -87,9 +87,9 @@ Section /O "Experimental Converter"
 SectionIn 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "c:\mybackup\audiere\bin\audiere.dll"
+File "d:\audiere-1.9.4-win32\bin\audiere.dll"
 File "..\fileconverter\fileconverter.exe"
-File "c:\mybackup\speex-1.2rc1\lib\libspeexdsp.dll"
+File "d:\speex-1.2rc1\lib\libspeexdsp.dll"
 File "readme.txt"
 File "converter.exe"
 File "player.exe"
@@ -103,7 +103,8 @@ StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "..\libabf\libabf.dll"
 File "player.exe"
-File "c:\mybackup\audiere\bin\audiere.dll"
+File "d:\audiere-1.9.4-win32\bin\audiere.dll"
+File "d:\speex-1.2rc1\lib\libspeexdsp.dll"
 Call AfterFileCopying
 SectionEnd
 /*

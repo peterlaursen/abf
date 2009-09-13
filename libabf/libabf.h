@@ -45,7 +45,7 @@ unsigned short GetMinor();
 bool feof();
 int ftell();
 void fclose();
-void Seek(long offset, int whence);
+int Seek(long offset, int whence);
 int* GetSections();
 void Decode(short* Output);
 bool GoToPosition(int Minutes);
