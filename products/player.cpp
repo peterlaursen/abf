@@ -27,7 +27,7 @@ echo();
 #endif
 
 string NewBook;
-cout << "Type in the book to add." << endl;
+cout << "Type in the path to the book to add to the playlist: ";
 getline(cin, NewBook);
 PL.Add(NewBook);
 #ifndef WIN32
@@ -68,7 +68,7 @@ char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
-cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
+cout << "Error, not a valid ABF Audio Book." << endl;
 PS = Quit;
 #ifdef WIN32
 return;
@@ -78,6 +78,7 @@ return 0;
 }
 cout << "Commands you can use in the player: " << endl;
 cout << "Key - Description" << endl;
+cout << "a - Add Book to Playlist, r - Remove currently playing book" << endl;
 cout << "f - Go to first section, l - go to last section" << endl;
 cout << "x - Play, c or v - Pause" << endl;
 cout << "b - Next section, z - Previous section" << endl;
@@ -145,7 +146,7 @@ Stream->stop();
 echo();
 nocbreak();
 #endif
-cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
+cout << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection << ": ";
 unsigned short NewSection;
 cin.clear();
 cin >> NewSection;
