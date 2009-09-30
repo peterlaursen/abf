@@ -1,37 +1,31 @@
 /*
-** Example Winamp .RAW input plug-in
-** Copyright (c) 1998, Justin Frankel/Nullsoft Inc.
+** Example Winamp .ABF input plug-in
+** Copyright (c) 2009 Peter Laursen.
 **
-** benski - Cinco de Mayo 2008
-**  Updated for Winamp 5.5 const-correct In_Module definition 
+**  This plugin is heavily based on the .RAW input plugin that comes with the Winamp SDK. I am pleased to see that the plugin works for Winamp as it is now, but several things can be improved.
 **
 */
-
+// Include the necessary files
 #include <windows.h>
 
 #include <winamp/in2.h>
 #include <libabf.h>
 #include "database.h"
 using namespace ABF;
-//#pragma comment(lib, "libabf.lib")
+// This version of the plugin uses specially built libraries, picking and choosing where necessary. This is just a playback plugin, so the converter functions supplied with the original LIBABF library are not used here.
 #pragma comment(lib, "libspeex.lib")
-//#pragma comment(lib, "libspeexdsp.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
-// avoid CRT. Evil. Big. Bloated. Only uncomment this code if you are using 
-// 'ignore default libraries' in VC++. Keeps DLL size way down.
-// /*
-BOOL WINAPI _DllMainCRTStartup(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
-{
-	return TRUE;
-}
-// */
 
 // post this to the main window at end of file (after playback as stopped)
 #define WM_WA_MPEG_EOF WM_USER+2
 
 
-// raw configuration.
+/* ABF configuration.
+
+ABF is, at least in its current form, an audio format compressed at 16000 herz, mono. This might change later.
+*/
+
 #define NCH 1
 #define SAMPLERATE 16000
 #define BPS 16
@@ -48,7 +42,7 @@ int paused;				// are we paused?
 volatile int seek_needed; // if != -1, it is the point that the decode 
 						  // thread should seek to, in ms.
 
-AbfDecoder* AD = NULL;
+AbfDecoder* AD = NULL; // Pointer to our decoder
 volatile int killDecodeThread=0;			// the kill switch for the decode thread
 HANDLE thread_handle=INVALID_HANDLE_VALUE;	// the handle to the decode thread
 
@@ -58,13 +52,13 @@ DWORD WINAPI DecodeThread(LPVOID b); // the decode thread procedure
 void config(HWND hwndParent)
 {
 	MessageBox(hwndParent,
-		"This plugin has no configuration. .ABF has a fixed file format.",
-		"Configuration",MB_OK);
+		"This plugin has no configuration. .ABF has a fixed file format and can therefore not be configured.",
+		"No Configuration",MB_OK);
 	// if we had a configuration box we'd want to write it here (using DialogBox, etc)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.01\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. It doesn't store your position. But it allows you to listen to the ABF audio books.",
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.01\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. For more information, visit http://mosedal.net/abf/\r\n\r\nBased on version 0.30-Alpha1 of LibABF.",
 		"About ABF Winamp Player",MB_OK);
 }
 
@@ -95,11 +89,11 @@ int play(const char *fn)
 
 	
 	
-	// CHANGEME! Write your own file opening code here
+// Set up ABF so that the files can be played
 AD = new AbfDecoder((char*)fn);
 if (!AD->IsValid()) {
 		// we return error. 1 means to keep going in the playlist, -1
-		// means to stop the playlist.
+		// means to stop the playlist. In ABF, we just continue to the next file.
 		return 1;
 	}
 
@@ -173,7 +167,7 @@ void stop() {
 	mod.SAVSADeInit();
 	
 
-	// CHANGEME! Write your own file closing code here
+// Clean up ABF stuff.
 if (!AD->feof()) SaveLastPosition(AD->GetTitle(), AD->ftell());
 else DeletePosition(AD->GetTitle());
 
@@ -185,7 +179,7 @@ AD = NULL;
 
 // returns length of playing track
 int getlength() {
-return 1000;
+return -1;
 }
 
 
@@ -281,12 +275,12 @@ void eq_set(int on, char data[10], int preamp)
 int get_640_samples(char *buf)
 {
 	int l;
-	// CHANGEME! Write your own sample getting code here
+	// Get 640 ABF samples. This is 2 frames of ABF
 short Output[320];
 static short AllOutput[640];
 for (int i = 0; i < 640; i += 320) {
 AD->Decode(Output);
-for (int j = 0; j < 320; j++) AllOutput[i+j] = Output[j];;
+for (int j = 0; j < 320; j++) AllOutput[i+j] = Output[j];
 }
 return 640;
 }
@@ -365,8 +359,10 @@ DWORD WINAPI DecodeThread(LPVOID b)
 	return 0;
 }
 */
+// The above function was pure code. It was the original thread function. Remove it at some time when I understand everything it does. The ABF decode function is below.
+
 DWORD WINAPI DecodeThread(LPVOID b) {
-short Output[320], MyOutput[32000];
+short Output[320];
 while (!killDecodeThread) {
 AD->Decode(Output);
 mod.outMod->Write((char*)Output, 640);
@@ -376,18 +372,16 @@ if (AD->feof()) {
 PostMessage(mod.hMainWindow,WM_WA_MPEG_EOF,0,0);
 break;
 }
-
 }
 return 0;
 }
-
 
 // module definition.
 
 In_Module mod = 
 {
 	IN_VER,	// defined in IN2.H
-	"ABF Plugin Player v0.0 "
+	"ABF Plugin Player v0.02"
 	// winamp runs on both alpha systems and x86 ones. :)
 #ifdef __alpha
 	"(AXP)"
@@ -397,7 +391,7 @@ In_Module mod =
 	,
 	0,	// hMainWindow (filled in by winamp)
 	0,  // hDllInstance (filled in by winamp)
-	"ABF\0ABF Audio File (*.ABF)\0"
+	"ABF\0ABF Audio Book (*.ABF)\0"
 	// this is a double-null limited list. "EXT\0Description\0EXT\0Description\0" etc.
 	,
 	0,	// is_seekable
@@ -426,7 +420,7 @@ In_Module mod =
 
 	0,0, // dsp calls filled in by winamp
 
-	eq_set,
+	0,
 
 	NULL,		// setinfo call filled in by winamp
 
