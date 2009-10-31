@@ -18,8 +18,10 @@ using namespace System;
 using namespace System::Runtime::InteropServices;
 using namespace System::IO;
 using namespace System::ComponentModel;
+using namespace System::Threading;
 using namespace System::Windows::Forms;
 public ref class MyForm: public Form {
+array<String^>^ Files;
 FolderBrowserDialog^ FB;
 MainMenu^ MyMenu;
 void SetupMenu() {
@@ -54,7 +56,7 @@ FB->RootFolder = Environment::SpecialFolder::MyComputer;
 FB->ShowNewFolderButton = false;
 if (FB->ShowDialog() != System::Windows::Forms::DialogResult::OK) return;
 // Search the specified directory for MP3 files.
-array<String^>^ Files = Directory::GetFiles(FB->SelectedPath, "*.mp3", SearchOption::AllDirectories);
+Files = Directory::GetFiles(FB->SelectedPath, "*.mp3", SearchOption::AllDirectories);
 if (Files->Length == 0) 
 // Seek for ogg files
 Files = Directory::GetFiles(FB->SelectedPath, "*.ogg", SearchOption::AllDirectories);
@@ -62,28 +64,39 @@ if (Files->Length == 0)
 Files = Directory::GetFiles(FB->SelectedPath, "*.wav", SearchOption::AllDirectories);
 if (Files->Length != 0)
 MessageBox::Show("We have found some files.");
+Array::Sort(Files);
+Thread^ MyThread = gcnew Thread(gcnew ThreadStart(this, &MyForm::MyThread));
+MyThread->Start();
+}
+void MyThread() {
+String^ OldTitle = this->Text;
+	this->Text += "- Converting Audio Book";
 AbfEncoder AE("demo.abf");
 AE.SetTitle("Test Audio Book");
 AE.SetAuthor("Unknown");
 AE.SetTime("Unknown");
 AE.SetNumSections((unsigned short)Files->Length);
 AE.WriteHeader();
-this->Text += "- Converting Audio Book";
+this->MyMenu->MenuItems[0]->Enabled = false;
 for each (String^ S in Files) {
-String^ Convert = "Converting File ";
-Convert += S;
-MessageBox::Show(Convert, "Status");
-ConvertToAscii(S, AE);
+	if (!ConvertToAscii(S, AE)) break;
+}
+this->Text = OldTitle;
+this->MyMenu->MenuItems[0]->Enabled = true;
 }
 
-}
-void ConvertToAscii(String^ S, AbfEncoder& AE) {
+bool ConvertToAscii(String^ S, AbfEncoder& AE) {
 IntPtr ip = Marshal::StringToHGlobalAnsi(S);
 const char* str = static_cast<const char*>(ip.ToPointer());
 char* TempFile = DecodeToRawAudio(str);
-Marshal::FreeHGlobal(ip);
+if (!TempFile) {
+MessageBox::Show("Error, for some unknown reason, that file cannot be converted.", "Error, aborting conversion!");
+return false;
+}
 AE.WriteSection();
 EncodeABF(AE, TempFile);
+Marshal::FreeHGlobal(ip);
+return true;
 }
 
 public:
