@@ -24,6 +24,8 @@ public ref class MyForm: public Form {
 array<String^>^ Files;
 FolderBrowserDialog^ FB;
 MainMenu^ MyMenu;
+TextBox^ TB;
+bool Quit;
 void SetupMenu() {
 MyMenu = gcnew MainMenu();
 MyMenu->MenuItems->Add(gcnew MenuItem("&Convert"));
@@ -78,9 +80,18 @@ AE.SetTime("Unknown");
 AE.SetNumSections((unsigned short)Files->Length);
 AE.WriteHeader();
 this->MyMenu->MenuItems[0]->Enabled = false;
+int FilesConverted = 1;
+String^ TBText;
+this->Controls[0]->Enabled = true;
 for each (String^ S in Files) {
+	if (Quit) 		return;
+	TBText = "Converting File " + FilesConverted + " of " + Files->Length;
+this->Controls[0]->Text = TBText;
 	if (!ConvertToAscii(S, AE)) break;
+++FilesConverted;
 }
+MessageBox::Show("The audio book has been successfully converted.", "Conversion Finished!");
+this->Controls[0]->Hide();
 this->Text = OldTitle;
 this->MyMenu->MenuItems[0]->Enabled = true;
 }
@@ -98,13 +109,23 @@ EncodeABF(AE, TempFile);
 Marshal::FreeHGlobal(ip);
 return true;
 }
-
+void MyFormClosing(Object^ Sender, FormClosingEventArgs^ E) {
+Quit = true;
+}
 public:
 MyForm() {
+Quit = false;
+TB = gcnew TextBox();
+TB->AutoSize = true;
+TB->ReadOnly = true;
+TB->Enabled = false;
+
+this->Controls->Add(TB);
 SetupMenu();
 this->Text = "ABF Graphical Converter";
 this->TopLevel = true;
 this->AutoSize = true;
+this->FormClosing += gcnew FormClosingEventHandler(this, &MyForm::MyFormClosing);
 }
 };
 
