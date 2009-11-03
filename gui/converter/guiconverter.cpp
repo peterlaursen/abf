@@ -7,6 +7,12 @@ I am by no means a GUI designer, so I'll make it as simple as I possibly can.
 */
 // This is managed code.
 #pragma managed
+// Add the libraries as pragma directives
+#pragma comment(lib, "audiere.lib")
+#pragma comment(lib, "libabf.lib")
+#pragma comment(lib, "libspeex.lib")
+#pragma comment(lib, "libspeexdsp.lib")
+#pragma comment(lib, "user32.lib")
 #using <mscorlib.dll>
 #include <tchar.h>
 #using <System.dll>
@@ -82,8 +88,8 @@ FSD->InitialDirectory = Environment::GetFolderPath(Environment::SpecialFolder::D
 FSD->ShowDialog(this);
 String^ Filename = FSD->FileName;
 IntPtr ABFFileName = Marshal::StringToHGlobalAnsi(Filename);
-
-AbfEncoder AE((char*)ABFFileName.ToPointer());
+char* ABFBookFileName = (char*)ABFFileName.ToPointer();
+AbfEncoder AE(ABFBookFileName);
 AE.SetTitle("Test Audio Book");
 AE.SetAuthor("Unknown");
 AE.SetTime("Unknown");
@@ -100,10 +106,11 @@ this->Controls[0]->Text = TBText;
 	if (!ConvertToAscii(S, AE)) break;
 ++FilesConverted;
 }
+Marshal::FreeHGlobal(ABFFileName);
 } catch (Exception^ E) {
 MessageBox::Show(E->Message, "Exception.");
-return;
 }
+
 
 MessageBox::Show("The audio book has been successfully converted.", "Conversion Finished!");
 this->Controls[0]->Hide();
@@ -121,8 +128,7 @@ return false;
 }
 AE.WriteSection();
 EncodeABF(AE, TempFile);
-//Marshal::FreeHGlobal(ip);
-delete str;
+Marshal::FreeHGlobal(ip);
 return true;
 }
 void MyFormClosing(Object^ Sender, FormClosingEventArgs^ E) {
