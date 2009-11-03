@@ -23,6 +23,7 @@ using namespace System::Windows::Forms;
 public ref class MyForm: public Form {
 array<String^>^ Files;
 FolderBrowserDialog^ FB;
+SaveFileDialog^ FSD;
 MainMenu^ MyMenu;
 TextBox^ TB;
 bool Quit;
@@ -73,7 +74,16 @@ MyThread->Start();
 void MyThread() {
 String^ OldTitle = this->Text;
 	this->Text += "- Converting Audio Book";
-AbfEncoder AE("demo.abf");
+try {
+FSD = gcnew SaveFileDialog();
+FSD->Filter = "ABF Audio Books (*.abf)|*.abf";
+FSD->Title = "Choose where your audio book should be saved";
+FSD->InitialDirectory = Environment::GetFolderPath(Environment::SpecialFolder::Desktop);
+FSD->ShowDialog(this);
+String^ Filename = FSD->FileName;
+IntPtr ABFFileName = Marshal::StringToHGlobalAnsi(Filename);
+
+AbfEncoder AE((char*)ABFFileName.ToPointer());
 AE.SetTitle("Test Audio Book");
 AE.SetAuthor("Unknown");
 AE.SetTime("Unknown");
@@ -90,6 +100,11 @@ this->Controls[0]->Text = TBText;
 	if (!ConvertToAscii(S, AE)) break;
 ++FilesConverted;
 }
+} catch (Exception^ E) {
+MessageBox::Show(E->Message, "Exception.");
+return;
+}
+
 MessageBox::Show("The audio book has been successfully converted.", "Conversion Finished!");
 this->Controls[0]->Hide();
 this->Text = OldTitle;
@@ -98,7 +113,7 @@ this->MyMenu->MenuItems[0]->Enabled = true;
 
 bool ConvertToAscii(String^ S, AbfEncoder& AE) {
 IntPtr ip = Marshal::StringToHGlobalAnsi(S);
-const char* str = static_cast<const char*>(ip.ToPointer());
+const char* str = (const char*)ip.ToPointer();
 char* TempFile = DecodeToRawAudio(str);
 if (!TempFile) {
 MessageBox::Show("Error, for some unknown reason, that file cannot be converted.", "Error, aborting conversion!");
@@ -106,7 +121,8 @@ return false;
 }
 AE.WriteSection();
 EncodeABF(AE, TempFile);
-Marshal::FreeHGlobal(ip);
+//Marshal::FreeHGlobal(ip);
+delete str;
 return true;
 }
 void MyFormClosing(Object^ Sender, FormClosingEventArgs^ E) {
