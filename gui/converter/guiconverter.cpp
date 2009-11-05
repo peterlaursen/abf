@@ -99,6 +99,7 @@ this->MyMenu->MenuItems[0]->Enabled = false;
 int FilesConverted = 1;
 String^ TBText;
 this->Controls[0]->Enabled = true;
+this->Controls[0]->Show();
 for each (String^ S in Files) {
 	if (Quit) 		return;
 	TBText = "Converting File " + FilesConverted + " of " + Files->Length;
