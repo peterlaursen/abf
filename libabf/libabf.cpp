@@ -4,6 +4,10 @@
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
+AbfDecoder::AbfDecoder() {
+fin = 0;
+_IsOpen = false;
+}
 AbfDecoder::AbfDecoder(char* Filename) {
 Initialize(Filename);
 }
@@ -94,14 +98,24 @@ AbfDecoder::~AbfDecoder() {
 Reset();
 }
 void AbfDecoder::Reset() {
-fclose();
+if (_IsOpen) fclose();
+speex_decoder_destroy(Decoder);
+speex_bits_destroy(&Bits);
 	delete[] Title;
 	delete[] Author;
 	delete[] Time;
 delete[] Array;
+
 }
 void AbfDecoder::fclose() { std::fclose(fin); }
+AbfEncoder::AbfEncoder() {
+fout = 0;
+}
+
 AbfEncoder::AbfEncoder(char* Filename) {
+Initialize(Filename);
+}
+void AbfEncoder::Initialize(char* Filename) {
 fout = fopen(Filename, "wb+");
 Encoder = speex_encoder_init(&speex_wb_mode);
 speex_bits_init(&Bits);

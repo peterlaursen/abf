@@ -30,6 +30,7 @@ void ReadHeader();
 bool Validate();
 public:
 AbfDecoder(char* Filename);
+AbfDecoder();
 ~AbfDecoder();
 void Initialize(char*);
 void Reset();
@@ -59,6 +60,8 @@ string _Title, _Author, _Time;
 unsigned short _NumSections;
 public:
 AbfEncoder(char* Filename);
+AbfEncoder();
+void Initialize(char*);
 ~AbfEncoder();
 void SetTitle(const char* Title);
 void SetAuthor(const char* Author);
