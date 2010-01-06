@@ -1,5 +1,4 @@
-#include <audiere.h>
-#include <speex/speex.h>
+#include "dsaudio.h"
 #include "database.h"
 #include "player.h"
 #include <iostream>
@@ -17,7 +16,7 @@
 using namespace std;
 using namespace audiere;
 using namespace ABF;
-AudioDevice* Device;
+DSAudio* Device;
 volatile PlayerStatus PS = Playing;
 PlayList PL;
 void AddBookToPlaylist() {
@@ -65,6 +64,7 @@ void* Thread(void* Filename) {
 #endif
 char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
+Device->Init(&AD);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
 cout << "Error, not a valid ABF book." << endl;
@@ -98,8 +98,6 @@ SetConsoleTitle(Temp.c_str());
 #endif
 short Buffer[320];
 short Buffer1[32000];
-SampleFormat SF = SF_S16;
-OutputStreamPtr Stream = 0;
 int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
@@ -118,7 +116,7 @@ while (!AD.feof() && PS != Quit) {
 // Ensure that CurrentSection is up-to-date
 if (AD.ftell() > Array[CurrentSection+1]) CurrentSection += 1;
 // The rest of this loop processes key presses.
-if (PS == VolumeDown) {
+/*if (PS == VolumeDown) {
 if (Volume == 0.0f) {
 PS = Playing;
 continue;
@@ -134,12 +132,13 @@ continue;
 Volume += 0.1f;
 PS = Playing;
 }
+*/
 if (PS == Paused) {
-if (Stream->isPlaying()) Stream->stop();
+if (Device->isPlaying()) Device->Stop();
 continue;
 }
 if (PS == GoToSection) {
-Stream->stop();
+Device->Stop();
 #ifndef WIN32
 echo();
 nocbreak();
@@ -159,7 +158,7 @@ AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
 if (PS == GoTime) {
-Stream->stop();
+Device->Stop();
 if (!JumpToTime(AD)) continue;
 // Set current section
 int Position = AD.ftell();
@@ -183,12 +182,12 @@ PS = Playing;
 }
 if (PS == NextBook || PS == PreviousBook) break;
 if (PS == AddBook) {
-Stream->stop();
+Device->Stop();
 AddBookToPlaylist();
 PS = Playing;
 }
 if (PS == RemoveBook) {
-Stream->stop();
+Device->Stop();
 RemoveBookFromPlaylist();
 if (PL.GetTotalItems() >= 2 && PL.GetCurrentBook() + 1 <= PL.GetTotalItems() - 1) PS = PreviousBook;
 else PS = NextBook;
@@ -200,7 +199,7 @@ PS = Playing;
 CurrentSection = AD.GetNumSections()-1;
 continue;
 }
-Stream->stop();
+Device->Stop();
 CurrentSection += 1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
@@ -211,26 +210,19 @@ PS = Playing;
 continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
-Stream->stop();
+Device->Stop();
 CurrentSection -= 1;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
 // This bit pre-buffers input and decodes the output
 LastPosition = AD.ftell();
-for (int i = 0; i < 32000; i+=320) {
 if (AD.feof()) {
 PS = BookIsFinished;
 break;
 }
-AD.Decode(Buffer);
-for (int j = 0; j < 320; j++) Buffer1[i+j] = Buffer[j];
-}
-Stream = Device->openBuffer(Buffer1, 32000, 1, 16000, SF);
-Stream->setVolume(Volume);
-Stream->play();
+Device->Play();
 // Wait until the playback is finished, then go run the loop again
-while (Stream->isPlaying());
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
@@ -261,7 +253,7 @@ noecho();
 #endif
 if (argc < 2) AddBookToPlaylist();
 // Open the audio device.
-Device = OpenDevice();
+Device = new DSAudio();
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){

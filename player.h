@@ -44,4 +44,5 @@ GoTime,
 BookIsFinished,
 Quit
 };
+void Input();
 #endif
