@@ -1,4 +1,9 @@
+#ifdef WIN32
 #include "dsaudio.h"
+#else
+#include "unixaudio.h"
+#include "compat.h"
+#endif
 #include "database.h"
 #include "player.h"
 #include <iostream>
@@ -11,29 +16,19 @@
 #else
 #include <unistd.h>
 #include <pthread.h>
-#include <curses.h>
 #endif
 using namespace std;
-using namespace audiere;
 using namespace ABF;
-DSAudio* Device;
+AudioSystem* Device;
 volatile PlayerStatus PS = Playing;
 PlayList PL;
 AbfDecoder* GlobalAD;
 void AddBookToPlaylist() {
-#ifndef WIN32
-nocbreak();
-echo();
-#endif
 
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
 PL.Add(NewBook);
-#ifndef WIN32
-cbreak();
-noecho();
-#endif
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -45,15 +40,7 @@ bool JumpToTime(AbfDecoder& AD) {
 cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: " << endl;
 int Minutes;
-#ifndef WIN32
-nocbreak();
-echo();
-#endif
 cin >> Minutes;
-#ifndef WIN32
-cbreak();
-noecho();
-#endif
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
 return AD.GoToPosition(Minutes);
@@ -141,18 +128,10 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
-#ifndef WIN32
-echo();
-nocbreak();
-#endif
 cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
 unsigned short NewSection;
 cin.clear();
 cin >> NewSection;
-#ifndef WIN32
-cbreak();
-noecho();
-#endif
 --NewSection;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
@@ -247,14 +226,15 @@ if (Key == 'B') PS = NextBook;
 if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
 }
+#ifdef WIN32
 void ThreadFunc(void*) {
+#else
+void* ThreadFunc(void*) {
+#endif
+
 cout << "In Thread Function." << endl;
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
-#ifdef WIN32
 if (kbhit()) Input();
-#else
-Input();
-#endif
 #ifdef WIN32
 Sleep(250);
 #else
@@ -263,14 +243,13 @@ usleep(250);
 }
 }
 int main(int argc, char* argv[]) {
-#ifndef WIN32
-initscr();
-cbreak();
-noecho();
-#endif
 if (argc < 2) AddBookToPlaylist();
 // Open the audio device.
+#ifdef WIN32
 Device = new DSAudio();
+#else
+Device = new UnixAudio();
+#endif
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){
@@ -295,20 +274,19 @@ Filename = PL.GetCurrentBookName();
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
 ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, Filename);
-#else
-ThreadType id;
-pthread_create(&id, 0, Thread, Filename);
-#endif
 ThreadType Thread2 = (ThreadType)_beginthread(ThreadFunc, 0, NULL);
+#else
+ThreadType id, Thread2;
+pthread_create(&id, 0, Thread, Filename);
+pthread_create(&Thread2, 0, ThreadFunc, 0);
+#endif
 
 #ifdef WIN32
 WaitForSingleObject(ThreadID, INFINITE);
 #else
 pthread_join(id, 0);
-nocbreak();
-echo();
-endwin();
 #endif
 }
+delete Device;
 return 0;
 }
