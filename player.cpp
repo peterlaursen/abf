@@ -18,7 +18,7 @@ using namespace std;
 using namespace audiere;
 using namespace ABF;
 AudioDevice* Device;
-PlayerStatus PS = Playing;
+volatile PlayerStatus PS = Playing;
 PlayList PL;
 void AddBookToPlaylist() {
 #ifndef WIN32
@@ -34,7 +34,6 @@ PL.Add(NewBook);
 cbreak();
 noecho();
 #endif
-
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -68,7 +67,7 @@ char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
-cout << "Error, not a valid ABF daisy AD.GetFileHandle()." << endl;
+cout << "Error, not a valid ABF book." << endl;
 PS = Quit;
 #ifdef WIN32
 return;
