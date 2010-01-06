@@ -245,6 +245,21 @@ if (Key == 'B') PS = NextBook;
 if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
 }
+void ThreadFunc(void*) {
+cout << "In Thread Function." << endl;
+while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
+#ifdef WIN32
+if (kbhit()) Input();
+#else
+Input();
+#endif
+#ifdef WIN32
+Sleep(250);
+#else
+usleep(250);
+#endif
+}
+}
 int main(int argc, char* argv[]) {
 #ifndef WIN32
 initscr();
@@ -282,18 +297,8 @@ ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, Filename);
 ThreadType id;
 pthread_create(&id, 0, Thread, Filename);
 #endif
-while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
-#ifdef WIN32
-if (kbhit()) Input();
-#else
-Input();
-#endif
-#ifdef WIN32
-Sleep(250);
-#else
-usleep(250);
-#endif
-}
+ThreadType Thread2 = (ThreadType)_beginthread(ThreadFunc, 0, NULL);
+
 #ifdef WIN32
 WaitForSingleObject(ThreadID, INFINITE);
 #else
