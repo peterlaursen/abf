@@ -5,25 +5,26 @@ This file contains various declarations that are used within the player.
 */
 #ifndef PLAYER_H
 #define PLAYER_H
-#include <audiere.h>
 #include "playlist.h"
 #ifdef WIN32
 #include <windows.h>
+#include "dsaudio.h"
+#else
+#include "unixaudio.h"
 #endif
+
 #include <libabf.h>
 #ifdef WIN32
-void Prebuffer(void*);
-#else
-void* Prebuffer(void*);
-#endif
-#ifdef WIN32
 typedef HANDLE ThreadType;
+typedef DSAudio AudioSystem;
 #endif
 #ifdef LINUX
 typedef pthread_t ThreadType;
+typedef UnixAudio AudioSystem;
 #endif
 #ifdef FREEBSD
 typedef pthread* ThreadType;
+typedef UnixAudio AudioSystem;
 #endif
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
@@ -44,4 +45,6 @@ GoTime,
 BookIsFinished,
 Quit
 };
+void Input();
+extern volatile PlayerStatus PS;
 #endif
