@@ -3,6 +3,7 @@
 #include <libabf.h>
 #include <windows.h>
 #include <process.h>
+#include "player.h"
 using namespace ABF;
 using namespace std;
 void DSAudio::SetupWindow() {
@@ -58,12 +59,12 @@ IsPlaying = false;
 DirectSoundCreate8(NULL, &Device, NULL);
 SetupWindow();
 Device->SetCooperativeLevel(WindowHandle, DSSCL_PRIORITY);
-DSAudio::CreateBasicBuffer(Device, &Buffer);
 }
 void DSAudio::Init(AbfDecoder* AD) { Decoder = AD; }
 void DSAudio::Play() {
 	IsPlaying = true;
-while (!Decoder->feof()) {
+CreateBasicBuffer(Device, &Buffer);
+	while (!Decoder->feof() && PS == Playing) {
 Buffer->Play(0, 0, DSBPLAY_LOOPING);
 DWORD PlayPosition = 0;
 do {
@@ -89,11 +90,10 @@ for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
 
 }
+Buffer->Release();
 }
 void DSAudio::Stop() {
 IsPlaying = false;
-Buffer->Stop();
-Buffer->SetCurrentPosition(0);
 }
 DSAudio::~DSAudio() {
 DestroyWindow(WindowHandle);

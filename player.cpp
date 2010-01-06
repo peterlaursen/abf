@@ -19,6 +19,7 @@ using namespace ABF;
 DSAudio* Device;
 volatile PlayerStatus PS = Playing;
 PlayList PL;
+AbfDecoder* GlobalAD;
 void AddBookToPlaylist() {
 #ifndef WIN32
 nocbreak();
@@ -64,6 +65,7 @@ void* Thread(void* Filename) {
 #endif
 char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
+GlobalAD = &AD;
 Device->Init(&AD);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
@@ -181,18 +183,7 @@ AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
 if (PS == NextBook || PS == PreviousBook) break;
-if (PS == AddBook) {
-Device->Stop();
-AddBookToPlaylist();
-PS = Playing;
-}
-if (PS == RemoveBook) {
-Device->Stop();
-RemoveBookFromPlaylist();
-if (PL.GetTotalItems() >= 2 && PL.GetCurrentBook() + 1 <= PL.GetTotalItems() - 1) PS = PreviousBook;
-else PS = NextBook;
-break;
-}
+
 if (PS == Next) {
 if (CurrentSection >= AD.GetNumSections() - 1) {
 PS = Playing;
@@ -229,8 +220,19 @@ else DeletePosition(AD.GetTitle());
 }
 void Input() {
 char Key = getch(); 
-if (Key == 'a') PS = AddBook;
-if (Key == 'r') PS = RemoveBook;
+if (Key == 'a') {
+PS = AddBook;
+Device->Stop();
+AddBookToPlaylist();
+PS = Playing;
+}
+if (Key == 'r') {
+PS = RemoveBook;
+Device->Stop();
+RemoveBookFromPlaylist();
+if (PL.GetTotalItems() >= 2 && PL.GetCurrentBook() + 1 <= PL.GetTotalItems() - 1) PS = PreviousBook;
+else PS = NextBook;
+}
 if (Key == '<') PS = VolumeDown;
 if (Key == '>') PS = VolumeUp;
 if (Key == 'g') PS = GoToSection;

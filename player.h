@@ -45,4 +45,5 @@ BookIsFinished,
 Quit
 };
 void Input();
+extern volatile PlayerStatus PS;
 #endif
