@@ -8,7 +8,11 @@ This file contains various declarations that are used within the player.
 #include "playlist.h"
 #ifdef WIN32
 #include <windows.h>
+#include "dsaudio.h"
+#else
+#include "unixaudio.h"
 #endif
+
 #include <libabf.h>
 #ifdef WIN32
 typedef HANDLE ThreadType;
