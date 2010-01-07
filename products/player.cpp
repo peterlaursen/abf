@@ -192,10 +192,12 @@ PS = BookIsFinished;
 break;
 }
 Device->Play();
+LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
+
 }
 void Input() {
 char Key = getch(); 
@@ -241,6 +243,7 @@ Sleep(250);
 usleep(250);
 #endif
 }
+cout << "Exiting Thread Function." << endl;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();

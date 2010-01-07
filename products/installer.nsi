@@ -8,7 +8,7 @@ This is done for a couple reasons:
 Product Name: ABF Products
 Copyright (C) 2008, 2009 Peter Laursen.
 Contents: ABF Converter, ABF Player, Experimental File Converter, Winamp Plugin (if selected), ReadMe file Required Libraries
-Version used to generate this installer: NSIS 2.45
+Version used to generate this installer: NSIS 2.46
 
 */
 !Include "winmessages.nsh"
@@ -88,7 +88,7 @@ SectionIn 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "d:\audiere-1.9.4-win32\bin\audiere.dll"
-File "..\fileconverter\fileconverter.exe"
+File "..\gui\converter\guiconverter.exe"
 File "d:\speex-1.2rc1\lib\libspeexdsp.dll"
 File "readme.txt"
 File "converter.exe"
@@ -96,6 +96,7 @@ File "player.exe"
 File "..\libdaisy\libdaisy.dll"
 File "..\libabf\libabf.dll"
 Call AfterFileCopying
+CreateShortCut "$SMPROGRAMS\ABF Products\Experimental Graphical Converter.lnk" "$INSTDIR\guiconverter.exe"
 SectionEnd
 Section /O "Player Only"
 SectionIn 3
@@ -106,6 +107,9 @@ File "player.exe"
 File "d:\audiere-1.9.4-win32\bin\audiere.dll"
 File "d:\speex-1.2rc1\lib\libspeexdsp.dll"
 Call AfterFileCopying
+CreateShortCut "Experimental Graphical Converter.lnk" "$ABFInstallDir\guiconverter.exe"
+
+
 SectionEnd
 /*
 The below function needs to be shared between the installer and uninstaller, since they cannot call each other's functions.
