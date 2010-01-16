@@ -1,0 +1,10 @@
+FIREFOX PLUGIN
+
+OVERVIEW:
+
+ABF is currently not able to be streamed by a browser. In order for this thing to work, we must develop a firefox plugin.
+
+This also means that we must develop a plugin and that it must compile on Windows, Unix and Linux.
+
+We start with a Firefox plugin because the information we need is readily available, both documentation and header files.
+
