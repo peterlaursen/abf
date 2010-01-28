@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include <libabf.h>
 #include <iostream>
 #include <cstdio>
@@ -21,6 +22,7 @@ fwrite(Decoded, sizeof(short), 320, Output);
 fclose(Output);
 system("oggenc -r -C 1 -R 16000 -o abftest.ogg --quiet decoded.raw");
 cout << "Finished decoding." << endl;
+unlink("decoded.raw");
 return 0;
 }
 
