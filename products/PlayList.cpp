@@ -19,14 +19,14 @@ if (NumberOfItems == 1) CurrentItem = 0;
 }
 
 bool PlayList::PreviousBook() {
-if (CurrentItem == 0) return true;
+if (CurrentItem == 0) return false;
 --CurrentItem;
 return true;
 }
 bool PlayList::NextBook() {
 if (NumberOfItems == 1) {
 CurrentItem = 0;
-return true;
+return false;
 }
 
 if (CurrentItem < NumberOfItems - 1) {

@@ -24,11 +24,16 @@ volatile PlayerStatus PS = Playing;
 PlayList PL;
 AbfDecoder* GlobalAD;
 void AddBookToPlaylist() {
-
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
+FILE* temp = fopen(NewBook.c_str(), "rb");
+if (!temp) {
+cout << "Book not found, try again." << endl;
+AddBookToPlaylist();
+}
 PL.Add(NewBook);
+fclose(temp);
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -187,17 +192,13 @@ PS = Playing;
 }
 // This bit pre-buffers input and decodes the output
 LastPosition = AD.ftell();
-if (AD.feof()) {
-PS = BookIsFinished;
-break;
-}
 Device->Play();
 LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
-
+if (AD.feof()) PS = BookIsFinished;
 }
 void Input() {
 char Key = getch(); 
@@ -235,7 +236,7 @@ void* ThreadFunc(void*) {
 #endif
 
 cout << "In Thread Function." << endl;
-while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
+while (!GlobalAD->feof() && PS != Quit && PS != PreviousBook && PS != NextBook) {
 if (kbhit()) Input();
 #ifdef WIN32
 Sleep(250);
@@ -244,6 +245,7 @@ usleep(250);
 #endif
 }
 cout << "Exiting Thread Function." << endl;
+cout << "PS is " << PS << endl;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
@@ -255,20 +257,17 @@ Device = new UnixAudio();
 #endif
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
-while (PL.GetCurrentBook() < PL.GetTotalItems()){
-if (PS == Quit) break;
+while (PS != Quit) {
 if (PS == PreviousBook) {
 if (!PL.PreviousBook()) break;
 PS = Playing;
 }
 if (PS == NextBook) {
-if (PL.GetTotalItems() == 0) break;
-
-if (!PL.NextBook()) break;
+bool Status = PL.NextBook();
+if (!Status) break;
 PS = Playing;
 }
 if (PS == BookIsFinished) {
-if (PL.GetTotalItems() == 1) break;
 PS = NextBook;
 continue;
 }
