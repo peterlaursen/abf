@@ -37,7 +37,7 @@
 #endif
 
 #define READ 1024
-signed char readbuffer[READ*4+44]; /* out of the data segment, not the stack */
+signed short readbuffer[READ*2]; /* out of the data segment, not the stack */
 
 int main(){
   ogg_stream_state os; /* take physical pages, weld into a logical
@@ -81,16 +81,6 @@ int main(){
      example, after all. */
 
   readbuffer[0] = '\0';
-  for (i=0, founddata=0; i<30 && ! feof(stdin) && ! ferror(stdin); i++)
-  {
-    fread(readbuffer,1,2,stdin);
-    
-    if ( ! strncmp((char*)readbuffer, "da", 2) ){
-      founddata = 1;
-      fread(readbuffer,1,6,stdin);
-      break;
-    }
-  }
   
   /********** Encode setup ************/
   
@@ -104,7 +94,7 @@ int main(){
    (lowest quality, smallest file) to 1. (highest quality, largest file).
    Example quality mode .4: 44kHz stereo coupled, roughly 128kbps VBR 
   
-   ret = vorbis_encode_init_vbr(&vi,2,44100,.4);
+   ret = vorbis_encode_init_vbr(&vi,1,16000,.4);
 
    ---------------------------------------------------------------------
 
@@ -125,7 +115,7 @@ int main(){
 
    *********************************************************************/
 
-  ret=vorbis_encode_init_vbr(&vi,2,44100,0.1);
+  ret=vorbis_encode_init_vbr(&vi,1,16000,0.3);
 
   /* do not continue if setup failed; this can happen if we ask for a
      mode that libVorbis does not support (eg, too low a bitrate, etc,
@@ -179,7 +169,7 @@ int main(){
   
   while(!eos){
     long i;
-    long bytes=fread(readbuffer,1,READ*4,stdin); /* stereo hardwired here */
+    long bytes=fread(readbuffer,2,READ,stdin); /* stereo hardwired here */
 
     if(bytes==0){
       /* end of file.  this can be done implicitly in the mainline,
@@ -195,11 +185,11 @@ int main(){
       float **buffer=vorbis_analysis_buffer(&vd,READ);
       
       /* uninterleave samples */
-      for(i=0;i<bytes/4;i++){
-        buffer[0][i]=((readbuffer[i*4+1]<<8)|
-                      (0x00ff&(int)readbuffer[i*4]))/32768.f;
-        buffer[1][i]=((readbuffer[i*4+3]<<8)|
+      for(i=0;i<bytes;i++){
+buffer[0][i] = readbuffer[i]/32768.f;
+/*        buffer[1][i]=((readbuffer[i*4+3]<<8)|
                       (0x00ff&(int)readbuffer[i*4+2]))/32768.f;
+*/
       }
     
       /* tell the library how much we actually submitted */

@@ -1,4 +1,8 @@
+#ifdef WIN32
+#include <windows.h>
+#else
 #include <unistd.h>
+#endif
 #include <libabf.h>
 #include <iostream>
 #include <cstdio>
@@ -20,9 +24,11 @@ AD.Decode(Decoded);
 fwrite(Decoded, sizeof(short), 320, Output);
 }
 fclose(Output);
-system("oggenc -r -C 1 -R 16000 -o abftest.ogg --quiet decoded.raw");
-cout << "Finished decoding." << endl;
+//system("oggenc -r -C 1 -R 16000 -o abftest.ogg --quiet decoded.raw");
+//cout << "Finished decoding." << endl;
+#ifndef WIN32
 unlink("decoded.raw");
+#endif
 return 0;
 }
 
