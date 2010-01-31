@@ -198,7 +198,7 @@ LastPosition = AD.ftell();
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
 else DeletePosition(AD.GetTitle());
-if (AD.feof()) PS = BookIsFinished;
+if (AD.feof()) PS = NextBook;
 }
 void Input() {
 char Key = getch(); 
@@ -237,7 +237,8 @@ void* ThreadFunc(void*) {
 
 cout << "In Thread Function." << endl;
 while (!GlobalAD->feof() && PS != Quit && PS != PreviousBook && PS != NextBook) {
-if (kbhit()) Input();
+if (GlobalAD->feof()) break;
+ if (kbhit()) Input();
 #ifdef WIN32
 Sleep(250);
 #else
