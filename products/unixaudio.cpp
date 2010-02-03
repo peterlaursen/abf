@@ -8,9 +8,7 @@
 #include <fcntl.h>
 UnixAudio::UnixAudio(): IsPlaying(false), Decoder(0) {
 Device = open("/dev/dsp", O_WRONLY);
-int Volume = 80|80<<8;
 
-ioctl(Device, SNDCTL_DSP_SETPLAYVOL, &Volume);
 int Format = AFMT_S16_NE;
 ioctl(Device, SNDCTL_DSP_SETFMT, &Format);
 Format = 1;
