@@ -151,6 +151,7 @@ Position2 = Line.find("#");
 Line.erase(Position2);
 // Return the absolute path
 _LastPosition = _Ncc.tellg();
+for (int i = 0; i < Line.length(); i++) Line[i] = tolower(Line[i]);
 return _Path + Line;
 }
 }
@@ -169,6 +170,11 @@ return false;
 _Smil.close();
 _Smil.clear();
 _Smil.open(Filename.c_str());
+if (!_Smil.is_open()) {
+cout << "Smil file not found - the file name was " << Filename << endl;
+return false;
+}
+ 
 _LastPosition = _Ncc.tellg();
 // We need to set the file position to 0 to satisfy the ExtractMetaInfo function.
 return true;
@@ -186,6 +192,7 @@ Position = 0;
 int Position2 = Line.find("\"", Position);
 // We do not need to return the quote, we'll delete it alongside the rest of the string.
 Line.erase(Position2);
+for (int i =0; i < Line.length(); i++) Line[i] = tolower(Line[i]);
 MP3 = Line;
 }
 _Meta = _Path + MP3;
