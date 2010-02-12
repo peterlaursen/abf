@@ -12,7 +12,7 @@
 using namespace audiere;
 using namespace std;
 namespace ABF {
-SHARED char* DecodeToRawAudio(const char* Filename) {
+char* DecodeToRawAudio(const char* Filename) {
 // Define the variable Processed to be twice as large as Size. This allows for upsampling the audio if such things are necessary.
 // It would be more elegant to have a few constants for the array size.
 unsigned int Size = 4096;
@@ -33,7 +33,17 @@ char* TempFile = tempnam(".\\", "ABFConv");
 #else
 char* TempFile = tempnam("./", "ABFConv");
 #endif
+if (!TempFile) {
+cout << "Couldn't get temporary file." << endl;
+return 0;
+}
+
 FILE* temp = fopen(TempFile, "wb");
+if (!temp) {
+cout << "Error, file not found." << endl;
+return 0;
+}
+
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
@@ -44,7 +54,7 @@ speex_resampler_destroy(State);
 fclose(temp);
 return TempFile;
 }
-SHARED bool EncodeABF(AbfEncoder& AE, char* TempFile) {
+bool EncodeABF(AbfEncoder& AE, char* TempFile) {
 // Check our arguments
 if (!TempFile) return false;
 FILE* fin = fopen(TempFile, "rb");

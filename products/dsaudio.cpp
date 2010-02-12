@@ -64,10 +64,11 @@ void DSAudio::Init(AbfDecoder* AD) { Decoder = AD; }
 void DSAudio::Play() {
 	IsPlaying = true;
 CreateBasicBuffer(Device, &Buffer);
-Buffer->Play(0, 0, DSBPLAY_LOOPING);
+bool Initialized = false;
 	while (!Decoder->feof() && PS == Playing) {
 DWORD PlayPosition = 0;
 do {
+if (!Initialized) break;
 Buffer->GetCurrentPosition(&PlayPosition, 0);
 } while (PlayPosition <= 32000);
 short* DirectXBuffer;
@@ -84,6 +85,8 @@ Buffer->Stop();
 break;
 }
 do {
+if (!Initialized) break;
+
 Buffer->GetCurrentPosition(&PlayPosition, NULL);
 } while (PlayPosition >= 32000);
 Buffer->Lock(32000, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
@@ -92,7 +95,8 @@ Decoder->Decode(Decoded);
 for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
-
+Buffer->Play(0, 0, DSBPLAY_LOOPING);
+Initialized = true;
 }
 Buffer->Stop();
 Buffer->SetCurrentPosition(0);

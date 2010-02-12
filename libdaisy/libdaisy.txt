@@ -21,3 +21,10 @@ void Close(): Closes the daisy book. This function will also be called from the 
 vector<string> ExtractMetaInfo(): Extracts all the meta information and returns a vector<string> containing the information extracted.
 string ExtractMetaInfo(): Extracts the given meta info string and returns the value (see the Daisy 2.02 specification for valid values)
 ExtractMP3: Extracts the name of the next MP3 file. Returns the file name to be opened.
+Update (2010-02-08):
+
+There were several small bugs in LibDaisy. One bug that stays in the library is that some Danish characters are not converted properly to a "native" character set.
+Throughout its history, libdaisy has had various problems.
+Today, I made a decision to make all file names lower-case. This was because the Unix-like systems couldn't find the files referenced in the ncc.html file - they were written in capital letters. This doesn't matter on Mac or Windows, but it matters on FreeBSD.
+This problem has long gone un-noticed - mostly because I only tested converting from CDs, not from the harddrive.
+

@@ -8,3 +8,9 @@ This also means that we must develop a plugin and that it must compile on Window
 
 We start with a Firefox plugin because the information we need is readily available, both documentation and header files.
 
+REQUIREMENTS:
+
+The users need at least Firefox 3.5, since our development version of Firefox corresponds to this. No support is offered for other browser versions.
+
+The users also need to run a supported operating system. I'll provide binaries for Ubuntu, FreeBSD and Windows.
+
