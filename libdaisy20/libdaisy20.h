@@ -23,8 +23,10 @@ namespace ABF {
 class SHARED DaisyBook {
 std::string Path;
 int Volumes; // Daisy books may have multiple volumes
+int CurrentVolume;
 std::string Tag;
-std::string Title, Author;
+std::string Identification;
+std::string Title, Author, Time;
 std::ifstream Smil, Content;
 std::vector<std::string> AudioFiles;
 bool IsValid;
@@ -38,10 +40,9 @@ const std::string& GetTitle();
 const std::string& GetAuthor();
 const unsigned short GetNumSections();
 const int GetVolumes();
-void Close() {
-Content.close();
-}
-
+int GetCurrentVolume();
+const std::string& GetTotalTime();
+const std::string& GetIdentification();
 };
 }
 #endif
