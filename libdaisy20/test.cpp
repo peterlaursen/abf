@@ -12,6 +12,7 @@ return 1;
 DaisyBook DB(argv[1]);
 DB.GetMetadata();
 cout << "Title: " << DB.GetTitle() << ". Author: " << DB.GetAuthor() << endl << "This book consists of " << DB.GetVolumes() << " CDs, of which this is CD number " << DB.GetCurrentVolume() << endl << "The book lasts " << DB.GetTotalTime() << endl;
+DB.GetAudioFiles();
 return 0;
 }
 

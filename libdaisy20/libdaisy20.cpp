@@ -72,4 +72,33 @@ const int DaisyBook::GetVolumes() { return Volumes; }
 int DaisyBook::GetCurrentVolume() { return CurrentVolume; }
 const string& DaisyBook::GetTotalTime() { return Time; }
 const string& DaisyBook::GetIdentification() { return Identification; }
+void DaisyBook::GetAudioFiles() {
+Content.seekg(0, ios::beg);
+Tag.clear();
+GetTag();
+while (Tag.find("<body") == string::npos && !Content.eof()) GetTag();
+/*
+We have now located our <body> tag and we have also gotten the following tag, which is usually a heading.
+The search then goes on to search through the smil file and like the first version of the library extracts the name of the audio file it encounters first.
+*/
+while (Tag.find("</body") == string::npos) {
+GetTag();
+while (Tag.find("<a") == string::npos && Tag.find("</body") == string::npos) GetTag();
+if (Tag.find("</body") != string::npos) break;
+// Bypass the string 'href="'
+int Position = Tag.find("href=") + 6;
+int Position2 = Tag.find("#");
+string AF = Tag.substr(Position, Position2-Position);
+Smil.open((Path + AF).c_str());
+Tag.clear();
+while (Tag.find("<audio") == string::npos && !Smil.eof()) GetTag(false);
+if (!Smil.eof()) {
+Position = Tag.find("src=\"") + 5;
+Position2 = Tag.find("\"", Position);
+string AudioFile = Tag.substr(Position, Position2-Position);
+Smil.close();
+cout << "AudioFile is " << AudioFile.length() << " characters and the string contains " << AudioFile << endl;
+}
+}
+}
 }

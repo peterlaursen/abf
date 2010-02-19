@@ -43,6 +43,7 @@ const int GetVolumes();
 int GetCurrentVolume();
 const std::string& GetTotalTime();
 const std::string& GetIdentification();
+void GetAudioFiles(); // This function fills the vector with file strings
 };
 }
 #endif
