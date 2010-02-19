@@ -85,6 +85,18 @@ while (Tag.find("</body") == string::npos) {
 GetTag();
 while (Tag.find("<a") == string::npos && Tag.find("</body") == string::npos) GetTag();
 if (Tag.find("</body") != string::npos) break;
+// Check whether we're on the correct disk
+if (Volumes > 1) {
+int MyPos;
+if ((MyPos = Tag.find("rel=")) != string::npos) {
+MyPos += 5;
+int MyPos2 = Tag.find(" ", MyPos);
+int Test = atoi(Tag.substr(MyPos, MyPos2-MyPos).c_str());
+if (Test < CurrentVolume) continue;
+if (Test > CurrentVolume) break;
+}
+}
+
 // Bypass the string 'href="'
 int Position = Tag.find("href=") + 6;
 int Position2 = Tag.find("#");
