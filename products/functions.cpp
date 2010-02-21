@@ -31,7 +31,7 @@ short Buffer[4096];
 #ifdef WIN32
 char* TempFile = tempnam(".\\", "ABFConv");
 #else
-char* TempFile = tempnam("./", "ABFConv");
+char* TempFile = tempnam("/tmp", "ABFConv");
 #endif
 if (!TempFile) {
 cout << "Couldn't get temporary file." << endl;
