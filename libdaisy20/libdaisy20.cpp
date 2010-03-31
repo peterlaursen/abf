@@ -107,10 +107,26 @@ while (Tag.find("<audio") == string::npos && !Smil.eof()) GetTag(false);
 if (!Smil.eof()) {
 Position = Tag.find("src=\"") + 5;
 Position2 = Tag.find("\"", Position);
-string AudioFile = Tag.substr(Position, Position2-Position);
+string AudioFile = Path + Tag.substr(Position, Position2-Position);
 Smil.close();
 cout << "AudioFile is " << AudioFile.length() << " characters and the string contains " << AudioFile << endl;
+AudioFiles.push_back(AudioFile);
 }
 }
 }
+bool DaisyBook::NextVolume(char* Path) {
+// In this function, we declare a second DaisyBook so that we can inspect the next volume in piece.
+DaisyBook DB(Path);
+if (!DB.GetMetadata()) return false;
+string NewID = DB.GetIdentification();
+if (Identification == NewID) {
+Path = (char*)DB.GetPath().c_str();
+Content.close();
+Content.open("ncc.html");
+GetAudioFiles();
+return true;
+}
+}
+string& DaisyBook::GetPath() { return Path; }
+
 }

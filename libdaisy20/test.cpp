@@ -13,6 +13,16 @@ DaisyBook DB(argv[1]);
 DB.GetMetadata();
 cout << "Title: " << DB.GetTitle() << ". Author: " << DB.GetAuthor() << endl << "This book consists of " << DB.GetVolumes() << " CDs, of which this is CD number " << DB.GetCurrentVolume() << endl << "The book lasts " << DB.GetTotalTime() << endl;
 DB.GetAudioFiles();
+DB.GetAudioFiles();
+cout << "Number of sections: " << DB.GetNumSections() << endl;
+if (DB.GetVolumes() > 1) {
+string Path;
+cout << endl << "This book consists of multiple volumes. Please type in the path." << endl;
+getline(cin, Path);
+if (DB.NextVolume((char*)Path.c_str())) {
+DB.GetAudioFiles();
+cout << endl << "Next volume located. The book now contains " << DB.GetNumSections() << " sections." << endl;
+}
+}
 return 0;
 }
-

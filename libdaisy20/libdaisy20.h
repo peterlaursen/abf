@@ -36,8 +36,10 @@ DaisyBook(char* Path);
 std::string& GetTag(bool FromNCC=true);
 // The below function extracts all the required data from the daisy book. This is the data required by ABF.
 bool GetMetadata();
+bool NextVolume(char* Path);
 const std::string& GetTitle();
 const std::string& GetAuthor();
+std::string& GetPath();
 const unsigned short GetNumSections();
 const int GetVolumes();
 int GetCurrentVolume();
