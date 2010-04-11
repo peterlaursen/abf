@@ -23,6 +23,10 @@ if (DB.NextVolume((char*)Path.c_str())) {
 DB.GetAudioFiles();
 cout << endl << "Next volume located. The book now contains " << DB.GetNumSections() << " sections." << endl;
 }
+else {
+cout << "Error, cannot locate next volume." << endl;
+}
+
 }
 return 0;
 }

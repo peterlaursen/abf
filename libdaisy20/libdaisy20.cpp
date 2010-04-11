@@ -81,6 +81,7 @@ while (Tag.find("<body") == string::npos && !Content.eof()) GetTag();
 We have now located our <body> tag and we have also gotten the following tag, which is usually a heading.
 The search then goes on to search through the smil file and like the first version of the library extracts the name of the audio file it encounters first.
 */
+string AudioFile;
 while (Tag.find("</body") == string::npos) {
 GetTag();
 while (Tag.find("<a") == string::npos && Tag.find("</body") == string::npos) GetTag();
@@ -107,17 +108,21 @@ while (Tag.find("<audio") == string::npos && !Smil.eof()) GetTag(false);
 if (!Smil.eof()) {
 Position = Tag.find("src=\"") + 5;
 Position2 = Tag.find("\"", Position);
-string AudioFile = Path + Tag.substr(Position, Position2-Position);
+AudioFile = Path + Tag.substr(Position, Position2-Position);
 Smil.close();
 cout << "AudioFile is " << AudioFile.length() << " characters and the string contains " << AudioFile << endl;
 AudioFiles.push_back(AudioFile);
 }
 }
+for (int i = 0; i < 5; i++) cout << endl << "File " << i << " in vector: " << AudioFiles[i] << endl;
 }
 bool DaisyBook::NextVolume(char* Path) {
 // In this function, we declare a second DaisyBook so that we can inspect the next volume in piece.
 DaisyBook DB(Path);
-if (!DB.GetMetadata()) return false;
+if (!DB.GetMetadata()) {
+cout << "Error, cannot find metadata." << endl;
+return false;
+}
 string NewID = DB.GetIdentification();
 if (Identification == NewID) {
 Path = (char*)DB.GetPath().c_str();
@@ -125,6 +130,10 @@ Content.close();
 Content.open("ncc.html");
 GetAudioFiles();
 return true;
+}
+else {
+cout << "Error, there's no ID in this audio book." << endl;
+return false;
 }
 }
 string& DaisyBook::GetPath() { return Path; }
