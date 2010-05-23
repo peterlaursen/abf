@@ -4,6 +4,7 @@
 #include <dsound.h>
 #include <libabf.h>
 class DSAudio {
+static int LastPosition;
 HWND WindowHandle;
 ABF::AbfDecoder* Decoder;
 volatile bool IsPlaying;
@@ -21,5 +22,6 @@ bool isPlaying();
 IDirectSoundBuffer8* GetBuffer() { return Buffer; }
 ABF::AbfDecoder* GetDecoder() { return Decoder; }
 IDirectSound8* GetDevice() { return Device; }
+static int GetLastPosition() { return LastPosition; }
 };
 #endif

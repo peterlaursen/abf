@@ -195,7 +195,7 @@ Device->Play();
 LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
-if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), LastPosition);
+if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), DSAudio::GetLastPosition());
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
 }

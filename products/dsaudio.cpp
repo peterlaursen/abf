@@ -66,6 +66,9 @@ void DSAudio::Play() {
 CreateBasicBuffer(Device, &Buffer);
 bool Initialized = false;
 	while (!Decoder->feof() && PS == Playing) {
+if (PS == Playing)
+DSAudio::LastPosition = Decoder->ftell() - 7200;
+if (LastPosition < 0) LastPosition = 0;
 DWORD PlayPosition = 0;
 do {
 if (!Initialized) break;
@@ -111,3 +114,4 @@ DestroyWindow(WindowHandle);
 Device->Release();
 }
 bool DSAudio::isPlaying() { return IsPlaying; }
+int DSAudio::LastPosition = 0;
