@@ -168,7 +168,9 @@ void stop() {
 	
 
 // Clean up ABF stuff.
-if (!AD->feof()) SaveLastPosition(AD->GetTitle(), AD->ftell() - 7200);
+int LastPosition = AD->ftell() - 7200;
+if (LastPosition < 0) LastPosition = 0;
+if (!AD->feof()) SaveLastPosition(AD->GetTitle(), LastPosition);
 else DeletePosition(AD->GetTitle());
 
 delete AD;
