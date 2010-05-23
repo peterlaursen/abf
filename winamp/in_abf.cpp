@@ -10,7 +10,7 @@
 
 #include <winamp/in2.h>
 #include <libabf.h>
-#include "database.h"
+#include "..\products\database.h"
 using namespace ABF;
 // This version of the plugin uses specially built libraries, picking and choosing where necessary. This is just a playback plugin, so the converter functions supplied with the original LIBABF library are not used here.
 #pragma comment(lib, "libspeex.lib")
@@ -58,7 +58,7 @@ void config(HWND hwndParent)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.01\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. For more information, visit http://mosedal.net/abf/\r\n\r\nBased on version 0.30-Alpha1 of LibABF.",
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.02\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. For more information, visit http://mosedal.net/abf/\r\n\r\nBased on version 0.30-Alpha1 of LibABF.",
 		"About ABF Winamp Player",MB_OK);
 }
 
@@ -168,7 +168,7 @@ void stop() {
 	
 
 // Clean up ABF stuff.
-if (!AD->feof()) SaveLastPosition(AD->GetTitle(), AD->ftell());
+if (!AD->feof()) SaveLastPosition(AD->GetTitle(), AD->ftell() - 7200);
 else DeletePosition(AD->GetTitle());
 
 delete AD;
