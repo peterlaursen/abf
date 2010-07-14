@@ -12,7 +12,7 @@
 using namespace audiere;
 using namespace std;
 namespace ABF {
-char* DecodeToRawAudio(const char* Filename) {
+char* DecodeToRawAudio(const char* Filename, AbfEncoder& AE) {
 // Define the variable Processed to be twice as large as Size. This allows for upsampling the audio if such things are necessary.
 // It would be more elegant to have a few constants for the array size.
 unsigned int Size = 4096;
@@ -40,15 +40,32 @@ return 0;
 
 FILE* temp = fopen(TempFile, "wb");
 if (!temp) {
-cout << "Error, file not found." << endl;
+cerr << "Error, temp file not opened." << endl;
 return 0;
 }
 
 while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
-speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
+int SamplesDecoded = speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
+short InternalBuffer[320] = {0};
+int Remainder = Processed / 318;
+cout << "Times to run the loop before we try the last step: " << Remainder << endl;
+for (short i = 0, BufferPosition = 0; i < Remainder; ++i, BufferPosition += 318) {
+for (short j = 0; j < 318; j++) InternalBuffer[j] = Resampled[BufferPosition+j];
+AE.Encode(InternalBuffer, 318);
+
+}
+short BufferPosition = Remainder*320;
+
+memset(&InternalBuffer, '\0', 640);
+
+//for (short i = 0; i < Remainder; i++) InternalBuffer[i] = Resampled[BufferPosition+i];
+//AE.Encode(InternalBuffer, Remainder);
+
 fwrite(Resampled, sizeof(short), Processed, temp);
+cout << "Processed: " << Processed << endl;
+
 }
 speex_resampler_destroy(State);
 fclose(temp);

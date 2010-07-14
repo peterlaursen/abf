@@ -46,12 +46,14 @@ while (D.OpenSmil()) {
 AE.WriteSection();
 ++File;
 cout << "Converting file " << File << " of " << D.GetNumSections() << endl;
-char* TempFile = DecodeToRawAudio(D.GetMP3FileName());
+AE.WriteSection();
+
+char* TempFile = DecodeToRawAudio(D.GetMP3FileName(), AE);
 if (!TempFile) {
 cout << "Error, no tempfile returned." << endl;
 }
 
-EncodeABF(AE, TempFile);
+//EncodeABF(AE, TempFile);
 }
 cout << "The book has been converted successfully." << endl;
 return 0;
