@@ -169,12 +169,15 @@ fwrite(&Position, sizeof(int), 1, fout);
 fseek(fout, Position, SEEK_SET);
 CurrentSection += 1;
 }
-void AbfEncoder::Encode(short* Input) {
+void AbfEncoder::Encode(short* Input, int Length) {
+short* MyInput = new short[Length];
+for (short i = 0; i < Length; i++) MyInput[i] = Input[i];
 speex_bits_reset(&Bits);
-speex_encode_int(Encoder, Input, &Bits);
+speex_encode_int(Encoder, MyInput, &Bits);
 char Output[200];
 unsigned short Bytes = speex_bits_write(&Bits, Output, 200);
 fwrite(&Bytes, sizeof(short), 1, fout);
 fwrite(Output, sizeof(char), Bytes, fout);
+delete[] MyInput;
 }
 }

@@ -69,11 +69,11 @@ void SetTime(const char* Time);
 void SetNumSections(unsigned short NumSections);
 void WriteHeader();
 void WriteSection();
-void Encode(short* Input);
+void Encode(short* Input, int Length = 320);
 };
 // Functions common to most of the programs developed so far...
 // DecodeToRawAudio
-SHARED char* DecodeToRawAudio(const char* Filename);
+SHARED char* DecodeToRawAudio(const char* Filename, AbfEncoder&);
 SHARED bool EncodeABF(AbfEncoder& AE, char* TempFile);
 }
 #endif
