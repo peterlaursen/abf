@@ -60,8 +60,8 @@ short BufferPosition = Remainder*320;
 
 memset(&InternalBuffer, '\0', 640);
 
-//for (short i = 0; i < Remainder; i++) InternalBuffer[i] = Resampled[BufferPosition+i];
-//AE.Encode(InternalBuffer, Remainder);
+for (short i = 0; i < Remainder; i++) InternalBuffer[i] = Resampled[BufferPosition+i];
+AE.Encode(InternalBuffer, Remainder);
 
 fwrite(Resampled, sizeof(short), Processed, temp);
 cout << "Processed: " << Processed << endl;
