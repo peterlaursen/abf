@@ -171,7 +171,7 @@ CurrentSection += 1;
 }
 void AbfEncoder::Encode(short* Input, int Length) {
 short* MyInput = new short[Length];
-for (short i = 0; i < Length; i++) MyInput[i] = Input[i];
+memcpy(MyInput, Input, Length*sizeof(short));
 speex_bits_reset(&Bits);
 speex_encode_int(Encoder, MyInput, &Bits);
 char Output[200];
