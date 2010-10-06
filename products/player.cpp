@@ -103,8 +103,18 @@ break;
 float Volume = 1.0f;
 while (!AD.feof() && PS != Quit) {
 // Ensure that CurrentSection is up-to-date
-if (AD.ftell() > Array[CurrentSection+1]) CurrentSection += 1;
+if (AD.ftell() > Array[CurrentSection]) CurrentSection += 1;
 // The rest of this loop processes key presses.
+if (PS == VolumeDown) {
+Device->DecreaseVolume();
+PS = Playing;
+continue;
+}
+if (PS == VolumeUp) {
+Device->IncreaseVolume();
+PS = Playing;
+}
+
 /*if (PS == VolumeDown) {
 if (Volume == 0.0f) {
 PS = Playing;
@@ -195,7 +205,8 @@ Device->Play();
 LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
-if (PS == Quit || PS == PreviousBook || PS == NextBook) SaveLastPosition(AD.GetTitle(), DSAudio::GetLastPosition());
+if (PS == Quit || PS == PreviousBook || PS == NextBook) 
+SaveLastPosition(AD.GetTitle(), AD.ftell() - 7200);
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
 }
