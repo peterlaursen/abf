@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdio>
 #include <string>
 #include "libdaisy20.h"
 #pragma comment(lib, "libdaisy20.lib")
@@ -12,7 +13,6 @@ return 1;
 DaisyBook DB(argv[1]);
 DB.GetMetadata();
 cout << "Title: " << DB.GetTitle() << ". Author: " << DB.GetAuthor() << endl << "This book consists of " << DB.GetVolumes() << " CDs, of which this is CD number " << DB.GetCurrentVolume() << endl << "The book lasts " << DB.GetTotalTime() << endl;
-DB.GetAudioFiles();
 DB.GetAudioFiles();
 cout << "Number of sections: " << DB.GetNumSections() << endl;
 if (DB.GetVolumes() > 1) {
@@ -28,5 +28,10 @@ cout << "Error, cannot locate next volume." << endl;
 }
 
 }
+FILE* InputFile = fopen(DB.GetSectionFile(0), "rb");
+if (!InputFile)
+cout << "Could not open file." << endl;
+else cout << "The file was opened successfully." << endl;
+fclose(InputFile);
 return 0;
 }

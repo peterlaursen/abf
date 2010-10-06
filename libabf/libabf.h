@@ -69,7 +69,7 @@ void SetTime(const char* Time);
 void SetNumSections(unsigned short NumSections);
 void WriteHeader();
 void WriteSection();
-void Encode(short* Input, int Length = 320);
+void Encode(unsigned short* Input, int Length = 320);
 };
 // Functions common to most of the programs developed so far...
 // DecodeToRawAudio

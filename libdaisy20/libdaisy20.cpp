@@ -7,6 +7,7 @@ This library is released under the same license as the rest of this package.
 */
 #include "libdaisy20.h"
 #include <cstdio>
+#include <dirent.h>
 #include <iostream>
 using namespace std;
 namespace ABF {
@@ -18,6 +19,7 @@ Path += '\\';
 #else
 Path += '/';
 #endif
+FileListLength = scandir(SpecifiedPath, &FileList, NULL, alphasort);
 Content.open((Path + "ncc.html").c_str());
 if (!Content) IsValid = false;
 else IsValid = true;
@@ -25,6 +27,9 @@ else IsValid = true;
 DaisyBook::~DaisyBook() {
 if (Content.is_open()) Content.close();
 if (Smil.is_open()) Smil.close();
+for (int i = 0; i < FileListLength; i++) free(FileList[i]);
+free(FileList);
+
 }
 string& DaisyBook::GetTag(bool FromNCC) {
 if (FromNCC)
@@ -102,19 +107,35 @@ if (Test > CurrentVolume) break;
 int Position = Tag.find("href=") + 6;
 int Position2 = Tag.find("#");
 string AF = Tag.substr(Position, Position2-Position);
+for (int i = 0; i < FileListLength; i++) {
+int Comparison = strcasecmp(AF.c_str(), FileList[i]->d_name);
+cout << "Comparison = " << Comparison << ", filename = " << AF << ", dirent = " << FileList[i]->d_name << endl;
+if (Comparison == 0) {
+AF = FileList[i]->d_name;
+break;
+}
+}
+
 Smil.open((Path + AF).c_str());
 Tag.clear();
 while (Tag.find("<audio") == string::npos && !Smil.eof()) GetTag(false);
 if (!Smil.eof()) {
 Position = Tag.find("src=\"") + 5;
 Position2 = Tag.find("\"", Position);
-AudioFile = Path + Tag.substr(Position, Position2-Position);
+string TempFile = Tag.substr(Position, Position2 - Position);
+for (int i = 0; i < FileListLength; i++) {
+int Comparison = strcasecmp(TempFile.c_str(), FileList[i]->d_name);
+if (Comparison == 0) {
+AudioFile = Path + FileList[i]->d_name;
+break;
+}
+}
+
 Smil.close();
 cout << "AudioFile is " << AudioFile.length() << " characters and the string contains " << AudioFile << endl;
 AudioFiles.push_back(AudioFile);
 }
 }
-for (int i = 0; i < 5; i++) cout << endl << "File " << i << " in vector: " << AudioFiles[i] << endl;
 }
 bool DaisyBook::NextVolume(char* Path) {
 // In this function, we declare a second DaisyBook so that we can inspect the next volume in piece.

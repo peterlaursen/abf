@@ -48,12 +48,13 @@ while (1) {
 unsigned int FramesRead = Source->read(4096, Buffer);
 if (FramesRead <= 0) break;
 int SamplesDecoded = speex_resampler_process_int(State, 0, Buffer, &FramesRead, Resampled, &Processed);
-short InternalBuffer[320] = {0};
-int Remainder = Processed / 318;
+unsigned short InternalBuffer[320] = {0};
+int Remainder = Processed / 320;
 cout << "Times to run the loop before we try the last step: " << Remainder << endl;
-for (short i = 0, BufferPosition = 0; i < Remainder; ++i, BufferPosition += 318) {
-for (short j = 0; j < 318; j++) InternalBuffer[j] = Resampled[BufferPosition+j];
-AE.Encode(InternalBuffer, 318);
+for (short i = 0, BufferPosition = 0; i < Remainder; ++i, BufferPosition += 320) {
+for (short j = 0; j < 320; j++) InternalBuffer[j] = 
+Resampled[BufferPosition+j];
+AE.Encode(InternalBuffer);
 
 }
 short BufferPosition = Remainder*320;
@@ -76,9 +77,9 @@ bool EncodeABF(AbfEncoder& AE, char* TempFile) {
 if (!TempFile) return false;
 FILE* fin = fopen(TempFile, "rb");
 if (!fin) return false;
-short Input[320];
+unsigned short Input[320];
 while (!feof(fin)) {
-fread(Input, 2, 320, fin);
+fread(Input, sizeof(unsigned short), 320, fin);
 AE.Encode(Input);
 }
 fclose(fin);

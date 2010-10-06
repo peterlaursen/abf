@@ -19,9 +19,12 @@ This library is released under the same license as the rest of this package.
 #include <string>
 #include <vector>
 #include <fstream>
+#include <dirent.h>
 namespace ABF {
 class SHARED DaisyBook {
 std::string Path;
+dirent** FileList; // List of files in path
+int FileListLength;
 int Volumes; // Daisy books may have multiple volumes
 int CurrentVolume; // Current CD
 std::string Tag; // The tag as read by GetTag
@@ -46,6 +49,9 @@ int GetCurrentVolume();
 const std::string& GetTotalTime();
 const std::string& GetIdentification();
 void GetAudioFiles(); // This function fills the vector with file strings
+const char* GetSectionFile(int SectionNumber) { return AudioFiles[SectionNumber].c_str(); }
+bool BookIsValid() { return IsValid; }
+
 };
 }
 #endif
