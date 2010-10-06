@@ -3,7 +3,7 @@
 #include <conio.h>
 #endif
 #include <libabf.h>
-#include <libdaisy.h>
+#include <libdaisy20.h>
 #include <audiere.h>
 #include <speex/speex_resampler.h>
 #include <speex/speex.h>
@@ -23,30 +23,28 @@ if (argc != 3) {
 cerr << "Usage: " << argv[0] << " <path to daisy book> <output file>" << endl;
 return 1;
 }
-Daisy D(argv[1]);
-if (!D.IsValid()) {
+DaisyBook D(argv[1]);
+if (!D.BookIsValid()) {
 cerr << "Error, not a valid daisy book." << endl;
 return 1;
 }
 AbfEncoder AE(argv[2]);
-string Meta = "dc:title";
-string StrTitle = D.ExtractMetaInfo(Meta);
-AE.SetTitle(StrTitle.c_str());
-Meta = "dc:creator";
-string StrAuthor = D.ExtractMetaInfo(Meta);
-AE.SetAuthor(StrAuthor.c_str());
-Meta = "ncc:totalTime";
-string StrTime = D.ExtractMetaInfo(Meta);
-AE.SetTime(StrTime.c_str());
+D.GetMetadata();
+D.GetAudioFiles();
+AE.SetTitle(D.GetTitle().c_str());
+AE.SetAuthor(D.GetAuthor().c_str());
+AE.SetTime(D.GetTotalTime().c_str());
 AE.SetNumSections(D.GetNumSections());
 AE.WriteHeader();
 unsigned short File = 0;
 string Filename;
-while (D.OpenSmil()) {
+while (File < D.GetNumSections()) {
 AE.WriteSection();
+Filename = D.GetSectionFile(File);
+
 ++File;
 cout << "Converting file " << File << " of " << D.GetNumSections() << endl;
-char* TempFile = DecodeToRawAudio(D.GetMP3FileName());
+char* TempFile = DecodeToRawAudio(Filename.c_str());
 if (!TempFile) {
 cout << "Error, no tempfile returned." << endl;
 }
