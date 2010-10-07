@@ -89,8 +89,16 @@ The search then goes on to search through the smil file and like the first versi
 string AudioFile;
 while (Tag.find("</body") == string::npos) {
 GetTag();
-while (Tag.find("<a") == string::npos && Tag.find("</body") == string::npos) GetTag();
+if (Tag.find("<span") != string::npos) {
+while (Tag.find("</span>") == string::npos) GetTag();
+continue;
+}
+ 
+while (Tag.find("<h") == string::npos && Tag.find("</body") == 
+string::npos) GetTag();
 if (Tag.find("</body") != string::npos) break;
+GetTag();
+
 // Check whether we're on the correct disk
 if (Volumes > 1) {
 int MyPos;
