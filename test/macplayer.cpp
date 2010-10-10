@@ -9,10 +9,11 @@ using namespace ABF;
 AbfDecoder* AD;
 
 void ABFCallback(void* UserData, AudioQueueRef AQ, AudioQueueBufferRef AB) {
-cout << "Inside AudioQueue Callback." << endl << "Capacity: " << AB->mAudioDataBytesCapacity << endl;
+//cout << "Inside AudioQueue Callback." << endl << "Capacity: " << AB->mAudioDataBytesCapacity << endl;
 
 AD->Decode((short*)AB->mAudioData);
 AB->mAudioDataByteSize=640;
+AudioQueueFlush(AQ);
 AudioQueueEnqueueBuffer(AQ, AB, 0, NULL);
 
 }
@@ -38,16 +39,22 @@ AudioQueueRef OutQueue;
 int Status;
 Status = AudioQueueNewOutput(&ADesc, ABFCallback, 0, 0, 0, 0, &OutQueue);
 PrintStatus(Status);
-AudioQueueBufferRef Buffer;
-Status = AudioQueueAllocateBuffer(OutQueue, 640, &Buffer);
+AudioQueueBufferRef Buffers[3];
+for (int i = 0; i < 3; i++) {
+
+Status = AudioQueueAllocateBuffer(OutQueue, 640, &Buffers[i]);
 PrintStatus(Status);
-AD->Decode((short*)Buffer->mAudioData);
-Buffer->mAudioDataBytesSize = 640;
+AD->Decode((short*)Buffers[i]->mAudioData);
+Buffers[i]->mAudioDataByteSize = 640;
+}
+AudioQueueFlush(OutQueue);
+
+unsigned int Prepared; 
+for (int i = 0; i < 3; i++)
+Status=AudioQueueEnqueueBuffer(OutQueue, Buffers[i], 0, 0);
+PrintStatus(Status);
 Status = AudioQueuePrime(OutQueue, 0, &Prepared);
 PrintStatus(Status);
-Status=AudioQueueEnqueueBuffer(OutQueue, Buffer, 0, 0);
-PrintStatus(Status);
-unsigned int Prepared; 
 
 cout << "Prepared: " << Prepared << endl;
 Status = AudioQueueStart(OutQueue, NULL);
