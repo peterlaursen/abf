@@ -1,0 +1,1 @@
+gcc -c sqlite3.c; g++ -o abfplayer -I ../libabf -I /opt/local/include -I /usr/local/include -L/opt/local/lib -L/usr/local/lib -laudiere -lspeex -lspeexdsp ../libabf/libabf.cpp sqlite3.o database.cpp playlist.cpp player.cpp -DLINUX -lcurses
