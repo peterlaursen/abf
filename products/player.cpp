@@ -138,7 +138,7 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
-cout << "Go To Section: (1-" << AD.GetNumSections() << "): ";
+cout << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection << ": ";
 unsigned short NewSection;
 cin.clear();
 cin >> NewSection;
@@ -180,9 +180,10 @@ CurrentSection = AD.GetNumSections()-1;
 continue;
 }
 Device->Stop();
-CurrentSection += 1;
+++CurrentSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
+continue;
 }
 if (PS == Previous) {
 if (CurrentSection == 0) {
@@ -191,7 +192,8 @@ continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Device->Stop();
-CurrentSection -= 1;
+CurrentSection -= 2;
+
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
