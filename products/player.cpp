@@ -180,7 +180,7 @@ CurrentSection = AD.GetNumSections()-1;
 continue;
 }
 Device->Stop();
-++CurrentSection;
+//++CurrentSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 continue;
