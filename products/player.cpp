@@ -140,11 +140,10 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
-cout << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection << ": ";
+cout << "Go To Section: (0-" << AD.GetNumSections() - 1 << "), current section is " << CurrentSection << ": ";
 unsigned short NewSection;
 cin.clear();
 cin >> NewSection;
---NewSection;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
