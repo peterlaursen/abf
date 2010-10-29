@@ -103,7 +103,9 @@ break;
 float Volume = 1.0f;
 while (!AD.feof() && PS != Quit) {
 // Ensure that CurrentSection is up-to-date
-if (AD.ftell() > Array[CurrentSection]) CurrentSection += 1;
+if (AD.ftell() > Array[CurrentSection] && AD.ftell() 
+> Array[CurrentSection + 1]) 
+CurrentSection += 1;
 // The rest of this loop processes key presses.
 if (PS == VolumeDown) {
 Device->DecreaseVolume();
@@ -180,7 +182,7 @@ CurrentSection = AD.GetNumSections()-1;
 continue;
 }
 Device->Stop();
-//++CurrentSection;
+++CurrentSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 continue;
@@ -192,7 +194,7 @@ continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Device->Stop();
-CurrentSection -= 2;
+--CurrentSection;
 
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
