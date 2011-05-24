@@ -115,6 +115,7 @@ continue;
 if (PS == VolumeUp) {
 Device->IncreaseVolume();
 PS = Playing;
+continue;
 }
 
 /*if (PS == VolumeDown) {
@@ -209,7 +210,8 @@ LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) 
-SaveLastPosition(AD.GetTitle(), AD.ftell() - 7200);
+SaveLastPosition(AD.GetTitle(), AD.ftell() - 7200); // Store the 
+position 2 seconds before.
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
 }
