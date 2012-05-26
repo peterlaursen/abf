@@ -31,27 +31,38 @@ for (int i = 0; i < FileListLength; i++) free(FileList[i]);
 free(FileList);
 
 }
-string& DaisyBook::GetTag(bool FromNCC) {
-if (FromNCC)
-getline(Content, Tag, '>');
-else getline(Smil, Tag, '>');
+const string& DaisyBook::GetTag(bool FromNCC) {
+if (FromNCC) {
+if (Content.eof()) Tag="EOF";
+else getline(Content, Tag, '>');
+}
+else {
+if (Smil.eof()) Tag="EOF";
+getline(Smil, Tag, '>');
+}
 return Tag;
 }
 bool DaisyBook::GetMetadata() {
 const int NumMetadata = 5;
 if (!IsValid) return false;
 // Define the metadata we are looking for
-string Metadata[NumMetadata];
-Metadata[0] = string("\"dc:title");
-Metadata[1] = string("\"dc:creator");
-Metadata[2] = string("\"ncc:totalTime");
-Metadata[3] = string("\"dc:identifier");
-Metadata[4] = string("\"ncc:setInfo");
+const string Metadata[NumMetadata] = { string("\"dc:title"),
+string("\"dc:creator"),
+string("\"ncc:totalTime"),
+string("\"dc:identifier"),
+string("\"ncc:setInfo"), };
 for (int i = 0; i < NumMetadata; i++) {
 // First, we'll seek for the title.
 Content.seekg(0, ios::beg);
 int Position = 0;
-while ((Position = Tag.find(Metadata[i])) == string::npos) GetTag();
+cout << "Looking for " << Metadata[i] << endl;
+while ((Position = Tag.find(Metadata[i])) == string::npos && 
+!Content.eof()) 
+GetTag();
+if (i < 4 && Content.eof()) {
+cout << "Error: Could not find " << Metadata[i] << ". i: " << i << endl;
+return false;
+}
 // We have found the requested meta data
 int Position2 = Tag.find("t=\"", Position);
 Position = Position2 + 3;
@@ -61,6 +72,14 @@ else if (i == 1) Author = Tag.substr(Position, Position2 - Position);
 else if (i == 2) Time = Tag.substr(Position, Position2-Position);
 else if (i == 3) Identification = Tag.substr(Position, Position2-Position);
 else if (i == 4) {
+if (Content.eof()) {
+cout << "Could not find setinfo. Setting our volumes to default values." 
+<< endl;
+Volumes = 1;
+CurrentVolume = 1;
+break;
+}
+
 string TmpString = Tag.substr(Position, Position2-Position);
 Position = TmpString.find_last_of(" ");
 Volumes = atoi(TmpString.substr(Position).c_str());
@@ -78,16 +97,18 @@ int DaisyBook::GetCurrentVolume() { return CurrentVolume; }
 const string& DaisyBook::GetTotalTime() { return Time; }
 const string& DaisyBook::GetIdentification() { return Identification; }
 void DaisyBook::GetAudioFiles() {
+Content.clear();
 Content.seekg(0, ios::beg);
 Tag.clear();
 GetTag();
+
 while (Tag.find("<body") == string::npos && !Content.eof()) GetTag();
 /*
 We have now located our <body> tag and we have also gotten the following tag, which is usually a heading.
 The search then goes on to search through the smil file and like the first version of the library extracts the name of the audio file it encounters first.
 */
 string AudioFile;
-while (Tag.find("</body") == string::npos) {
+while (Tag.find("</body") == string::npos && !Content.eof()) {
 GetTag();
 if (Tag.find("<span") != string::npos) {
 while (Tag.find("</span>") == string::npos) GetTag();
@@ -97,8 +118,8 @@ continue;
 while (Tag.find("<h") == string::npos && Tag.find("</body") == 
 string::npos) GetTag();
 if (Tag.find("</body") != string::npos) break;
+// Get the tag after our heading
 GetTag();
-
 // Check whether we're on the correct disk
 if (Volumes > 1) {
 int MyPos;
@@ -117,7 +138,6 @@ int Position2 = Tag.find("#");
 string AF = Tag.substr(Position, Position2-Position);
 for (int i = 0; i < FileListLength; i++) {
 int Comparison = strcasecmp(AF.c_str(), FileList[i]->d_name);
-cout << "Comparison = " << Comparison << ", filename = " << AF << ", dirent = " << FileList[i]->d_name << endl;
 if (Comparison == 0) {
 AF = FileList[i]->d_name;
 break;
@@ -140,8 +160,8 @@ break;
 }
 
 Smil.close();
-cout << "AudioFile is " << AudioFile.length() << " characters and the string contains " << AudioFile << endl;
 AudioFiles.push_back(AudioFile);
+
 }
 }
 }

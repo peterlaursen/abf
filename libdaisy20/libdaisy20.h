@@ -36,7 +36,7 @@ bool IsValid;
 public:
 DaisyBook(char* Path);
 ~DaisyBook();
-std::string& GetTag(bool FromNCC=true);
+const std::string& GetTag(bool FromNCC=true);
 // The below function extracts all the required data from the daisy book. This is the data required by ABF.
 bool GetMetadata();
 bool NextVolume(char* Path);
