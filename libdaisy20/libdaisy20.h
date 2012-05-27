@@ -19,7 +19,12 @@ This library is released under the same license as the rest of this package.
 #include <string>
 #include <vector>
 #include <fstream>
+#ifndef WIN32
 #include <dirent.h>
+#else
+#include "scandir.h"
+#endif
+
 namespace ABF {
 class SHARED DaisyBook {
 std::string Path;

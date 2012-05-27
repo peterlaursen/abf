@@ -16,7 +16,11 @@ fin = fopen(Filename, "rb");
 if (!fin) _IsOpen = false;
 else _IsOpen = true;
 if (Validate()) ReadHeader();
+#ifndef WIN32
 Decoder = speex_decoder_init(&speex_wb_mode);
+#else
+Decoder = speex_decoder_init(speex_lib_get_mode(SPEEX_MODEID_WB));
+#endif
 speex_bits_init(&Bits);
 }
 bool AbfDecoder::Validate() {
@@ -118,7 +122,11 @@ Initialize(Filename);
 }
 void AbfEncoder::Initialize(char* Filename) {
 fout = fopen(Filename, "wb+");
+#ifndef WIN32
 Encoder = speex_encoder_init(&speex_wb_mode);
+#else
+Encoder = speex_encoder_init(speex_lib_get_mode(SPEEX_MODEID_WB));
+#endif
 speex_bits_init(&Bits);
 }
 AbfEncoder::~AbfEncoder() {

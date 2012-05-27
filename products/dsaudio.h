@@ -23,5 +23,7 @@ IDirectSoundBuffer8* GetBuffer() { return Buffer; }
 ABF::AbfDecoder* GetDecoder() { return Decoder; }
 IDirectSound8* GetDevice() { return Device; }
 static int GetLastPosition() { return LastPosition; }
+void DecreaseVolume() {}
+void IncreaseVolume() {}
 };
 #endif
