@@ -17,13 +17,11 @@ It runs on Windows and FreeBSD.
 #include <iostream>
 #include <cstdio> // for FILE
 #include <cstdlib>
-#ifndef WIN32
 #include <signal.h>
-#endif
 
 #ifdef WIN32
 #pragma comment(lib, "audiere.lib")
-#pragma comment(lib, "libdaisy.lib")
+#pragma comment(lib, "libdaisy20.lib")
 #pragma comment(lib, "libspeexdsp.lib")
 #pragma comment(lib, "libspeex.lib")
 #pragma comment(lib, "libabf.lib")
@@ -31,7 +29,6 @@ It runs on Windows and FreeBSD.
 using namespace ABF;
 using namespace std;
 using namespace audiere;
-#ifndef WIN32
 /*
 Since we define a signal handler for our FreeBSD systems, we store our 
 ABF audio book file name in this global variable.
@@ -39,11 +36,15 @@ ABF audio book file name in this global variable.
 const char* AudioBookFileName = nullptr;
 void Cleanup(int Signal) {
 printf("Inside signal handler.\nCleaning up by removing temporary files. Removing temporary files.\n");
+#ifndef WIN32
 system("rm /tmp/ABFConv*");
 unlink(AudioBookFileName);
+#else
+system("del ABFConv*");
+
+#endif
 exit(Signal);
 }
-#endif
 
 int main(int argc, char* argv[]) {
 if (argc != 3) {
@@ -65,10 +66,8 @@ endl;
 D.GetAudioFiles();
 cout << "After metadata." << endl;
 AbfEncoder AE(argv[2]);
-#ifndef WIN32
 AudioBookFileName = argv[2];
 signal(SIGINT, &Cleanup);
-#endif
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
