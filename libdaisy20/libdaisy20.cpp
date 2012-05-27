@@ -54,7 +54,6 @@ for (int i = 0; i < NumMetadata; i++) {
 // First, we'll seek for the title.
 Content.seekg(0, ios::beg);
 int Position = 0;
-cout << "Looking for " << Metadata[i] << endl;
 while ((Position = Tag.find(Metadata[i])) == string::npos && 
 !Content.eof()) 
 GetTag();
@@ -72,8 +71,6 @@ else if (i == 2) Time = Tag.substr(Position, Position2-Position);
 else if (i == 3) Identification = Tag.substr(Position, Position2-Position);
 else if (i == 4) {
 if (Content.eof()) {
-cout << "Could not find setinfo. Setting our volumes to default values." 
-<< endl;
 Volumes = 1;
 CurrentVolume = 1;
 break;
@@ -143,12 +140,10 @@ int Comparison = strcasecmp(AF.c_str(), FileList[i]->d_name);
 #endif
 if (Comparison == 0) {
 AF = FileList[i]->d_name;
-cout << AF << endl;
 break;
 }
 }
 
-cout << "Trying to open file " << Path+AF << endl;
 Smil.open((Path + AF).c_str());
 if (!Smil) {
 cout << "Error, could not open the SMIL file." << endl;
@@ -162,8 +157,7 @@ Position2 = Tag.find("\"", Position);
 string TempFile = Tag.substr(Position, Position2 - Position);
 for (int i = 0; i < FileListLength; i++) {
 #ifdef WIN32
-int Comparison = istrcmp(AF.c_str(), FileList[i]->d_name);
-cout << Comparison << ". File name: " << FileList[i]->d_name << endl;
+int Comparison = istrcmp(TempFile.c_str(), FileList[i]->d_name);
 #else
 int Comparison = strcasecmp(TempFile.c_str(), FileList[i]->d_name);
 #endif
