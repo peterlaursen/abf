@@ -2,12 +2,22 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.30-Alpha1
-Copyright (C) 2008, 2009 Peter Laursen.
+Version 0.30-Alpha2
+Copyright (C) 2008, 2009, 2010, 2011, 2012 Peter Laursen.
 
 NOTE:
 
 This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
+
+What's new in 0.30-Alpha2:
+
+* We are no longer using Audiere for our playback. Instead, we use DirectX on Windows and OSS on FreeBSD.
+* Our player works better on FreeBSD and Windows.
+* Our converter is now better to clean up after itself when interrupted by Control-C.
+* The player works on FreeBSD. I have not tested it on Ubuntu.
+* The converter now reports the correct number of sections in ABF books when converting daisy books. Previously, we could get some very high number of sections if the ncc.html file contained <span> tags.
+* On Windows, the Experimental Graphical Converter is now able to convert daisy books as well as folders containing .ogg, .mp3 or .wav files. The graphical converter is still far from perfect. But it works.
+Its layout needs to be modified when I find someone with a working pair of eyes, but it works with Window-Eyes and NVDA.
 
 What's New in Version 0.30-Alpha1:
 
@@ -57,18 +67,18 @@ The two formats strive towards the same goal, namely that of being widely used f
 WHAT THIS PACKAGE CONTAINS:
 
 The package you have downloaded contains the following programs:
-* Converter: Is a program for converting DAISY books to ABF.
-* player: Is the ABF player.
+* ABFConverter: Is a program for converting DAISY books to ABF.
+* abfplayer: Is the ABF player.
+* An optional graphical converter if you chose the Experimental Converter. We recommend this converter on Windows.
 
 SYSTEM REQUIREMENTS:
 
 Although every effort has been made to minimise dependencies on non-standard libraries, a few exceptions had to be made. Below are the system requirements for the products contained in this package.
 
-* .NET Framework 3.5: Windows users should download .NET framework 3.5.
-* Visual Studio 2005 Redistributable: Windows users should also download this package.
-* Ncurses library: The users of other operating systems need the Ncurses library.
+* .NET Framework 4.0: Windows users should download .NET framework 4.0.
+* Visual Studio 2010 Redistributable: Windows users should also download this package.
 * A sound card (big surprise)
-* 1-2 GB of disk space, for audio data. The programs themselves do not take up more than a megabyte or so.
+* 1-2 GB of disk space, for audio data. The programs themselves do not take up more than a megabyte or so, but you'll need more room when converting.
 
 THE CONVERTER:
 
@@ -96,6 +106,15 @@ A couple of assumptions were made above:
 WHAT TO DO NEXT:
 
 Your DAISY book should take some time to convert. When it has finished, you can open the audio book in the ABF player and listen to it.
+
+Experimental Graphical Converter:
+
+On Windows, a graphical converter has been developed. It eases the burden for Windows people who also need to work with audio books.
+The Experimental Graphical Converter is started by going to the Start Menu, Programs Folder, ABF Products and choosing Graphical Converter.
+The program consists of a menu bar. The menu contains two items:
+"Convert" and "Help". The "Convert" menu enables you to convert either a folder containing various files (mp3, ogg or wav) or daisy books.
+If you choose to convert a Daisy book, you only have to choose where it's stored and then choose the output ABF file. This is done via standard Windows dialogs.
+If you choose to convert a folder, you are asked to type in a title, the book's author and how long the files are in the folder. None of this information is important, but remember that it is displayed in the player when you play the book.
 
 THE PLAYER:
 
@@ -126,15 +145,21 @@ x - Resume playback from the last position
 a - Add a book to the playlist.
 r - Remove the currently playing book from the playlist.
 q - Quit the player and save the current position.
+g - Go to section
+j - Jump to a certain minute
+
+ABF AND OTHER PLAYERS:
+
+Currently, it is possible to also play ABF in Winamp. The Winamp support is very primitive. It still supports the saving of positions, though. But it doesn't support navigation, not even the navigation Winamp provides.
 
 LIMITATIONS:
 
-As with every suite of programs, there are some limitations. These limitations are currently known and we are working to solve them. Below they are:
+As with every suite of programs, there are some limitations. These limitations are currently known and we are working to overcome them. Below they are:
 
 * The converter cannot yet convert multi-volume DAISY books. We are working on this.
 * The converter can convert DAISY 2.02 books only. We are also working on this one.
 * The player cannot save more than one position per audio book.
-* The products for Ubuntu suffer from terrible integration with Pulceaudio. If you must use these, the developers recommend you use Ubuntu 8.10 since it gives a much nicer experience for everyone.
+* The products for Ubuntu suffer from terrible integration with Pulceaudio. If you must use these, the developers recommend you use Ubuntu 8.10 since it gives a much nicer experience for everyone. The developers would also recommend FreeBSD. Its audio system is very well-behaved when it comes to ABF.
 
 ACKNOWLEDGEMENTS:
 
