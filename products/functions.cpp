@@ -21,7 +21,7 @@ short Resampled[8192];
 SampleSourcePtr Source = OpenSampleSource(Filename);
 if (!Source) {
 cerr << "Error, the file " << Filename << " does not exist." << endl;
-return 0;
+return NULL;
 }
 int SampleRate, NumChannels;
 SampleFormat SF;
@@ -34,14 +34,14 @@ char* TempFile = tempnam(".\\", "ABFConv");
 char* TempFile = tempnam("/tmp", "ABFConv");
 #endif
 if (!TempFile) {
-cout << "Couldn't get temporary file." << endl;
-return 0;
+cerr << "Couldn't get temporary file." << endl;
+return NULL;
 }
 
 FILE* temp = fopen(TempFile, "wb");
 if (!temp) {
-cout << "Error, file not found." << endl;
-return 0;
+cerr << "Error, cannot open temp file." << endl;
+return NULL;
 }
 
 while (1) {
@@ -61,7 +61,11 @@ FILE* fin = fopen(TempFile, "rb");
 if (!fin) return false;
 short Input[320];
 while (!feof(fin)) {
-fread(Input, 2, 320, fin);
+int Read = fread(Input, sizeof(short), 320, fin);
+if (Read < 320) {
+for (int i = Read; i < 320; i++) Input[i]=0;
+}
+
 AE.Encode(Input);
 }
 fclose(fin);

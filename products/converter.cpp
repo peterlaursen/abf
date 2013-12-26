@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2009, 2010, 2011, 2012 Peter Laursen.
+Copyright (C) 2009, 2010, 2011, 2012, 2013 Peter Laursen.
 
 This is a program to convert a Daisy book into an ABF file.
 It runs on Windows and FreeBSD.
@@ -8,7 +8,10 @@ It runs on Windows and FreeBSD.
 #ifdef WIN32
 #include <windows.h>
 #include <conio.h>
+#else
+#include <unistd.h>
 #endif
+
 #include <libabf.h>
 #include <libdaisy20.h>
 #include <audiere.h>
