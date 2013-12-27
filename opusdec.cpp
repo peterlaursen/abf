@@ -2,7 +2,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
-#include <opus.h>
+#include <opus/opus.h>
 #include <sys/soundcard.h>
 #include <fcntl.h>
 #include <unistd.h>

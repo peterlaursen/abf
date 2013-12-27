@@ -1,15 +1,33 @@
-/* We try to encode a very simple file. Afterwards, we try to decode the same file.
+/* $Id$
+Copyright (C) 2013, 2014 Peter Laursen.
+
+This small program now attempts to read an MP3 file, resamples it using the Speex resampler and encodes it using Opus.
+If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
 */
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
+
 #include <sys/stat.h>
 #include <opus/opus.h>
+#include <mpg123.h>
+#include <speex/speex_resampler.h>
 int main(int argc, char* argv[]) {
 if (argc != 2) {
 printf("Error, need at least an input file name.");
 return (EXIT_FAILURE);
 }
-printf("Accepted.\n");
+// Let's open the file and get some information, later to be used for the Speex resampler.
+mpg123_init();
+mpg123_handle* Mp3File;
+long SamplingRate = 0;
+int Channels = 0, Encoding = 0;
+int err = MPG123_OK;
+Mp3File = mpg123_new(NULL, &err);
+mpg123_open(Mp3File, argv[1]);
+mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
+
 // Let's try to create an encoder.
 int Error = 0;
 OpusEncoder* Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
@@ -17,32 +35,64 @@ OpusEncoder* Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Err
 int Bitrate = 1;
 opus_encoder_ctl(Encoder, OPUS_SET_COMPLEXITY(&Bitrate));
 
-struct stat fileinfo;
-stat(argv[1], &fileinfo);
-
-FILE* fin = fopen(argv[1], "rb");
-printf("File size of input file: %lld\n", fileinfo.st_size);
-unsigned char* FileContents = new unsigned char[fileinfo.st_size];
-fread(FileContents, 1, fileinfo.st_size, fin);
-fclose(fin);
-fin = fmemopen(FileContents, fileinfo.st_size, "rb");
 short Buffer[320] = {0};
+short Resampled[640] = {0};
+int ResampledSize=640;
 FILE* fout = fopen("output.opus", "wb");
-while (!feof(fin)) {
-unsigned char OutputBuffer[2048];
-int Samples = fread(Buffer, sizeof(short), 320, fin);
-unsigned short Length = opus_encode(Encoder, Buffer, Samples, OutputBuffer, 2048);
+short* Membuf = new short[320];
+if (!Membuf) {
+printf("Cannot allocate memory.\n");
+return 1;
+}
 
+int SamplesWritten = 0;
+int Status = MPG123_OK;
+FILE* Memory = fmemopen(Membuf, 640, "w+b");
+do {
+unsigned int Processed = ResampledSize;
+size_t Decoded;
+Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
+printf("MP3 status: %d\n", Status);
+unsigned int TotalSamples = Decoded/2;
+speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
+int Written = fwrite(Resampled, sizeof(short), Processed, Memory);
+/*
+if (Written == 0) {
+printf("Our position in the stream is %ld.\n", ftell(Memory));
+//Written = fwrite(Resampled, sizeof(short), Processed, Memory);
+}
+*/
+printf("Wrote %d samples.\nSamplesWritten: %d, Sum: %d\nProcessed: %d\n", Written, SamplesWritten, Written+SamplesWritten, Processed);
+SamplesWritten += Written;
+if (SamplesWritten >= 320) {
+if (SamplesWritten > 320) {
+printf("Samples: %d, Written: %d.\n", SamplesWritten, Written);
+SamplesWritten = 320;
+}
+
+unsigned char OutputBuffer[2048] = {0};
+unsigned short Length = opus_encode(Encoder, Membuf, 320, OutputBuffer, 2048);
 if (Length > 100) break;
 //printf("First frame: %d bytes\n", Length);
 fwrite(&Length,1,sizeof(unsigned short),fout);
 fwrite(OutputBuffer, 1, Length, fout);
+rewind(Memory);
+
+if (Written < Processed) {
+short* MyPointer = &Resampled[Written];
+SamplesWritten = fwrite(MyPointer, sizeof(short), Processed-Written, Memory);
 }
+if (SamplesWritten > 320) SamplesWritten=0;
+}
+} while (Status == MPG123_OK);
 fclose(fout);
-fclose(fin);
+mpg123_close(Mp3File);
+
 printf("Our bitrate is %d\n", Bitrate);
 opus_encoder_destroy(Encoder); 
-delete [] FileContents;
-FileContents = 0;
+delete [] Membuf;
+speex_resampler_destroy(Resampler);
+fclose(Memory);
+
 }
 
