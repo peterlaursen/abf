@@ -63,6 +63,7 @@ printf("Our position in the stream is %ld.\n", ftell(Memory));
 }
 */
 printf("Wrote %d samples.\nSamplesWritten: %d, Sum: %d\nProcessed: %d\n", Written, SamplesWritten, Written+SamplesWritten, Processed);
+if (SamplesWritten == 320) SamplesWritten = 0;
 SamplesWritten += Written;
 if (SamplesWritten >= 320) {
 if (SamplesWritten > 320) {
