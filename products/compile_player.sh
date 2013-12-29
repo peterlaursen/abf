@@ -1,1 +1,2 @@
 gcc -o player -I ../libabf -I ../libdaisy -I ~/libs/audiere/include -I ~/libs/speex/include sqlite3.c database.cpp player.cpp /usr/local/lib/libaudiere.so /usr/local/lib/libspeex.so.6 ../libabf/libabf.cpp -lcurses
+clang++ -I /usr/local/include/ -L/usr/local/lib -I ../libabf/ PlayList.cpp sqlite3.o database.cpp unixaudio.cpp ../libabf/libabf.cpp player.cpp -lopus -lspeexdsp -std=c++11 -DFREEBSD -lpthread compat.cpp -o abfplayer
