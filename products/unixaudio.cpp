@@ -5,6 +5,8 @@
 #include <libabf.h>
 #include <sys/soundcard.h>
 #include <fcntl.h>
+#include <unistd.h>
+
 UnixAudio::UnixAudio(): IsPlaying(false), Decoder(0) {
 Device = open("/dev/dsp", O_WRONLY);
 int Format = AFMT_S16_NE;

@@ -213,6 +213,10 @@ if (PS == Quit || PS == PreviousBook || PS == NextBook)
 SaveLastPosition(AD.GetTitle(), AD.ftell() - 7200); // Store the position 2 seconds before.
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
+#ifndef WIN32
+return NULL;
+#endif
+
 }
 void Input() {
 char Key = getch(); 
@@ -257,6 +261,10 @@ Sleep(250);
 usleep(250);
 #endif
 }
+#ifndef WIN32
+return 0;
+#endif
+
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
