@@ -36,6 +36,9 @@ if (PL.GetTotalItems() == 0) return;
 }
 
 bool JumpToTime(AbfDecoder& AD) {
+cout << "Currently not implemented for the new ABF format." << endl;
+
+/*
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: " << endl;
@@ -44,6 +47,8 @@ cin >> Minutes;
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
 return AD.GoToPosition(Minutes);
+*/
+return false;
 }
 #ifdef WIN32
 void Thread(void* Filename) {
@@ -210,9 +215,12 @@ LastPosition = AD.ftell();
 // Wait until the playback is finished, then go run the loop again
 }
 if (PS == Quit || PS == PreviousBook || PS == NextBook) 
-SaveLastPosition(AD.GetTitle(), AD.ftell() - 7200); // Store the position 2 seconds before.
+SaveLastPosition(AD.GetTitle(), AD.ftell()); // Store the position 2 seconds before. In this version, we store the exact position instead - but we must reimplement the two second pause again. We'll have to see how we might do that properly.
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
+#ifndef WIN32
+return nullptr;
+#endif
 }
 void Input() {
 char Key = getch(); 
@@ -222,7 +230,7 @@ Device->Stop();
 AddBookToPlaylist();
 PS = Playing;
 }
-if (Key == 'r') {
+else if (Key == 'r') {
 PS = RemoveBook;
 Device->Stop();
 RemoveBookFromPlaylist();
@@ -257,6 +265,7 @@ Sleep(250);
 usleep(250);
 #endif
 }
+return nullptr;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();

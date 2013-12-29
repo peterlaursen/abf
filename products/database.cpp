@@ -32,7 +32,7 @@ int* p_lastposition = (int*)Type;
  *p_lastposition = LastPosition;
 return 0;
 }
-void SaveLastPosition(char* Title, int LastPosition) {
+void SaveLastPosition(const char* Title, int LastPosition) {
 if (!Initialized) {
 Init();
 }
@@ -77,7 +77,7 @@ sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
 sqlite3_free(Error);
 sqlite3_close(DB);
 }
-int GetLastPosition(char* Title) {
+int GetLastPosition(const char* Title) {
 string Query = "select lastposition from audiobooks where title = \"";
 Query += Title;
 Query += "\";";
@@ -103,7 +103,7 @@ sqlite3_open_v2(DBName.c_str(), &DB, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0
 sqlite3_exec(DB, "create table audiobooks(title varchar(255) not null, lastposition int not null);", 0, 0, 0);
 sqlite3_close(DB);
 }
-void DeletePosition(char* Title) {
+void DeletePosition(const char* Title) {
 string Query = "delete from audiobooks where title = \"";
 Query += Title;
 Query += "\";";
