@@ -1,8 +1,16 @@
+/* $Id$
+Copyright (C) 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+
+This is our interface to our ABF library. Currently, we focus on upgrading our format slightly, so our player and other things may catch up as time progresses.
+For all the previous work on ABF, see /branches/libabf-1.0.
+That library is no longer updated and this library is incompatible with it.
+*/
+
 #ifndef LIBABF_H
 #define LIBABF_H
 #include <cstdio>
 #include <string>
-#include <speex/speex.h>
+#include <opus/opus.h>
 #ifdef WIN32
 #ifdef BUILD_DLL
 #define SHARED __declspec(dllexport)
@@ -17,47 +25,47 @@ using std::FILE;
 using std::string;
 class SHARED AbfDecoder {
 int* Array;
-	void* Decoder;
-SpeexBits Bits;
-FILE* fin;
-bool _IsOpen;
-bool _IsValid;
-char* Title;
-char* Author;
-char* Time;
-unsigned short HeaderSize, Major, Minor, NumSections;
+OpusDecoder* Decoder = nullptr;
+FILE* fin = nullptr;
+bool _IsOpen = false;;bool _IsValid;
+char* Title = nullptr;
+char* Author = nullptr;
+char* Time = nullptr;
+unsigned short HeaderSize = 0, Major = 0, Minor = 0, NumSections = 0;
 void ReadHeader();
 bool Validate();
 public:
 AbfDecoder(char* Filename);
 AbfDecoder();
 ~AbfDecoder();
-void Initialize(char*);
+void Initialize(char* Filename);
 void Reset();
-bool IsValid() { return _IsValid; }
-bool IsOpen() { return _IsOpen; }
- char* GetTitle();
- char* GetAuthor();
- char* GetTime();
-unsigned short GetNumSections();
-unsigned short GetHeaderSize() { return HeaderSize; }
-unsigned short GetMajor();
-unsigned short GetMinor();
+bool IsValid() const { return _IsValid; }
+bool IsOpen() const { return _IsOpen; }
+const char* GetTitle() const;
+const char* GetAuthor() const;
+const char* GetTime() const;
+const unsigned short GetNumSections() const;
+const unsigned short GetHeaderSize() const { return HeaderSize; }
+const unsigned short GetMajor();
+const unsigned short GetMinor() const;
 bool feof();
 int ftell();
 void fclose();
 int Seek(long offset, int whence);
 int* GetSections();
 void Decode(short* Output);
+/*
+This function currently will not work since our format has changed quite a bit. I'll see what I can do about it.
+*/
 bool GoToPosition(int Minutes);
 };
 class SHARED AbfEncoder {
-void* Encoder;
-SpeexBits Bits;
-FILE* fout;
-unsigned short HeaderSize;
+OpusEncoder* Encoder = nullptr;
+FILE* fout = nullptr;
+unsigned short HeaderSize = 0;
 string _Title, _Author, _Time;
-unsigned short _NumSections;
+unsigned short _NumSections = 0;
 public:
 AbfEncoder(char* Filename);
 AbfEncoder();
