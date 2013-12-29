@@ -2,12 +2,21 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.30-Alpha2
-Copyright (C) 2008, 2009, 2010, 2011, 2012 Peter Laursen.
+Version 0.31
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
 
 NOTE:
 
 This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
+
+What's New in version 0.30-Alpha3?
+
+* Speex is gone as ABF format. Instead, we have switched to using Opus, which gives even more space savings than Speex.
+* Because of the format change, a couple functions no longer work:
+a) We currently now store the exact position when you hit Quit. Previously, we stored two seconds in the past so that you didn't have to jump right in.
+b) You can no longer go to a specific minute in your book. This has to do with the change of format.
+* Libdaisy20 now converts all character strings concerning titles and authors to UTF-8.
+
 
 What's new in 0.30-Alpha2:
 
