@@ -8,6 +8,7 @@ This library is released under the same license as the rest of this package.
 #include "libdaisy20.h"
 #include <cstdio>
 #include <iostream>
+#include <iconv.h>
 using namespace std;
 namespace ABF {
 DaisyBook::DaisyBook(char* SpecifiedPath): Path(SpecifiedPath), Volumes(0) {
@@ -42,22 +43,21 @@ getline(Smil, Tag, '>');
 return Tag;
 }
 bool DaisyBook::GetMetadata() {
-const int NumMetadata = 5;
 if (!IsValid) return false;
 // Define the metadata we are looking for
+const int NumMetadata = 7;
 const string Metadata[NumMetadata] = { string("\"dc:title"),
 string("\"dc:creator"),
 string("\"ncc:totalTime"),
 string("\"dc:identifier"),
-string("\"ncc:setInfo"), };
+string("\"ncc:setInfo"), string("\"dc:language"), string("\"ncc:charset"), };
 for (int i = 0; i < NumMetadata; i++) {
 // First, we'll seek for the title.
 Content.seekg(0, ios::beg);
 int Position = 0;
-while ((Position = Tag.find(Metadata[i])) == string::npos && 
-!Content.eof()) 
+while ((Position = Tag.find(Metadata[i])) == string::npos && !Content.eof()) 
 GetTag();
-if (i < 4 && Content.eof()) {
+if (i < (NumMetadata - 1) && Content.eof()) {
 cout << "Error: Could not find " << Metadata[i] << ". i: " << i << endl;
 return false;
 }
@@ -81,10 +81,71 @@ Position = TmpString.find_last_of(" ");
 Volumes = atoi(TmpString.substr(Position).c_str());
 CurrentVolume = atoi(TmpString.substr(0,TmpString.find_first_of(" ")).c_str());
 }
+else if (i == 5) {
+cout << "Language: " << Tag.substr(Position, Position2 - Position) << endl;
+Language = Tag.substr(Position, Position2 - Position);
 }
-return true;
+else if (i == 6) {
+cout << "Character set: " << Tag.substr(Position, Position2-Position) << endl;
+CharSet = Tag.substr(Position, Position2 - Position);
 }
 
+}
+/* Right, we have now finished getting our metadata.
+It has been decided that we convert all our character inputs to UTF-8.
+This is done only for the title and the author, but that is also important enough.
+*/
+
+iconv_t Iconv = iconv_open("utf-8", CharSet.c_str());
+if (Iconv == (iconv_t)-1) {
+cerr << "Could not open our iconv converter: " << endl;
+}
+char* TempTitle = (char*)Title.c_str();
+int TempTitleLength = Title.length()+1;
+char* TempAuthor = (char*)Author.c_str();
+#ifdef DEBUG
+cout << "TempTitle: " << TempTitle << ", Author: " << TempAuthor << endl;
+#endif
+int TempAuthorLength = Author.length()+1;
+char* DestBuffer = new char[TempTitleLength*2];
+char* Dst = DestBuffer;
+char* src = TempTitle;
+size_t SrcLeft = TempTitleLength;
+size_t DstLeft = TempTitleLength*2;
+iconv(Iconv, (const char**)&src, &SrcLeft,&Dst, &DstLeft);
+#ifdef DEBUG
+cout << "Remaining characters: " << DstLeft << endl;
+#endif
+*Dst='\0';
+Title = string(DestBuffer);
+#ifdef DEBUG
+cout << "Title: " << Title << endl;
+#endif
+delete[] DestBuffer;
+Dst = 0;
+DestBuffer = 0;
+DestBuffer = new char[TempAuthorLength*2];
+Dst = DestBuffer;
+src = TempAuthor;
+SrcLeft = TempAuthorLength;
+DstLeft = TempAuthorLength*2;
+iconv(Iconv, (const char**)&src, &SrcLeft, &Dst, &DstLeft);
+#ifdef DEBUG
+cout << "Characters left: " << DstLeft << endl;
+
+#endif
+*Dst='\0';
+Author = string(DestBuffer);
+delete[] DestBuffer;
+Dst = nullptr;
+DestBuffer = nullptr;
+
+#ifdef DEBUG
+cout << "Author: " << Author << endl;
+#endif
+iconv_close(Iconv);
+return true;
+}
 const string& DaisyBook::GetTitle() { return Title; }
 const string& DaisyBook::GetAuthor() { return Author; }
 const unsigned short DaisyBook::GetNumSections() { return AudioFiles.size(); }

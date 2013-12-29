@@ -1,5 +1,5 @@
 /* LIBDAISY, Version 2.0
-Copyright (C) 2010 Peter Laursen.
+Copyright (C) 2010, 2011, 2012, 2013, 2014 Peter Laursen.
 
 This is to be a replacement for the old LibDaisy library. It is written mainly to improve and (I hope) simplify getting information out of Daisy books.
 
@@ -34,7 +34,7 @@ int Volumes; // Daisy books may have multiple volumes
 int CurrentVolume; // Current CD
 std::string Tag; // The tag as read by GetTag
 std::string Identification; // Identification retrieved from Daisy book
-std::string Title, Author, Time; // The book's title, author and playing time
+std::string Title, Author, Time, Language, CharSet; // The book's title, author, playing time, language and character set.
 std::ifstream Smil, Content; // File descriptors for contents and a single smil file.
 std::vector<std::string> AudioFiles; // List of audio file names.
 bool IsValid;
