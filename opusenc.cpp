@@ -8,6 +8,7 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdlib>
 #include <cmath>
 #include "libdaisy20/libdaisy20.h"
+#include "libabf/libabf.h"
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
@@ -15,8 +16,8 @@ If everything goes well, this will be done all in memory so that the only file t
 using namespace ABF;
 
 int main(int argc, char* argv[]) {
-if (argc != 2) {
-printf("Error, need at least an input file name.");
+if (argc != 3) {
+printf("Error, need at least an input folder and an output file name.");
 return (EXIT_FAILURE);
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
@@ -25,26 +26,28 @@ mpg123_handle* Mp3File;
 long SamplingRate = 0;
 int Channels = 0, Encoding = 0;
 int err = MPG123_OK;
-int Error = 0;
-OpusEncoder* Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
 DaisyBook D(argv[1]);
 if (!D.BookIsValid()) printf("No daisy book.\n");
 D.GetMetadata();
 D.GetAudioFiles();
+AbfEncoder AE(argv[2]);
+AE.SetTitle(D.GetTitle().c_str());
+AE.SetAuthor(D.GetAuthor().c_str());
+AE.SetTime(D.GetTotalTime().c_str());
+AE.SetNumSections(D.GetNumSections());
+AE.WriteHeader();
+
 unsigned short Files = 0;
-FILE* fout = fopen("output.opus", "wb");
 while (Files < D.GetNumSections()) {
 
 Mp3File = mpg123_new(NULL, &err);
+AE.WriteSection();
 mpg123_open(Mp3File, D.GetSectionFile(Files));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
-opus_int32 Bitrate = 1;
-opus_encoder_ctl(Encoder, OPUS_SET_COMPLEXITY(Bitrate));
-
 short Buffer[320] = {0};
 short Resampled[640] = {0};
 int ResampledSize=640;
@@ -81,12 +84,7 @@ if (SamplesWritten > 320) {
 SamplesWritten = 320;
 }
 
-unsigned char OutputBuffer[2048] = {0};
-unsigned short Length = opus_encode(Encoder, Membuf, 320, OutputBuffer, 2048);
-if (Length > 100) break;
-//printf("First frame: %d bytes\n", Length);
-fwrite(&Length,1,sizeof(unsigned short),fout);
-fwrite(OutputBuffer, 1, Length, fout);
+AE.Encode(Membuf);
 rewind(Memory);
 
 if (Written < Processed) {
@@ -100,14 +98,10 @@ if (SamplesWritten > 320) SamplesWritten=0;
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
 
-printf("Our bitrate is %d\n", Bitrate);
 speex_resampler_destroy(Resampler);
 fclose(Memory);
 delete [] Membuf;
 }
 mpg123_exit();
-fclose(fout);
-opus_encoder_destroy(Encoder); 
-
 }
 
