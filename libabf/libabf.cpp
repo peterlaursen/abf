@@ -26,12 +26,27 @@ speex_bits_init(&Bits);
 bool AbfDecoder::Validate() {
 char Buffer[4];
 Buffer[3] = '\0';
+rewind(fin);
+
 fread(Buffer, 1, 3, fin);
-if (strcmp(Buffer, "ABF") == 0) _IsValid = true;
-else _IsValid = false;
+unsigned short HeaderSize = 0;
+fread(&HeaderSize, sizeof(short), 1, fin);
+unsigned short Major = 0, Minor = 0;
+fread(&Major, sizeof(short), 1, fin);
+fread(&Minor, sizeof(short), 1, fin);
+
+if (strcmp(Buffer, "ABF") == 0 && Major == 1) _IsValid = true;
+else {
+_IsValid = false;
+if (Major > 1) {
+printf("This is a valid ABF book, but this library does not support it. The format of this book is newer than the original ABF specification. Please update your player.\n");
+}
+}
 return _IsValid;
 }
 void AbfDecoder::ReadHeader() {
+fseek(fin, 3, SEEK_SET);
+
 fread(&HeaderSize, sizeof(short), 1, fin);
 fread(&Major, sizeof(short), 1, fin);
 fread(&Minor, sizeof(short), 1, fin);
@@ -139,7 +154,7 @@ void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
 void AbfEncoder::SetTime(const char* Time) { _Time = Time; }
 void AbfEncoder::SetNumSections(unsigned short NumSections) { _NumSections = NumSections; }
 void AbfEncoder::WriteHeader() {
-fseek(fout, 0, SEEK_SET);
+rewind(fout);
 fwrite("ABF", 1, 3, fout);
 HeaderSize = 0;
 fwrite(&HeaderSize, sizeof(short), 1, fout);
