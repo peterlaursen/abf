@@ -22,6 +22,9 @@ http://www.linuxmisc.com/9-unix-programmer/9218bf8724abe157.htm
 #include <stdio.h>
 #define MAXNAMLEN FILENAME_MAX
 /* directory entry structure */
+#ifdef __cplusplus
+extern "C" {
+#endif
  struct dirent {
          char d_name[MAXNAMLEN+1];      /* name of directory entry (0
  terminated) */
@@ -51,5 +54,8 @@ http://www.linuxmisc.com/9-unix-programmer/9218bf8724abe157.htm
          const char *s1,
          const char *s2
  );
+#ifdef __cplusplus
+}
+#endif
 #endif
 #endif
