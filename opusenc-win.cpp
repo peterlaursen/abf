@@ -18,6 +18,30 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <mpg123.h>
 #include "products/speex_resampler.h"
 using namespace ABF;
+void MemEncode(AbfEncoder& AE, short* Input, unsigned int& Processed) {
+static short MemoryBuffer[320] = {0};
+static int LastPos = 0;
+if (LastPos + Processed >= 320) {
+int Remaining = 0;
+for (int i = LastPos, j = 0; i < 320; i++, j++) {
+MemoryBuffer[i] = Input[j];
+++Remaining;
+}
+
+AE.Encode(MemoryBuffer);
+LastPos = 0;
+for (int i = 0; i < Processed-Remaining; i++) {
+MemoryBuffer[i]=Input[Remaining+i];
+++LastPos;
+}
+}
+else {
+for (int i = LastPos, j=0; j < Processed; i++,j++) {
+MemoryBuffer[i]=Input[j];
+LastPos++;
+}
+}
+}
 
 int main(int argc, char* argv[]) {
 if (argc != 3) {
@@ -59,31 +83,19 @@ int SamplesWritten = 0;
 int Status = MPG123_OK;
 
 printf("Working with file %s.\n", D.GetSectionFile(Files));
-FILE* Memory = fopen("memory", "wb+");
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
 Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
-//printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-fwrite(Resampled, sizeof(short), Processed, Memory);
-
+MemEncode(AE, Resampled, Processed);
 } while (Status == MPG123_OK);
-rewind(Memory);
-while (!feof(Memory)) {
-int Samples = fread(Membuf, sizeof(short), 320, Memory);
-AE.Encode(Membuf);
-}
-fclose(Memory);
 ++Files;
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
-
 speex_resampler_destroy(Resampler);
 delete [] Membuf;
-
 }
 mpg123_exit();
 }
-
