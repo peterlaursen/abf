@@ -5,7 +5,7 @@ This is done for a couple reasons:
  * To make it easier to use with Winamp
  * Because it has a unique way of doing things
  * Because it can be run on FreeBSD.
-Product Name: ABF Products
+Product Name: ABF 2.0 Products
 Copyright (C) 2008, 2009, 2010, 2011, 2012 Peter Laursen.
 Contents: ABF Converter, ABF Player, Experimental File Converter (Graphical), Winamp Plugin (if selected), ReadMe file Required Libraries (LIBABF, LIBDaisy20, LibSpeex, LibSpeexDSP)
 Version used to generate this installer: NSIS SVN Revision 6228
@@ -18,7 +18,7 @@ Function .onInit
 MessageBox MB_OK "This is an alpha product. This means that the product has been tested, but you must expect some errors in the working code. These products are distributed for testing only and should not be used for mainline production yet."
 FunctionEnd
 ; Set the Installer name - This is shown on the title bar
-Name "ABF Products"
+Name "ABF Products 2.0"
 ; Installer filename
 OutFile "abf-installer.exe"
 ; Set the privileges for Windows Vista and 7
@@ -48,12 +48,12 @@ ${EnvVarUpdate} $0 "PATH" "P" HKCU $ABFInstallDir
 ; Create the uninstaller
 Call CreateUninstaller
 ; After this, create some start menu icons.
-CreateDirectory "$SMPROGRAMS\ABF Products"
-SetOutPath "$SMPROGRAMS\ABF Products"
+CreateDirectory "$SMPROGRAMS\ABF 2.0 Products"
+SetOutPath "$SMPROGRAMS\ABF 2.0 Products"
 CreateShortCut "Documentation.lnk" "$ABFInstallDir\README.txt"
 CreateShortCut "Launch Player.lnk" "$ABFInstallDir\abfplayer.exe"
 CreateShortCut "Uninstall ABF Products.lnk" "$ABFInstallDir\ABFUninstaller.exe"
-CreateShortCut "ABF Website.lnk" "http://mosedal.net/abf"
+CreateShortCut "ABF Website.lnk" "http://tdlsoftware.net/abf"
 ; Try to set a file association
 StrCpy $5 "ABFAudioBook"
 WriteRegStr HKCR ".abf" "" $5
@@ -67,13 +67,11 @@ Section "Standard Working Components"
 SectionIn 1 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "c:\peter\audiere\bin\audiere.dll"
-File "abfconverter.exe"
+File "..\bin\*.dll"
+File "..\bin\opusenc-win.exe"
 File "abfplayer.exe"
-	File "..\libdaisy20\libdaisy20.dll"
-File "..\libabf\libabf.dll"
-File "..\..\speex-1.2rc1\bin\libspeex.dll"
-File "..\..\speex-1.2rc1\bin\libspeexdsp.dll"
+;File "..\libdaisy20\libdaisy20.dll"
+;File "..\libabf\libabf.dll"
 File "Readme.txt"
 Call AfterFileCopying
 SectionEnd
@@ -81,15 +79,11 @@ Section /O "Experimental Converter"
 SectionIn 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "c:\peter\audiere\bin\audiere.dll"
-File "..\gui\converter\guiconverter.exe"
-File "..\..\speex-1.2rc1\bin\libspeex.dll"
-File "..\..\speex-1.2rc1\bin\libspeexdsp.dll"
+;File "..\gui\converter\guiconverter.exe"
 File "readme.txt"
-File "abfconverter.exe"
+File "..\bin\opusenc-win.exe"
 File "abfplayer.exe"
-File "..\libdaisy20\libdaisy20.dll"
-File "..\libabf\libabf.dll"
+File "..\bin\*.dll"
 Call AfterFileCopying
 CreateShortCut "$SMPROGRAMS\ABF Products\Experimental Graphical Converter.lnk" "$INSTDIR\guiconverter.exe"
 SectionEnd
@@ -97,9 +91,8 @@ Section /O "Player Only"
 SectionIn 3
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
-File "..\libabf\libabf.dll"
+File "..\bin\libabf.dll"
 File "abfplayer.exe"
-File "..\..\speex-1.2rc1\bin\libspeex.dll"
 Call AfterFileCopying
 SectionEnd
 /*
@@ -182,8 +175,8 @@ SectionIn 4
 Call WinampPath
 StrCpy $0 "$0\plugins"
 SetOutPath $0
-File "..\winamp\in_abf.dll"
-File "..\..\speex-1.2rc1\bin\libspeex.dll"
+;File "..\winamp\in_abf.dll"
+;File "..\..\speex-1.2rc1\bin\libspeex.dll"
 ; This section does not need to add or remove anything from the path, therefore, it needs only to create the uninstaller
 Call CreateUninstaller
 SectionEnd
