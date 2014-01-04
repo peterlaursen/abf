@@ -38,7 +38,10 @@
 
 #ifndef SPEEX_RESAMPLER_H
 #define SPEEX_RESAMPLER_H
-
+#define OUTSIDE_SPEEX
+#define SPX_RESAMPLE_EXPORT
+#define RANDOM_PREFIX abf
+#define FLOATING_POINT
 #ifdef OUTSIDE_SPEEX
 
 /********* WARNING: MENTAL SANITY ENDS HERE *************/
