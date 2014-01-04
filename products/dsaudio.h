@@ -2,7 +2,7 @@
 #define DSAUDIO_H
 #include <windows.h>
 #include <dsound.h>
-#include <libabf.h>
+#include "../libabf/libabf-win.h"
 class DSAudio {
 static int LastPosition;
 HWND WindowHandle;

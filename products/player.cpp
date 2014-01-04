@@ -8,7 +8,12 @@
 #include "player.h"
 #include <iostream>
 #include <cstdio>
-#include <libabf.h>
+#ifndef WIN32
+#include "../libabf/libabf.h"
+#else
+#include "../libabf/libabf-win.h"
+#endif
+
 #ifdef WIN32
 #include <process.h>
 #include <conio.h>
@@ -265,7 +270,9 @@ Sleep(250);
 usleep(250);
 #endif
 }
+#ifndef WIN32
 return nullptr;
+#endif
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();

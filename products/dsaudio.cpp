@@ -1,6 +1,6 @@
 #include "dsaudio.h"
 #include <dsound.h>
-#include <libabf.h>
+#include "../libabf/libabf-win.h"
 #include <windows.h>
 #include <process.h>
 #include "player.h"

@@ -9,11 +9,13 @@ This file contains various declarations that are used within the player.
 #ifdef WIN32
 #include <windows.h>
 #include "dsaudio.h"
+#include "../libabf/libabf-win.h"
 #else
 #include "unixaudio.h"
+#include "../libabf/libabf.h"
+
 #endif
 
-#include <libabf.h>
 #ifdef WIN32
 typedef HANDLE ThreadType;
 typedef DSAudio AudioSystem;

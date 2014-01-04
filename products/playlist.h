@@ -5,7 +5,12 @@ This contains a rough implementation of a playlist class.
 */
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
-#include <libabf.h>
+#ifndef WIN32
+#include "../libabf/libabf.h"
+#else
+#include "../libabf/libabf-win.h"
+#endif
+
 #include "player.h"
 #include <string>
 #include <vector>
