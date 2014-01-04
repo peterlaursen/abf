@@ -1,6 +1,6 @@
 #ifndef UNIXAUDIO_H
 #define UNIXAUDIO_H
-#include <libabf.h>
+#include "../libabf/libabf.h"
 class UnixAudio {
 ABF::AbfDecoder* Decoder;
 volatile bool IsPlaying;

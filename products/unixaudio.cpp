@@ -2,7 +2,7 @@
 #include "unixaudio.h"
 #include "player.h"
 #include <sys/ioctl.h>
-#include <libabf.h>
+#include "../libabf/libabf.h"
 #include <sys/soundcard.h>
 #include <fcntl.h>
 #include <unistd.h>
