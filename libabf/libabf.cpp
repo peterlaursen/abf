@@ -1,6 +1,11 @@
 #include <cstdio>
 #include <cstring>
+
+#ifndef WIN32
 #include "libabf.h"
+#else
+#include "libabf-win.h"
+#endif
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
