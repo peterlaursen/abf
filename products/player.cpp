@@ -313,5 +313,7 @@ pthread_join(id, 0);
 #endif
 }
 delete Device;
+cout << endl << "Playlist empty; exitting..." << endl;
+
 return 0;
 }

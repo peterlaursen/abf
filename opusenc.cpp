@@ -12,7 +12,7 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
-#include <speex/speex_resampler.h>
+#include "products/speex_resampler.h"
 using namespace ABF;
 
 int main(int argc, char* argv[]) {
