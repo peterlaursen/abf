@@ -40,18 +40,13 @@ AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
 AE.SetNumSections(D.GetNumSections());
 AE.WriteHeader();
-
 unsigned short Files = 0;
 while (Files < D.GetNumSections()) {
-
 Mp3File = mpg123_new(NULL, &err);
 AE.WriteSection();
 mpg123_open(Mp3File, D.GetSectionFile(Files));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
-
-// Let's try to create an encoder.
-// Get a little information about our encoder
 short Buffer[320] = {0};
 short Resampled[640] = {0};
 int ResampledSize=640;
@@ -60,16 +55,11 @@ if (!Membuf) {
 printf("Cannot allocate memory.\n");
 return 1;
 }
-
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-#ifndef WIN32
-FILE* Memory = fmemopen(Membuf, 640, "w+b");
-#else
-FILE* Memory = fopen("memory", "wb+");
-#endif
 
 printf("Working with file %s.\n", D.GetSectionFile(Files));
+FILE* Memory = fopen("memory", "wb+");
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
@@ -77,39 +67,22 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-int Written = fwrite(Resampled, sizeof(short), Processed, Memory);
-/*
-if (Written == 0) {
-printf("Our position in the stream is %ld.\n", ftell(Memory));
-//Written = fwrite(Resampled, sizeof(short), Processed, Memory);
-}
-*/
-//printf("Wrote %d samples.\nSamplesWritten: %d, Sum: %d\nProcessed: %d\n", Written, SamplesWritten, Written+SamplesWritten, Processed);
-if (SamplesWritten == 320) SamplesWritten = 0;
-SamplesWritten += Written;
-if (SamplesWritten >= 320) {
-if (SamplesWritten > 320) {
-//printf("Samples: %d, Written: %d.\n", SamplesWritten, Written);
-SamplesWritten = 320;
-}
+fwrite(Resampled, sizeof(short), Processed, Memory);
 
-AE.Encode(Membuf);
-rewind(Memory);
-
-if (Written < Processed) {
-short* MyPointer = &Resampled[Written];
-SamplesWritten = fwrite(MyPointer, sizeof(short), Processed-Written, Memory);
-}
-if (SamplesWritten > 320) SamplesWritten=0;
-}
 } while (Status == MPG123_OK);
+rewind(Memory);
+while (!feof(Memory)) {
+int Samples = fread(Membuf, sizeof(short), 320, Memory);
+AE.Encode(Membuf);
+}
+fclose(Memory);
 ++Files;
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
 
 speex_resampler_destroy(Resampler);
-fclose(Memory);
 delete [] Membuf;
+
 }
 mpg123_exit();
 }
