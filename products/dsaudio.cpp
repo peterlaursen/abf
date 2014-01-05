@@ -4,6 +4,10 @@
 #include <windows.h>
 #include <process.h>
 #include "player.h"
+#pragma comment(lib, "dsound.lib")
+#pragma comment(lib, "user32.lib")
+#pragma comment(lib, "kernel32.lib")
+#pragma comment(lib, "dxguid.lib")
 using namespace ABF;
 using namespace std;
 void DSAudio::SetupWindow() {
