@@ -18,6 +18,31 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <mpg123.h>
 #include "products/speex_resampler.h"
 using namespace ABF;
+void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
+static short MemoryBuffer[320] = {0};
+static int LastPos = 0;
+if (LastPos + Processed >= 320) {
+int Remaining = 0;
+for (int i = LastPos, j = 0; i < 320; i++, j++) {
+MemoryBuffer[i] = Input[j];
+++Remaining;
+}
+
+AE.Encode(MemoryBuffer);
+LastPos = 0;
+for (int i = 0; i < Processed-Remaining; i++) {
+MemoryBuffer[i]=Input[Remaining+i];
+++LastPos;
+}
+}
+else {
+for (int i = LastPos, j=0; j < Processed; i++,j++) {
+MemoryBuffer[i]=Input[j];
+LastPos++;
+}
+}
+}
+
 
 int main(int argc, char* argv[]) {
 if (argc != 3) {
@@ -63,11 +88,6 @@ return 1;
 
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-#ifndef WIN32
-FILE* Memory = fmemopen(Membuf, 640, "w+b");
-#else
-FILE* Memory = fopen("memory", "wb+");
-#endif
 
 printf("Working with file %s.\n", D.GetSectionFile(Files));
 do {
@@ -77,38 +97,13 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-int Written = fwrite(Resampled, sizeof(short), Processed, Memory);
-/*
-if (Written == 0) {
-printf("Our position in the stream is %ld.\n", ftell(Memory));
-//Written = fwrite(Resampled, sizeof(short), Processed, Memory);
-}
-*/
-//printf("Wrote %d samples.\nSamplesWritten: %d, Sum: %d\nProcessed: %d\n", Written, SamplesWritten, Written+SamplesWritten, Processed);
-if (SamplesWritten == 320) SamplesWritten = 0;
-SamplesWritten += Written;
-if (SamplesWritten >= 320) {
-if (SamplesWritten > 320) {
-//printf("Samples: %d, Written: %d.\n", SamplesWritten, Written);
-SamplesWritten = 320;
-}
-
-AE.Encode(Membuf);
-rewind(Memory);
-
-if (Written < Processed) {
-short* MyPointer = &Resampled[Written];
-SamplesWritten = fwrite(MyPointer, sizeof(short), Processed-Written, Memory);
-}
-if (SamplesWritten > 320) SamplesWritten=0;
-}
+MemEncode(AE, Resampled, Processed);
 } while (Status == MPG123_OK);
 ++Files;
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
 
 speex_resampler_destroy(Resampler);
-fclose(Memory);
 delete [] Membuf;
 }
 mpg123_exit();
