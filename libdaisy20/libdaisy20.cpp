@@ -57,8 +57,10 @@ Content.seekg(0, ios::beg);
 int Position = 0;
 while ((Position = Tag.find(Metadata[i])) == string::npos && !Content.eof()) 
 GetTag();
-if (i < (NumMetadata - 1) && Content.eof()) {
-cout << "Error: Could not find " << Metadata[i] << ". i: " << i << endl;
+if (i != 4  && Content.eof()) {
+throw string("Error: Could not find " + Metadata[i]+"\n");
+IsValid = false;
+
 return false;
 }
 // We have found the requested meta data
@@ -207,7 +209,8 @@ break;
 
 Smil.open((Path + AF).c_str());
 if (!Smil) {
-cout << "Error, could not open the SMIL file." << endl;
+throw string("Error, could not open the SMIL file " + Path+AF+".");
+IsValid = false;
 }
 
 Tag.clear();
@@ -238,7 +241,8 @@ bool DaisyBook::NextVolume(char* Path) {
 // In this function, we declare a second DaisyBook so that we can inspect the next volume in piece.
 DaisyBook DB(Path);
 if (!DB.GetMetadata()) {
-cout << "Error, cannot find metadata." << endl;
+throw string("Error, cannot find metadata.");
+IsValid = false;
 return false;
 }
 string NewID = DB.GetIdentification();
@@ -250,7 +254,7 @@ GetAudioFiles();
 return true;
 }
 else {
-cout << "Error, there's no ID in this audio book." << endl;
+throw string("Error, there is no Content ID in this audio book.");
 return false;
 }
 }

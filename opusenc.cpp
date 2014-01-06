@@ -57,8 +57,13 @@ int Channels = 0, Encoding = 0;
 int err = MPG123_OK;
 DaisyBook D(argv[1]);
 if (!D.BookIsValid()) printf("No daisy book.\n");
+try {
 D.GetMetadata();
 D.GetAudioFiles();
+} catch (string& E) {
+printf("Caught exception: %s\nWe exit because of this.", E.c_str());
+return -1;
+}
 AbfEncoder AE(argv[2]);
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
