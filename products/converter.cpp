@@ -7,18 +7,18 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "libdaisy20/libdaisy20.h"
+#include "../libdaisy20/libdaisy20.h"
 #ifndef WIN32
-#include "libabf/libabf.h"
+#include "../libabf/libabf.h"
 #include <unistd.h>
 #include <signal.h>
 #else
-#include "libabf/libabf-win.h"
+#include "../libabf/libabf-win.h"
 #endif
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
-#include "products/speex_resampler.h"
+#include "speex_resampler.h"
 using namespace ABF;
 void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
 static short MemoryBuffer[320] = {0};
