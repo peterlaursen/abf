@@ -1,96 +1,124 @@
 /* $Id$
-Copyright (C) 2009, 2010, 2011, 2012, 2013 Peter Laursen.
+Copyright (C) 2013, 2014 Peter Laursen.
 
-This is a program to convert a Daisy book into an ABF file.
-It runs on Windows and FreeBSD.
+This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
+If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
 */
-
-#ifdef WIN32
-#include <windows.h>
-#include <conio.h>
-#else
-#include <unistd.h>
-#endif
-
-#include <libabf.h>
-#include <libdaisy20.h>
-#include <audiere.h>
-#include <speex/speex_resampler.h>
-#include <speex/speex.h>
-#include <iostream>
-#include <cstdio> // for FILE
+#include <cstdio>
 #include <cstdlib>
-#include <signal.h>
-
-#ifdef WIN32
-#pragma comment(lib, "audiere.lib")
-#pragma comment(lib, "libdaisy20.lib")
-#pragma comment(lib, "libspeexdsp.lib")
-#pragma comment(lib, "libspeex.lib")
-#pragma comment(lib, "libabf.lib")
-#endif
-using namespace ABF;
-using namespace std;
-using namespace audiere;
-/*
-Since we define a signal handler for our FreeBSD systems, we store our 
-ABF audio book file name in this global variable.
-*/
-const char* AudioBookFileName = nullptr;
-void Cleanup(int Signal) {
-printf("Inside signal handler.\nCleaning up by removing temporary files. Removing temporary files.\n");
+#include <cmath>
+#include "libdaisy20/libdaisy20.h"
 #ifndef WIN32
-system("rm /tmp/ABFConv*");
-unlink(AudioBookFileName);
+#include "libabf/libabf.h"
+#include <unistd.h>
+#include <signal.h>
 #else
-system("del ABFConv*");
-
+#include "libabf/libabf-win.h"
 #endif
+#include <sys/stat.h>
+#include <opus/opus.h>
+#include <mpg123.h>
+#include "products/speex_resampler.h"
+using namespace ABF;
+void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
+static short MemoryBuffer[320] = {0};
+static int LastPos = 0;
+if (LastPos + Processed >= 320) {
+int Remaining = 0;
+for (int i = LastPos, j = 0; i < 320; i++, j++) {
+MemoryBuffer[i] = Input[j];
+++Remaining;
+}
+AE.Encode(MemoryBuffer);
+LastPos = 0;
+for (int i = 0; i < Processed-Remaining; i++) {
+MemoryBuffer[i]=Input[Remaining+i];
+++LastPos;
+}
+}
+else {
+for (int i = LastPos, j=0; j < Processed; i++,j++) {
+MemoryBuffer[i]=Input[j];
+LastPos++;
+}
+}
+}
+#ifndef WIN32
+static const char* BookFileName;
+void Cleanup(int Signal) {
+unlink(BookFileName);
 exit(Signal);
 }
-
+#endif
 int main(int argc, char* argv[]) {
 if (argc != 3) {
-cerr << "Usage: " << argv[0] << " <path to daisy book> <output file>" << endl;
-return 1;
+printf("Error, need at least an input folder and an output file name.");
+return (EXIT_FAILURE);
 }
+// Let's open the file and get some information, later to be used for the Speex resampler.
+mpg123_init();
+mpg123_handle* Mp3File;
+long SamplingRate = 0;
+int Channels = 0, Encoding = 0;
+int err = MPG123_OK;
 DaisyBook D(argv[1]);
-if (!D.BookIsValid()) {
-cerr << "Error, not a valid daisy book." << endl;
-return 1;
-}
-cout << "Before obtaining metadata." << endl;
-if (!D.GetMetadata()) {
-cerr << "Error: Cannot obtain metadata." << endl;
+if (!D.BookIsValid()) printf("No daisy book.\n");
+try {
+D.GetMetadata();
+D.GetAudioFiles();
+} catch (string& E) {
+printf("Caught exception: %s\nWe exit because of this.", E.c_str());
 return -1;
 }
-cout << "We have our metadata." << endl << "Before audio files." << 
-endl;
-D.GetAudioFiles();
-cout << "After metadata." << endl;
-AbfEncoder AE(argv[2]);
-AudioBookFileName = argv[2];
 signal(SIGINT, &Cleanup);
+BookFileName = argv[2];
+AbfEncoder AE(argv[2]);
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
 AE.SetNumSections(D.GetNumSections());
 AE.WriteHeader();
-unsigned short File = 0;
-string Filename;
-while (File < D.GetNumSections()) {
+
+unsigned short Files = 0;
+while (Files < D.GetNumSections()) {
+
+Mp3File = mpg123_new(NULL, &err);
 AE.WriteSection();
-Filename = D.GetSectionFile(File);
+mpg123_open(Mp3File, D.GetSectionFile(Files));
+mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
-++File;
-cout << "Converting file " << File << " of " << D.GetNumSections() << endl;
-char* TempFile = DecodeToRawAudio(Filename.c_str());
-if (!TempFile) {
-cout << "Error, no tempfile returned." << endl;
+// Let's try to create an encoder.
+// Get a little information about our encoder
+short Buffer[320] = {0};
+short Resampled[640] = {0};
+int ResampledSize=640;
+short* Membuf = new short[320];
+if (!Membuf) {
+printf("Cannot allocate memory.\n");
+return 1;
 }
 
-EncodeABF(AE, TempFile);
+int SamplesWritten = 0;
+int Status = MPG123_OK;
+
+printf("Working with file %s.\n", D.GetSectionFile(Files));
+do {
+unsigned int Processed = ResampledSize;
+size_t Decoded;
+Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
+//printf("MP3 status: %d\n", Status);
+unsigned int TotalSamples = Decoded/2;
+speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
+MemEncode(AE, Resampled, Processed);
+} while (Status == MPG123_OK);
+++Files;
+mpg123_close(Mp3File);
+mpg123_delete(Mp3File);
+
+speex_resampler_destroy(Resampler);
+delete [] Membuf;
 }
-cout << "The book has been converted successfully." << endl;
-return 0;
+mpg123_exit();
 }
+
