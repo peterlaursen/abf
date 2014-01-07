@@ -17,6 +17,7 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <opus/opus.h>
 #include <mpg123.h>
 #include "products/speex_resampler.h"
+#include <signal.h>
 using namespace ABF;
 void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
 static short MemoryBuffer[320] = {0};
@@ -27,7 +28,6 @@ for (int i = LastPos, j = 0; i < 320; i++, j++) {
 MemoryBuffer[i] = Input[j];
 ++Remaining;
 }
-
 AE.Encode(MemoryBuffer);
 LastPos = 0;
 for (int i = 0; i < Processed-Remaining; i++) {
@@ -42,8 +42,12 @@ LastPos++;
 }
 }
 }
-
-
+#ifndef WIN32
+static const char* BookFileName;
+void Cleanup(int signal) {
+unlink(AudioBookFileName);
+}
+#endif
 int main(int argc, char* argv[]) {
 if (argc != 3) {
 printf("Error, need at least an input folder and an output file name.");
@@ -64,6 +68,8 @@ D.GetAudioFiles();
 printf("Caught exception: %s\nWe exit because of this.", E.c_str());
 return -1;
 }
+signal(SIGINT, &Cleanup);
+AudioBookFileName = argv[2];
 AbfEncoder AE(argv[2]);
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
