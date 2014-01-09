@@ -12,7 +12,6 @@ IDirectSound8* Device;
 void SetupWindow();
 HRESULT CreateBasicBuffer(IDirectSound8* lpDirectSound, IDirectSoundBuffer8** ppDsb8);
 IDirectSoundBuffer8* GetBuffer() { return Buffer; }
-ABF::AbfDecoder* GetDecoder() { return AD; }
 IDirectSound8* GetDevice() { return Device; }
 static int GetLastPosition() { return LastPosition; }
 public:

@@ -65,7 +65,6 @@ DirectSoundCreate8(NULL, &Device, NULL);
 SetupWindow();
 Device->SetCooperativeLevel(WindowHandle, DSSCL_PRIORITY);
 }
-void AudioSystem::Init(AbfDecoder* _AD) { AD = _AD; }
 void DSAudio::Play() {
 	IsPlaying = true;
 CreateBasicBuffer(Device, &Buffer);
