@@ -68,7 +68,7 @@ SectionIn 1 2
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "..\bin\*.dll"
-File "..\bin\opusenc-win.exe"
+File "..\bin\abfconverter.exe"
 File "abfplayer.exe"
 ;File "..\libdaisy20\libdaisy20.dll"
 ;File "..\libabf\libabf.dll"

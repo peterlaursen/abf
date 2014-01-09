@@ -11,10 +11,11 @@ If everything goes well, this will be done all in memory so that the only file t
 #ifndef WIN32
 #include "../libabf/libabf.h"
 #include <unistd.h>
-#include <signal.h>
 #else
 #include "../libabf/libabf-win.h"
+#include <windows.h>
 #endif
+#include <signal.h>
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
@@ -43,13 +44,21 @@ LastPos++;
 }
 }
 }
-#ifndef WIN32
 static const char* BookFileName;
-void Cleanup(int Signal) {
-unlink(BookFileName);
-exit(Signal);
+#ifdef WIN32
+void DeleteMe() {
+DeleteFile(BookFileName);
 }
 #endif
+void Cleanup(int Signal) {
+#ifndef WIN32
+unlink(BookFileName);
+exit(Signal);
+#else
+atexit(DeleteMe);
+exit(0);
+#endif
+}
 int main(int argc, char* argv[]) {
 if (argc != 3) {
 printf("Error, need at least an input folder and an output file name.");
