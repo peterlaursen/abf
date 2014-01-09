@@ -17,3 +17,5 @@ AS = new DSAudio();
 AS->Init(AD);
 return AS;
 }
+void AudioSystem::Init(AbfDecoder* _AD) { AD = _AD; }
+

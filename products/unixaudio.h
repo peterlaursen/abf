@@ -7,11 +7,11 @@ int Device;
 int Volume;
 public:
 UnixAudio();
+
 ~UnixAudio();
-void Play();
-void Stop();
-bool isPlaying();
-void IncreaseVolume();
-void DecreaseVolume();
+virtual void Play();
+virtual void Stop();
+virtual void IncreaseVolume();
+virtual void DecreaseVolume();
 };
 #endif

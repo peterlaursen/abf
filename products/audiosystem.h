@@ -13,8 +13,8 @@ ABF::AbfDecoder* AD;
 bool IsPlaying;
 virtual void Init(ABF::AbfDecoder* AD);
 public:
+AudioSystem(): AD(nullptr) {}
 static AudioSystem* Create(ABF::AbfDecoder* AD);
-AudioSystem() {}
 virtual ~AudioSystem() {}
 virtual void Play() = 0;
 virtual void Stop() = 0;
