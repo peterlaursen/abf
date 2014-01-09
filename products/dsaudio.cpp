@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <process.h>
 #include "player.h"
+#include "audiosystem.h"
 #pragma comment(lib, "dsound.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
@@ -58,20 +59,20 @@ return hr;
 }
 
 DSAudio::DSAudio() {
-Decoder = 0;
+AD = nullptr;
 IsPlaying = false;
 DirectSoundCreate8(NULL, &Device, NULL);
 SetupWindow();
 Device->SetCooperativeLevel(WindowHandle, DSSCL_PRIORITY);
 }
-void DSAudio::Init(AbfDecoder* AD) { Decoder = AD; }
+void AudioSystem::Init(AbfDecoder* _AD) { AD = _AD; }
 void DSAudio::Play() {
 	IsPlaying = true;
 CreateBasicBuffer(Device, &Buffer);
 bool Initialized = false;
-	while (!Decoder->feof() && PS == Playing) {
+	while (!AD->feof() && PS == Playing) {
 if (PS == Playing)
-DSAudio::LastPosition = Decoder->ftell() - 7200;
+DSAudio::LastPosition = AD->ftell() - 7200;
 if (LastPosition < 0) LastPosition = 0;
 DWORD PlayPosition = 0;
 do {
@@ -83,7 +84,7 @@ unsigned long BufferLength;
 Buffer->Lock(0, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
 short Decoded[320];
 for (int i = 0; i < 16000; i+= 320) {
-Decoder->Decode(Decoded);
+AD->Decode(Decoded);
 for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
@@ -98,7 +99,7 @@ Buffer->GetCurrentPosition(&PlayPosition, NULL);
 } while (PlayPosition >= 32000);
 Buffer->Lock(32000, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
 for (int i = 0; i < 16000; i+= 320) {
-Decoder->Decode(Decoded);
+AD->Decode(Decoded);
 for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
@@ -117,5 +118,4 @@ DSAudio::~DSAudio() {
 DestroyWindow(WindowHandle);
 Device->Release();
 }
-bool DSAudio::isPlaying() { return IsPlaying; }
 int DSAudio::LastPosition = 0;

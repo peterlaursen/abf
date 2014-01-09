@@ -6,6 +6,7 @@
 #endif
 #include "database.h"
 #include "player.h"
+#include "audiosystem.h"
 #include <iostream>
 #include <cstdio>
 #ifndef WIN32
@@ -63,7 +64,7 @@ void* Thread(void* Filename) {
 char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
 GlobalAD = &AD;
-Device->Init(&AD);
+Device = AudioSystem::Create(GlobalAD);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
 cout << "Error, not a valid ABF book." << endl;
@@ -277,11 +278,6 @@ return nullptr;
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
 // Open the audio device.
-#ifdef WIN32
-Device = new DSAudio();
-#else
-Device = new UnixAudio();
-#endif
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){

@@ -1,15 +1,13 @@
 #ifndef UNIXAUDIO_H
 #define UNIXAUDIO_H
 #include "../libabf/libabf.h"
-class UnixAudio {
-ABF::AbfDecoder* Decoder;
-volatile bool IsPlaying;
+#include "audiosystem.h"
+class UnixAudio : public AudioSystem {
 int Device;
 int Volume;
 public:
 UnixAudio();
 ~UnixAudio();
-void Init(ABF::AbfDecoder* AD);
 void Play();
 void Stop();
 bool isPlaying();

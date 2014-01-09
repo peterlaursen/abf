@@ -3,27 +3,25 @@
 #include <windows.h>
 #include <dsound.h>
 #include "../libabf/libabf-win.h"
-class DSAudio {
+#include "audiosystem.h"
+class DSAudio: public AudioSystem {
 static int LastPosition;
 HWND WindowHandle;
-ABF::AbfDecoder* Decoder;
-volatile bool IsPlaying;
 IDirectSoundBuffer8* Buffer;
 IDirectSound8* Device;
 void SetupWindow();
 HRESULT CreateBasicBuffer(IDirectSound8* lpDirectSound, IDirectSoundBuffer8** ppDsb8);
-public:
-DSAudio();
-~DSAudio();
-void Init(ABF::AbfDecoder* AD);
-void Play();
-void Stop();
-bool isPlaying();
 IDirectSoundBuffer8* GetBuffer() { return Buffer; }
-ABF::AbfDecoder* GetDecoder() { return Decoder; }
+ABF::AbfDecoder* GetDecoder() { return AD; }
 IDirectSound8* GetDevice() { return Device; }
 static int GetLastPosition() { return LastPosition; }
-void DecreaseVolume() {}
+public:
+DSAudio();
+virtual ~DSAudio();
+
+void Play();
+void Stop();
 void IncreaseVolume() {}
+void DecreaseVolume() {}
 };
 #endif

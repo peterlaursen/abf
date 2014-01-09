@@ -13,20 +13,16 @@ This file contains various declarations that are used within the player.
 #else
 #include "unixaudio.h"
 #include "../libabf/libabf.h"
-
 #endif
 
 #ifdef WIN32
 typedef HANDLE ThreadType;
-typedef DSAudio AudioSystem;
 #endif
 #ifdef LINUX
 typedef pthread_t ThreadType;
-typedef UnixAudio AudioSystem;
 #endif
 #ifdef FREEBSD
 typedef pthread* ThreadType;
-typedef UnixAudio AudioSystem;
 #endif
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
