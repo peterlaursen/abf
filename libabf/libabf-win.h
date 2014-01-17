@@ -49,8 +49,8 @@ const char* GetAuthor() const;
 const char* GetTime() const;
 const unsigned short GetNumSections() const;
 const unsigned short GetHeaderSize() const { return HeaderSize; }
-const unsigned short GetMajor();
-const unsigned short GetMinor() const;
+const unsigned short GetMajor() { return Major; }
+const unsigned short GetMinor() const { return Minor; }
 bool feof();
 int ftell();
 void fclose();

@@ -92,6 +92,8 @@ const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
 const unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
+bool AbfDecoder::GoToPosition(int minutes) { return false; }
+
 /* This function will not currently work - we therefore uncomment it until we can look at it more closely.
 
 bool AbfDecoder::GoToPosition(int Minutes) {
