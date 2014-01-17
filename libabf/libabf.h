@@ -82,7 +82,7 @@ void Encode(short* Input);
 };
 // Functions common to most of the programs developed so far...
 // DecodeToRawAudio
-char* DecodeToRawAudio(const char* Filename);
-bool EncodeABF(AbfEncoder& AE, char* TempFile);
+//char* DecodeToRawAudio(const char* Filename);
+//bool EncodeABF(AbfEncoder& AE, char* TempFile);
 }
 #endif
