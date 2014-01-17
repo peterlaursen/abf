@@ -8,6 +8,12 @@
  * interface file instead.
  * ----------------------------------------------------------------------------- */
 
+#ifndef WIN32
+#include "../../libabf/libabf.h"
+#else
+#include "../../libabf/libabf-win.h"
+#endif
+
 #define SWIGCSHARP
 
 
