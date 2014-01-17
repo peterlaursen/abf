@@ -11,15 +11,4 @@ using System;
 using System.Runtime.InteropServices;
 
 public class libabf {
-  public static string DecodeToRawAudio(string Filename) {
-    string ret = libabfPINVOKE.DecodeToRawAudio(Filename);
-    return ret;
-  }
-
-  public static bool EncodeABF(AbfEncoder AE, string TempFile) {
-    bool ret = libabfPINVOKE.EncodeABF(AbfEncoder.getCPtr(AE), TempFile);
-    if (libabfPINVOKE.SWIGPendingException.Pending) throw libabfPINVOKE.SWIGPendingException.Retrieve();
-    return ret;
-  }
-
 }

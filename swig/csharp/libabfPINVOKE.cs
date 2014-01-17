@@ -283,10 +283,4 @@ class libabfPINVOKE {
 
   [DllImport("libabf", EntryPoint="CSharp_AbfEncoder_Encode")]
   public static extern void AbfEncoder_Encode(HandleRef jarg1, HandleRef jarg2);
-
-  [DllImport("libabf", EntryPoint="CSharp_DecodeToRawAudio")]
-  public static extern string DecodeToRawAudio(string jarg1);
-
-  [DllImport("libabf", EntryPoint="CSharp_EncodeABF")]
-  public static extern bool EncodeABF(HandleRef jarg1, string jarg2);
 }
