@@ -21,8 +21,9 @@ That library is no longer updated and this library is incompatible with it.
 #define SHARED
 #endif
 namespace ABF {
-using std::FILE;
-using std::string;
+using namespace std;
+//using std::FILE;
+//using std::string;
 class SHARED AbfDecoder {
 int* Array;
 OpusDecoder* Decoder;
