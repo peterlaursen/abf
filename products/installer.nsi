@@ -20,7 +20,7 @@ FunctionEnd
 ; Set the Installer name - This is shown on the title bar
 Name "ABF Products 2.0"
 ; Installer filename
-OutFile "abf-installer.exe"
+OutFile "abf2.0-installer.exe"
 ; Set the privileges for Windows Vista and 7
 RequestExecutionLevel admin
 ; Ask the compiler to compress using LZMA

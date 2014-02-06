@@ -9,7 +9,8 @@ static bool Initialized = false;
 static string DBName;
 void Init() {
 #ifdef WIN32
-DBName += getenv("USERPROFILE");
+DBName += getenv("HOMEDRIVE");
+DBName += getenv("HOMEPATH");
 DBName += "\\.abfplayer.db";
 #else
 DBName += getenv("HOME");
