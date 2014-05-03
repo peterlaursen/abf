@@ -74,7 +74,7 @@ GlobalAD = &AD;
 Device = AudioSystem::Create(GlobalAD);
 bool IsValid = AD.IsValid();
 if (!IsValid) {
-cout << "Error, not a valid ABF book." << endl;
+cerr << "Error, not a valid ABF book." << endl;
 PS = Quit;
 #ifdef WIN32
 return;
@@ -136,23 +136,6 @@ PS = Playing;
 continue;
 }
 
-/*if (PS == VolumeDown) {
-if (Volume == 0.0f) {
-PS = Playing;
-continue;
-}
-Volume -= 0.1f;
-PS = Playing;
-}
-if (PS == VolumeUp) {
-if (Volume >= 1.0f) {
-PS = Playing;
-continue;
-}
-Volume += 0.1f;
-PS = Playing;
-}
-*/
 if (PS == Paused) {
 if (Device->isPlaying()) Device->Stop();
 continue;
@@ -194,6 +177,17 @@ PS = Playing;
 if (PS == NextBook || PS == PreviousBook) break;
 
 if (PS == Next) {
+// Get current position
+int CurPos = AD.ftell();
+for (int i = 0; i < AD.GetNumSections(); i++) {
+if (Array[i] > CurPos) {
+AD.seek(Array[i], SEEK_SET);
+CurrentSection = i;
+}
+}
+/* Uncomment this code for now...
+
+// Check that we don't get an overflow.
 if (CurrentSection >= AD.GetNumSections() - 1) {
 PS = Playing;
 CurrentSection = AD.GetNumSections()-1;
@@ -203,16 +197,18 @@ Device->Stop();
 ++CurrentSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
+*/
 continue;
 }
 if (PS == Previous) {
+// Prevent us from going to -1
 if (CurrentSection == 0) {
 PS = Playing;
 continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Device->Stop();
---CurrentSection;
+CurrentSection-1;
 
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
