@@ -323,7 +323,10 @@ pthread_join(id, 0);
 #endif
 }
 delete Device;
+if (PS != Quit)
 cout << endl << "Playlist empty; exitting..." << endl;
+// Ensure our shell character comes on its own line
+cout << endl;
 
 return 0;
 }
