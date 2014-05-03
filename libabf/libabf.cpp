@@ -1,3 +1,13 @@
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+
+This is the main ABF library which is used for converting books to our ABF format.
+It is also used for decoding the format.
+
+Note that this library uses ABF 2.0 only.
+For the previous library utilizing Speex for its encoding and decoding, see /code/branches/abf-1.0.
+*/
+
 #include <cstdio>
 #include <cstring>
 
