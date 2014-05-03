@@ -211,7 +211,15 @@ continue;
 }
 if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
 Device->Stop();
-CurrentSection-=1;
+// Get current position
+int CurPos = AD.ftell();
+for (int i = 0; i < AD.GetNumSections(); i++) {
+if (Array[i] > CurPos) {
+AD.Seek(Array[i], SEEK_SET);
+CurrentSection = i-1;
+break;
+}
+}
 
 AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
