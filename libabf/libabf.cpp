@@ -27,6 +27,7 @@ AbfDecoder::AbfDecoder(char* Filename) {
 Initialize(Filename);
 }
 void AbfDecoder::Initialize(char* Filename) {
+if (!fin) Reset();
 fin = fopen(Filename, "rb");
 if (!fin) _IsOpen = false;
 else _IsOpen = true;
@@ -136,7 +137,11 @@ AbfDecoder::~AbfDecoder() {
 Reset();
 }
 void AbfDecoder::Reset() {
-if (_IsOpen) fclose();
+if (_IsOpen) {
+fclose();
+_IsOpen = false;
+_IsValid = false;
+}
 opus_decoder_destroy(Decoder);
 delete[] Title;
 Title = nullptr;
