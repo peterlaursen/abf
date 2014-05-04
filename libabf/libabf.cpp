@@ -152,7 +152,7 @@ Time = nullptr;
 delete[] Array;
 Array = nullptr;
 }
-void AbfDecoder::fclose() { std::fclose(fin); }
+void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
 AbfEncoder::AbfEncoder() {
 fout = nullptr;
 }
