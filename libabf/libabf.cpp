@@ -16,6 +16,16 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #else
 #include "libabf-win.h"
 #endif
+#ifdef WIN32
+#ifdef BUILD_DLL
+#pragma comment(lib, "opus.lib")
+#pragma comment(lib, "celt.lib")
+#pragma comment(lib, "silk_common.lib")
+#pragma comment(lib, "silk_float.lib")
+#pragma comment(lib, "silk_fixed.lib")
+#endif
+#endif
+
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
