@@ -214,14 +214,12 @@ Device->Stop();
 // Get current position
 int CurPos = AD.ftell();
 for (int i = 0; i < AD.GetNumSections(); i++) {
-if (Array[i] > CurPos) {
-AD.Seek(Array[i], SEEK_SET);
+if (Array[i] < CurPos && Array[i+1] > CurPos) {
 CurrentSection = i-1;
+AD.Seek(Array[CurrentSection], SEEK_SET);
 break;
 }
 }
-
-AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
 // This bit pre-buffers input and decodes the output

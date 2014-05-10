@@ -72,7 +72,7 @@ StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "..\bin\*.dll"
 File "..\bin\abfconverter.exe"
-File "abfplayer.exe"
+File "..\bin\abfplayer.exe"
 ;File "..\libdaisy20\libdaisy20.dll"
 ;File "..\libabf\libabf.dll"
 File "Readme.txt"
