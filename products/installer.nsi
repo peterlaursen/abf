@@ -85,7 +85,7 @@ SetOutPath $INSTDIR
 ;File "..\gui\converter\guiconverter.exe"
 File "readme.txt"
 File "..\bin\opusenc-win.exe"
-File "abfplayer.exe"
+File "..\bin\abfplayer.exe"
 File "..\bin\*.dll"
 Call AfterFileCopying
 CreateShortCut "$SMPROGRAMS\ABF Products\Experimental Graphical Converter.lnk" "$INSTDIR\guiconverter.exe"
@@ -95,7 +95,7 @@ SectionIn 3
 StrCpy $ABFInstallDir $INSTDIR
 SetOutPath $INSTDIR
 File "..\bin\libabf.dll"
-File "abfplayer.exe"
+File "..\bin\abfplayer.exe"
 Call AfterFileCopying
 SectionEnd
 /*
