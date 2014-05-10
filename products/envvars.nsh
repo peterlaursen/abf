@@ -1,3 +1,8 @@
+/* $Id$
+
+This file came from the NSIS wiki - not quite sure from where.
+*/
+
 /**  EnvVarUpdate.nsh
 *    : Environmental Variables: append, prepend, and remove entries
 *

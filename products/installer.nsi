@@ -1,4 +1,7 @@
 /*
+$Id$
+Copyright (C) 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+
 In order to discover what installation package we are to use, we'll try to package our ABF products using NSIS.
 This is done for a couple reasons:
  * To learn this installer
@@ -191,7 +194,7 @@ StrCpy $0 "$0\plugins"
 Delete "$0\in_abf.dll"
 pop $0
 MessageBox MB_YESNO|MB_ICONQUESTION "Would you like to remove the database containing audio book positions? If you are to re-install, please answer 'No' here." /SD IDYES IDNO path
-Delete "$PROFILE\.abfplayer.db"
+Delete "$LOCALAPPDATA\.abfplayer.db"
 path:
 Call un.RestorePath
  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000

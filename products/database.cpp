@@ -1,3 +1,8 @@
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+
+This contains a small database access file used by ABF Player.
+*/
 #include <sstream>
 #include <iostream>
 #include <cstdio>
@@ -9,8 +14,7 @@ static bool Initialized = false;
 static string DBName;
 void Init() {
 #ifdef WIN32
-DBName += getenv("HOMEDRIVE");
-DBName += getenv("HOMEPATH");
+DBName += getenv("LOCALAPPDATA");
 DBName += "\\.abfplayer.db";
 #else
 DBName += getenv("HOME");
