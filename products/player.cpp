@@ -179,6 +179,7 @@ if (PS == NextBook || PS == PreviousBook) break;
 
 if (PS == Next) {
 // Get current position
+if (CurrentSection == AD.GetNumSections()) continue;
 int CurPos = AD.ftell();
 for (int i = 0; i < AD.GetNumSections(); i++) {
 if (Array[i] > CurPos) {
