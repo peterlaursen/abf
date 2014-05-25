@@ -7,11 +7,11 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "../libdaisy20/libdaisy20.h"
 #ifndef WIN32
 #include "../libabf/libabf.h"
 #include <unistd.h>
 #include <signal.h>
+#include <dirent.h>
 #else
 #include "../libabf/libabf-win.h"
 #endif
@@ -19,6 +19,8 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <opus/opus.h>
 #include <mpg123.h>
 #include "speex_resampler.h"
+#include <iostream>
+
 using namespace ABF;
 void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
 static short MemoryBuffer[320] = {0};
@@ -61,32 +63,34 @@ mpg123_handle* Mp3File;
 long SamplingRate = 0;
 int Channels = 0, Encoding = 0;
 int err = MPG123_OK;
-DaisyBook D(argv[1]);
-if (!D.BookIsValid()) printf("No daisy book.\n");
-try {
-D.GetMetadata();
-D.GetAudioFiles();
-} catch (string& E) {
-printf("Caught exception: %s\nWe exit because of this.", E.c_str());
-return -1;
-}
+dirent** FileList = NULL;
+int ListLength = scandir(argv[1], &FileList, NULL, alphasort);
+cout << "We found " << ListLength << " files." << endl;
 #ifndef WIN32
 signal(SIGINT, &Cleanup);
 BookFileName = argv[2];
 #endif
-AbfEncoder AE(argv[2]);
-AE.SetTitle(D.GetTitle().c_str());
-AE.SetAuthor(D.GetAuthor().c_str());
-AE.SetTime(D.GetTotalTime().c_str());
-AE.SetNumSections(D.GetNumSections());
-AE.WriteHeader();
+string Title, Author, Time;
+cout << endl << "Book Title: ";
+getline(cin, Title);
+cout << endl << "Author: ";
+getline(cin, Author);
+cout << endl << "Book Duration: ";
+getline(cin, Time);
 
-unsigned short Files = 0;
-while (Files < D.GetNumSections()) {
+AbfEncoder AE(argv[2]);
+AE.SetTitle(Title.c_str());
+AE.SetAuthor(Author.c_str());
+AE.SetTime(Time.c_str());
+AE.SetNumSections(ListLength-2);
+AE.WriteHeader();
+chdir(argv[1]);
+unsigned short Files = 2;
+while (Files < ListLength) {
 
 Mp3File = mpg123_new(NULL, &err);
 AE.WriteSection();
-mpg123_open(Mp3File, D.GetSectionFile(Files));
+mpg123_open(Mp3File, FileList[Files]->d_name);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
@@ -104,7 +108,7 @@ return 1;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
 
-printf("Working with file %s.\n", D.GetSectionFile(Files));
+printf("Working with file %s.\n", FileList[Files]->d_name);
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
@@ -122,5 +126,10 @@ speex_resampler_destroy(Resampler);
 delete [] Membuf;
 }
 mpg123_exit();
+for (int i = 0; i < ListLength; i++) {
+free(FileList[i]);
+}
+free(FileList);
+
 }
 
