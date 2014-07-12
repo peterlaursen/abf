@@ -1,0 +1,3 @@
+This branch helps us test the next modifications to ABF.
+We want to speed up the encoding by utilizing memory rather than writing a lot of small byte positions to a file.
+
