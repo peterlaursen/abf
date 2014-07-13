@@ -105,7 +105,7 @@ SetConsoleTitle(Temp.c_str());
 #endif
 short Buffer[320];
 short Buffer1[32000];
-int* Array = AD.GetSections();
+const int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
 if (LastPosition > 0) {
