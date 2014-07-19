@@ -116,7 +116,7 @@ char* Dst = DestBuffer;
 char* src = TempTitle;
 size_t SrcLeft = TempTitleLength;
 size_t DstLeft = TempTitleLength*2;
-iconv(Iconv, (const char**)&src, &SrcLeft,&Dst, &DstLeft);
+iconv(Iconv, &src, &SrcLeft,&Dst, &DstLeft);
 #ifdef DEBUG
 cout << "Remaining characters: " << DstLeft << endl;
 #endif
@@ -133,7 +133,7 @@ Dst = DestBuffer;
 src = TempAuthor;
 SrcLeft = TempAuthorLength;
 DstLeft = TempAuthorLength*2;
-iconv(Iconv, (const char**)&src, &SrcLeft, &Dst, &DstLeft);
+iconv(Iconv, &src, &SrcLeft, &Dst, &DstLeft);
 #ifdef DEBUG
 cout << "Characters left: " << DstLeft << endl;
 
