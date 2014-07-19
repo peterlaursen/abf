@@ -29,14 +29,11 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
-AbfDecoder::AbfDecoder() {
-fin = nullptr;
-_IsOpen = false;
-}
-AbfDecoder::AbfDecoder(char* Filename) {
+AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false) {}
+AbfDecoder::AbfDecoder(const char* Filename) {
 Initialize(Filename);
 }
-void AbfDecoder::Initialize(char* Filename) {
+void AbfDecoder::Initialize(const char* Filename) {
 if (!fin) Reset();
 fin = fopen(Filename, "rb");
 if (!fin) _IsOpen = false;
@@ -48,6 +45,7 @@ if (Error != OPUS_OK) {
 printf("Something went wrong in creating our decoder!\n");
 ::fclose(fin);
 _IsOpen = false;
+_IsValid = false;
 }
 
 }
@@ -95,20 +93,20 @@ fread(&Array[i], sizeof(int), 1, fin);
 }
 return;
 }
-int* AbfDecoder::GetSections() {
+const int* AbfDecoder::GetSections() const {
 return Array;
 }
 void AbfDecoder::Decode(short* Output) {
 unsigned short Bytes;
-unsigned char Input[320];
+unsigned char Input[320] = {0};
 fread(&Bytes, 2, 1, fin);
 int BytesRead = fread(Input, 1, Bytes, fin);
 if (feof()) return;
 
 int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
 }
-int AbfDecoder::ftell() { return std::ftell(fin); }
-bool AbfDecoder::feof() { return std::feof(fin); }
+int AbfDecoder::ftell() const { return std::ftell(fin); }
+bool AbfDecoder::feof() const { return std::feof(fin); }
 const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
@@ -163,14 +161,12 @@ delete[] Array;
 Array = nullptr;
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
-AbfEncoder::AbfEncoder() {
-fout = nullptr;
-}
+AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
-AbfEncoder::AbfEncoder(char* Filename) {
+AbfEncoder::AbfEncoder(const char* Filename) {
 Initialize(Filename);
 }
-void AbfEncoder::Initialize(char* Filename) {
+void AbfEncoder::Initialize(const char* Filename) {
 fout = fopen(Filename, "wb+");
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
@@ -224,7 +220,7 @@ fwrite(&Position, sizeof(int), 1, fout);
 fseek(fout, Position, SEEK_SET);
 CurrentSection += 1;
 }
-void AbfEncoder::Encode(short* Input) {
+void AbfEncoder::Encode(const short* Input) {
 unsigned char Output[200] = {0};
 short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
 fwrite(&Bytes, sizeof(short), 1, fout);

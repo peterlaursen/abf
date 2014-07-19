@@ -22,13 +22,11 @@ That library is no longer updated and this library is incompatible with it.
 #endif
 namespace ABF {
 using namespace std;
-//using std::FILE;
-//using std::string;
 class SHARED AbfDecoder {
-int* Array;
+int* Array = nullptr;
 OpusDecoder* Decoder = nullptr;
 FILE* fin = nullptr;
-bool _IsOpen = false;;bool _IsValid;
+bool _IsOpen = false;;bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
@@ -36,10 +34,10 @@ unsigned short HeaderSize = 0, Major = 0, Minor = 0, NumSections = 0;
 void ReadHeader();
 bool Validate();
 public:
-AbfDecoder(char* Filename);
+AbfDecoder(const char* Filename);
 AbfDecoder();
 ~AbfDecoder();
-void Initialize(char* Filename);
+void Initialize(const char* Filename);
 void Reset();
 bool IsValid() const { return _IsValid; }
 bool IsOpen() const { return _IsOpen; }
@@ -50,16 +48,16 @@ const unsigned short GetNumSections() const;
 const unsigned short GetHeaderSize() const { return HeaderSize; }
 const unsigned short GetMajor() { return Major; }
 const unsigned short GetMinor() const { return Minor; }
-bool feof();
-int ftell();
+bool feof() const;
+int ftell() const;
 void fclose();
 int Seek(long offset, int whence);
-int* GetSections();
+const int* GetSections() const;
 void Decode(short* Output);
 /*
 This function currently will not work since our format has changed quite a bit. I'll see what I can do about it.
 */
-bool GoToPosition(int Minutes);
+bool GoToPosition(const int Minutes);
 };
 class SHARED AbfEncoder {
 OpusEncoder* Encoder = nullptr;
@@ -67,10 +65,11 @@ FILE* fout = nullptr;
 unsigned short HeaderSize = 0;
 string _Title, _Author, _Time;
 unsigned short _NumSections = 0;
+unsigned char* Buffer;
 public:
-AbfEncoder(char* Filename);
+AbfEncoder(const char* Filename);
 AbfEncoder();
-void Initialize(char*);
+void Initialize(const char*);
 ~AbfEncoder();
 void SetTitle(const char* Title);
 void SetAuthor(const char* Author);
@@ -78,7 +77,7 @@ void SetTime(const char* Time);
 void SetNumSections(unsigned short NumSections);
 void WriteHeader();
 void WriteSection();
-void Encode(short* Input);
+void Encode(const short* Input);
 };
 // Functions common to most of the programs developed so far...
 // DecodeToRawAudio
