@@ -113,7 +113,7 @@ cout << "TempTitle: " << TempTitle << ", Author: " << TempAuthor << endl;
 int TempAuthorLength = Author.length()+1;
 char* DestBuffer = new char[TempTitleLength*2];
 char* Dst = DestBuffer;
-const char* src = TempTitle;
+char* src = TempTitle;
 size_t SrcLeft = TempTitleLength;
 size_t DstLeft = TempTitleLength*2;
 iconv(Iconv, &src, &SrcLeft,&Dst, &DstLeft);
