@@ -162,6 +162,8 @@ AbfEncoder::AbfEncoder(const char* Filename) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
+Buffer = new unsigned char[BufferMaxSize] = {0};
+bzero(Buffer, MaxBufferSize);
 fout = fopen(Filename, "wb+");
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
@@ -171,8 +173,13 @@ printf("Error in creating our encoder!\n");
 
 }
 AbfEncoder::~AbfEncoder() {
+if (CurrentBufferPosition > 0) {
+fwrite(Buffer, BufferPosition, 1 fout);
 fclose(fout);
 opus_encoder_destroy(Encoder);
+delete[] Buffer;
+Buffer = nullptr;
+CurrentBufferPosition = 0;
 }
 void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
 void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
@@ -207,6 +214,11 @@ fwrite(&Size, sizeof(int), 1, fout);
 }
 void AbfEncoder::WriteSection() {
 static int CurrentSection = 0;
+if (CurrentBufferPosition = 0) {
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
+bzero(Buffer, MaxBufferSize);
+CurrentBufferPosition = 0;
+}
 int Position = ftell(fout);
 fseek(fout, HeaderSize, SEEK_SET);
 for (int i = 0; i < CurrentSection; i++) fseek(fout, 4, SEEK_CUR);
@@ -218,7 +230,15 @@ CurrentSection += 1;
 void AbfEncoder::Encode(const short* Input) {
 unsigned char Output[200] = {0};
 short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
-fwrite(&Bytes, sizeof(short), 1, fout);
-fwrite(Output, sizeof(char), Bytes, fout);
+if (CurrentBufferPosition + Bytes > MaxBufferSize) {
+fwrite(&CurrentBufferPosition, sizeof(short), 1, fout);
+fwrite(Buffer, sizeof(char), CurrentBufferPosition, fout);
+bzero(Buffer, MaxBufferSize);
+CurrentBufferPosition = 0;
+}
+memcpy(Buffer[CurrentBufferPosition], Bytes, sizeof(short));
+CurrentBufferPosition += sizeof(short);
+memcpy(Buffer[CurrentBufferPosition], Output, Bytes);
+CurrentBufferPosition += Bytes;
 }
 }
