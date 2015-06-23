@@ -54,7 +54,7 @@ exit(Signal);
 #endif
 int main(int argc, char* argv[]) {
 if (argc != 3) {
-printf("Error, need at least an input folder and an output file name.");
+printf("Error, need at least an input folder and an output file name.\n");
 return (EXIT_FAILURE);
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
