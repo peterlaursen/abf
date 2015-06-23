@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This is the main ABF library which is used for converting books to our ABF format.
 It is also used for decoding the format.
@@ -10,13 +10,10 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 
 #include <cstdio>
 #include <cstring>
-
 #ifndef WIN32
 #include "libabf.h"
 #else
 #include "libabf-win.h"
-#endif
-#ifdef WIN32
 #ifdef BUILD_DLL
 #pragma comment(lib, "opus.lib")
 #pragma comment(lib, "celt.lib")
@@ -25,7 +22,6 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #pragma comment(lib, "silk_fixed.lib")
 #endif
 #endif
-
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
@@ -47,7 +43,6 @@ printf("Something went wrong in creating our decoder!\n");
 _IsOpen = false;
 _IsValid = false;
 }
-
 }
 bool AbfDecoder::Validate() {
 rewind(fin);
