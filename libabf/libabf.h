@@ -26,7 +26,8 @@ class SHARED AbfDecoder {
 int* Array = nullptr;
 OpusDecoder* Decoder = nullptr;
 FILE* fin = nullptr;
-bool _IsOpen = false;;bool _IsValid = false;
+bool _IsOpen = false;
+bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
@@ -79,9 +80,5 @@ void WriteHeader();
 void WriteSection();
 void Encode(const short* Input);
 };
-// Functions common to most of the programs developed so far...
-// DecodeToRawAudio
-//char* DecodeToRawAudio(const char* Filename);
-//bool EncodeABF(AbfEncoder& AE, char* TempFile);
 }
 #endif
