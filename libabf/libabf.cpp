@@ -162,7 +162,7 @@ AbfEncoder::AbfEncoder(const char* Filename) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
-Buffer = new unsigned char[BufferMaxSize] = {0};
+Buffer = new unsigned char[MaxBufferSize];
 bzero(Buffer, MaxBufferSize);
 fout = fopen(Filename, "wb+");
 int Error = 0;
@@ -173,8 +173,8 @@ printf("Error in creating our encoder!\n");
 
 }
 AbfEncoder::~AbfEncoder() {
-if (CurrentBufferPosition > 0) {
-fwrite(Buffer, BufferPosition, 1 fout);
+if (CurrentBufferPosition > 0)
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
 fclose(fout);
 opus_encoder_destroy(Encoder);
 delete[] Buffer;
@@ -214,7 +214,7 @@ fwrite(&Size, sizeof(int), 1, fout);
 }
 void AbfEncoder::WriteSection() {
 static int CurrentSection = 0;
-if (CurrentBufferPosition = 0) {
+if (CurrentBufferPosition > 0) {
 fwrite(Buffer, CurrentBufferPosition, 1, fout);
 bzero(Buffer, MaxBufferSize);
 CurrentBufferPosition = 0;
@@ -236,9 +236,9 @@ fwrite(Buffer, sizeof(char), CurrentBufferPosition, fout);
 bzero(Buffer, MaxBufferSize);
 CurrentBufferPosition = 0;
 }
-memcpy(Buffer[CurrentBufferPosition], Bytes, sizeof(short));
+memcpy(&Buffer[CurrentBufferPosition], &Bytes, sizeof(short));
 CurrentBufferPosition += sizeof(short);
-memcpy(Buffer[CurrentBufferPosition], Output, Bytes);
+memcpy(&Buffer[CurrentBufferPosition], Output, Bytes);
 CurrentBufferPosition += Bytes;
 }
 }

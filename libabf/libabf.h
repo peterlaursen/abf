@@ -67,9 +67,8 @@ unsigned short HeaderSize = 0;
 string _Title, _Author, _Time;
 unsigned short _NumSections = 0;
 unsigned char* Buffer = nullptr;
-short BufferLength = 0;
 // Have a max size constant defined here.
-const int BufferMaxSize = (1024 * 1024) * 32;
+const int MaxBufferSize = (1024 * 1024) * 32;
 int CurrentBufferPosition = 0;
 public:
 AbfEncoder(const char* Filename);
