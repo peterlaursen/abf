@@ -169,6 +169,8 @@ int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
 if (Error != OPUS_OK) {
 printf("Error in creating our encoder!\n");
+delete[] Buffer;
+return;
 }
 
 }
