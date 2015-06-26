@@ -232,8 +232,8 @@ CurrentSection += 1;
 void AbfEncoder::Encode(const short* Input) {
 unsigned char Output[200] = {0};
 short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
-if (CurrentBufferPosition + Bytes > MaxBufferSize) {
-fwrite(Buffer, sizeof(char), CurrentBufferPosition, fout);
+if (CurrentBufferPosition + Bytes >= MaxBufferSize - 1) {
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
 bzero(Buffer, MaxBufferSize);
 CurrentBufferPosition = 0;
 }
