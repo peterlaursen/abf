@@ -26,7 +26,8 @@ class SHARED AbfDecoder {
 int* Array = nullptr;
 OpusDecoder* Decoder = nullptr;
 FILE* fin = nullptr;
-bool _IsOpen = false;;bool _IsValid = false;
+bool _IsOpen = false;
+bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
@@ -65,7 +66,10 @@ FILE* fout = nullptr;
 unsigned short HeaderSize = 0;
 string _Title, _Author, _Time;
 unsigned short _NumSections = 0;
-unsigned char* Buffer;
+unsigned char* Buffer = nullptr;
+// Have a max size constant defined here.
+const int MaxBufferSize = (1024 * 1024) * 2;
+int CurrentBufferPosition = 0;
 public:
 AbfEncoder(const char* Filename);
 AbfEncoder();
@@ -79,9 +83,5 @@ void WriteHeader();
 void WriteSection();
 void Encode(const short* Input);
 };
-// Functions common to most of the programs developed so far...
-// DecodeToRawAudio
-//char* DecodeToRawAudio(const char* Filename);
-//bool EncodeABF(AbfEncoder& AE, char* TempFile);
 }
 #endif

@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This is the main ABF library which is used for converting books to our ABF format.
 It is also used for decoding the format.
@@ -10,13 +10,10 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 
 #include <cstdio>
 #include <cstring>
-
 #ifndef WIN32
 #include "libabf.h"
 #else
 #include "libabf-win.h"
-#endif
-#ifdef WIN32
 #ifdef BUILD_DLL
 #pragma comment(lib, "opus.lib")
 #pragma comment(lib, "celt.lib")
@@ -25,7 +22,6 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #pragma comment(lib, "silk_fixed.lib")
 #endif
 #endif
-
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
@@ -47,7 +43,6 @@ printf("Something went wrong in creating our decoder!\n");
 _IsOpen = false;
 _IsValid = false;
 }
-
 }
 bool AbfDecoder::Validate() {
 rewind(fin);
@@ -167,17 +162,26 @@ AbfEncoder::AbfEncoder(const char* Filename) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
+Buffer = new unsigned char[MaxBufferSize];
+bzero(Buffer, MaxBufferSize);
 fout = fopen(Filename, "wb+");
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
 if (Error != OPUS_OK) {
 printf("Error in creating our encoder!\n");
+delete[] Buffer;
+return;
 }
 
 }
 AbfEncoder::~AbfEncoder() {
+if (CurrentBufferPosition > 0)
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
 fclose(fout);
 opus_encoder_destroy(Encoder);
+delete[] Buffer;
+Buffer = nullptr;
+CurrentBufferPosition = 0;
 }
 void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
 void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
@@ -212,6 +216,11 @@ fwrite(&Size, sizeof(int), 1, fout);
 }
 void AbfEncoder::WriteSection() {
 static int CurrentSection = 0;
+if (CurrentBufferPosition > 0) {
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
+bzero(Buffer, MaxBufferSize);
+CurrentBufferPosition = 0;
+}
 int Position = ftell(fout);
 fseek(fout, HeaderSize, SEEK_SET);
 for (int i = 0; i < CurrentSection; i++) fseek(fout, 4, SEEK_CUR);
@@ -223,7 +232,14 @@ CurrentSection += 1;
 void AbfEncoder::Encode(const short* Input) {
 unsigned char Output[200] = {0};
 short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
-fwrite(&Bytes, sizeof(short), 1, fout);
-fwrite(Output, sizeof(char), Bytes, fout);
+if (CurrentBufferPosition + Bytes >= MaxBufferSize - 1) {
+fwrite(Buffer, CurrentBufferPosition, 1, fout);
+bzero(Buffer, MaxBufferSize);
+CurrentBufferPosition = 0;
+}
+memcpy(&Buffer[CurrentBufferPosition], &Bytes, sizeof(short));
+CurrentBufferPosition += sizeof(short);
+memcpy(&Buffer[CurrentBufferPosition], Output, Bytes);
+CurrentBufferPosition += Bytes;
 }
 }
