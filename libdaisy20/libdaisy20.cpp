@@ -8,6 +8,8 @@ This library is released under the same license as the rest of this package.
 #include "libdaisy20.h"
 #include <cstdio>
 #include <iostream>
+#include <cstdlib>
+#include <strings.h>
 #include <iconv.h>
 using namespace std;
 namespace ABF {
