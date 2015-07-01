@@ -1,4 +1,5 @@
-/* LIBDAISY, Version 2.0
+/* $Id$
+LIBDAISY, Version 2.0
 Copyright (C) 2010, 2011, 2012, 2013, 2014 Peter Laursen.
 
 This is to be a replacement for the old LibDaisy library. It is written mainly to improve and (I hope) simplify getting information out of Daisy books.
