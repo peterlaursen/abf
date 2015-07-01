@@ -12,6 +12,9 @@ This library is released under the same license as the rest of this package.
 #include <cstdlib>
 #include <strings.h>
 #include <iconv.h>
+#ifdef FREEBSD
+#include <sys/param.h>
+#endif
 using namespace std;
 namespace ABF {
 DaisyBook::DaisyBook(char* SpecifiedPath): Path(SpecifiedPath), Volumes(0) {
@@ -114,7 +117,21 @@ cout << "TempTitle: " << TempTitle << ", Author: " << TempAuthor << endl;
 int TempAuthorLength = Author.length()+1;
 char* DestBuffer = new char[TempTitleLength*2];
 char* Dst = DestBuffer;
+#ifdef FREEBSD
+#if __FreeBSD__ == 10
+#if __FreeBSD_version < 1001514 
+const char* src = TempTitle;
+#endif
+#endif
+#if __FreeBSD__ == 11
+#if __FreeBSD_version >= 1100069
 char* src = TempTitle;
+#endif
+#endif
+#else /* Not defined FREEBSD */
+char* src = TempTitle;
+#endif
+
 size_t SrcLeft = TempTitleLength;
 size_t DstLeft = TempTitleLength*2;
 iconv(Iconv, &src, &SrcLeft,&Dst, &DstLeft);
