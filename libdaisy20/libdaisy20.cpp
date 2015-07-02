@@ -121,11 +121,16 @@ char* Dst = DestBuffer;
 #if __FreeBSD__ == 10
 #if __FreeBSD_version < 1001514 
 const char* src = TempTitle;
+#else
+
+char* src = TempTitle;
 #endif
 #endif
 #if __FreeBSD__ == 11
 #if __FreeBSD_version >= 1100069
 char* src = TempTitle;
+#else
+const char* src = TempTitle;
 #endif
 #endif
 #else /* Not defined FREEBSD */
