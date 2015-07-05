@@ -60,7 +60,7 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
-
+#define OUTSIDE_SPEEX
 #ifdef OUTSIDE_SPEEX
 #include <stdlib.h>
 static void *speex_alloc (int size) {return calloc(size,1);}

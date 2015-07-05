@@ -40,6 +40,16 @@
 #define SPEEX_RESAMPLER_H
 #define OUTSIDE_SPEEX
 #define RANDOM_PREFIX abf
+#define FLOATING_POINT
+#ifdef WIN32
+#ifdef BUILD_DLL
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT __declspec(dllimport)
+#endif
+#else
+#define EXPORT
+#endif
 
 #ifdef OUTSIDE_SPEEX
 
