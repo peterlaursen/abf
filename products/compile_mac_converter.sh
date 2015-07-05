@@ -1,1 +1,0 @@
-g++ -I ../libabf/ -I ../libdaisy/ -I /opt/local/include/ -I /usr/local/include/ -L/opt/local/lib -L/usr/local/lib -laudiere -lspeex -lspeexdsp ../libdaisy/libdaisy.cpp ../libabf/libabf.cpp  ../libabf/functions.cpp  converter.cpp -o converter
