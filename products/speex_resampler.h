@@ -39,9 +39,8 @@
 #ifndef SPEEX_RESAMPLER_H
 #define SPEEX_RESAMPLER_H
 #define OUTSIDE_SPEEX
-#define SPX_RESAMPLE_EXPORT
 #define RANDOM_PREFIX abf
-#define FLOATING_POINT
+
 #ifdef OUTSIDE_SPEEX
 
 /********* WARNING: MENTAL SANITY ENDS HERE *************/
@@ -87,11 +86,7 @@
       
 #else /* OUTSIDE_SPEEX */
 
-#ifdef _BUILD_SPEEX
-# include "speex_types.h"
-#else
-# include <speex/speex_types.h>
-#endif
+#include "speexdsp_types.h"
 
 #endif /* OUTSIDE_SPEEX */
 
