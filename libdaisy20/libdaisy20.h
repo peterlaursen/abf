@@ -16,6 +16,7 @@ This library is released under the same license as the rest of this package.
 #endif
 #else
 #define SHARED
+#include <strings.h>
 #endif
 #include <string>
 #include <vector>
