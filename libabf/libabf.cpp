@@ -163,7 +163,7 @@ Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
 Buffer = new unsigned char[MaxBufferSize];
-bzero(Buffer, MaxBufferSize);
+memset(Buffer, '\0', MaxBufferSize);
 fout = fopen(Filename, "wb+");
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
@@ -218,7 +218,7 @@ void AbfEncoder::WriteSection() {
 static int CurrentSection = 0;
 if (CurrentBufferPosition > 0) {
 fwrite(Buffer, CurrentBufferPosition, 1, fout);
-bzero(Buffer, MaxBufferSize);
+memset(Buffer, '\0', MaxBufferSize);
 CurrentBufferPosition = 0;
 }
 int Position = ftell(fout);
@@ -234,7 +234,7 @@ unsigned char Output[200] = {0};
 short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
 if (CurrentBufferPosition + Bytes >= MaxBufferSize - 1) {
 fwrite(Buffer, CurrentBufferPosition, 1, fout);
-bzero(Buffer, MaxBufferSize);
+memset(Buffer, '\0', MaxBufferSize);
 CurrentBufferPosition = 0;
 }
 memcpy(&Buffer[CurrentBufferPosition], &Bytes, sizeof(short));
