@@ -7,13 +7,14 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#ifndef WIN32
 #include "../libabf/libabf.h"
+#ifndef WIN32
 #include <unistd.h>
 #include <signal.h>
 #include <dirent.h>
 #else
-#include "../libabf/libabf-win.h"
+#include <windows.h>
+#include "../libdaisy20/scandir.h"
 #endif
 #include <sys/stat.h>
 #include <opus/opus.h>
@@ -84,7 +85,12 @@ AE.SetAuthor(Author.c_str());
 AE.SetTime(Time.c_str());
 AE.SetNumSections(ListLength-2);
 AE.WriteHeader();
+#ifdef WIN32
+SetCurrentDirectory(argv[1]);
+
+#else
 chdir(argv[1]);
+#endif
 unsigned short Files = 2;
 while (Files < ListLength) {
 
