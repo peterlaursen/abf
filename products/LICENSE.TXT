@@ -1,11 +1,15 @@
+$Id$
 		ABF PRODUCTS
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 http://tdlsoftware.net/abf
 
 ABF LICENSE:
 
-The products contained in this setup package is distributed under the revised BSD license. It matches the Speex license.
-Mpglib is used in this package. mpglib is released under the LGPL 2.1 license. The licenses are below:
+The products (ABF Player, ABF Converter, Folderconverter) contained in this setup package is distributed under the revised BSD license. It matches the Speex license.
+libmpg123 is used in this package. libmpg123 is released under the LGPL 2.1 license. The licenses are below:
+
+You can obtain libmpg123 from
+http://mpg123.de
 
 ---SPEEX LICENSE---
 
