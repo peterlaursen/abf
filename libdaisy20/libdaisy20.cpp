@@ -10,7 +10,6 @@ This library is released under the same license as the rest of this package.
 #include <cstdio>
 #include <iostream>
 #include <cstdlib>
-#include <strings.h>
 #include <iconv.h>
 #ifdef FREEBSD
 #include <sys/param.h>
@@ -122,7 +121,6 @@ char* Dst = DestBuffer;
 #if __FreeBSD_version < 1001514 
 const char* src = TempTitle;
 #else
-
 char* src = TempTitle;
 #endif
 #endif
@@ -134,9 +132,12 @@ const char* src = TempTitle;
 #endif
 #endif
 #else /* Not defined FREEBSD */
+#ifdef WIN32
+const char* src = TempTitle;
+#else /* Everything but FreeBSD and WIndows, apparently */
 char* src = TempTitle;
 #endif
-
+#endif
 size_t SrcLeft = TempTitleLength;
 size_t DstLeft = TempTitleLength*2;
 iconv(Iconv, &src, &SrcLeft,&Dst, &DstLeft);
