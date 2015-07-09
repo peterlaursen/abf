@@ -202,7 +202,6 @@ fwrite(&NumMinutes, 1, sizeof(short), fout);
 fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
 fseek(fout, IndexTableStartPosition, SEEK_SET);
 for (int i = 0; i < MinutePositions.size(); i++) fwrite(&MinutePositions[i], 1, sizeof(int), fout);
-printf("Inside destructor. We are to write %d minute positions.\n", MinutePositions.size());
 fclose(fout);
 opus_encoder_destroy(Encoder);
 delete[] Buffer;
@@ -273,7 +272,6 @@ CurrentBufferPosition += Bytes;
 if (FramesEncoded % 3000 == 0) {
 int Position = ftell(fout)+CurrentBufferPosition;
 MinutePositions.push_back(Position);
-printf("LIBABF: Encoded 1 minute, position %d, FramesEncoded: %d\n", Position, FramesEncoded);
 }
 }
 }
