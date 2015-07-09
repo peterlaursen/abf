@@ -49,19 +49,25 @@ if (PL.GetTotalItems() == 0) return;
 }
 
 bool JumpToTime(AbfDecoder& AD) {
-cout << "Currently not implemented for the new ABF format." << endl;
+if (AD.GetMajor() == 2 && AD.GetMinor() != 1) {
+cout << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
+cout << "You must re-encode with a supported encoder in order to get this ability." << endl;
+return false;
+}
 
-/*
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
-cout << endl << "Type in the position you want to go to in minutes: " << endl;
-int Minutes;
+cout << endl << "Type in the position you want to go to in minutes: (1-" << AD.GetMinutes() << "): " << endl;
+int Minutes = 0;
 cin >> Minutes;
 // Clear cin (this is a bad hack!). Turn our minutes into seconds
 cin.ignore(10000, '\n');
-return AD.GoToPosition(Minutes);
-*/
+if (Minutes > AD.GetMinutes()) {
+cout << "Error, the book isn't that long." << endl;
 return false;
+}
+
+return AD.GoToPosition(--Minutes);
 }
 #ifdef WIN32
 void Thread(void* Filename) {
@@ -154,7 +160,10 @@ PS = Playing;
 }
 if (PS == GoTime) {
 Device->Stop();
-if (!JumpToTime(AD)) continue;
+if (!JumpToTime(AD)) {
+PS = Playing;
+continue;
+}
 // Set current section
 int Position = AD.ftell();
 for (int i = 0; i <= AD.GetNumSections(); i++) {
