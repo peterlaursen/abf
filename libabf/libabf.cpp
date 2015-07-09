@@ -10,10 +10,8 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 
 #include <cstdio>
 #include <cstring>
-#ifndef WIN32
 #include "libabf.h"
-#else
-#include "libabf-win.h"
+#ifdef WIN32
 #ifdef BUILD_DLL
 #pragma comment(lib, "opus.lib")
 #pragma comment(lib, "celt.lib")

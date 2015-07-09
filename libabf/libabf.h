@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Copyright (C) 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This is our interface to our ABF library. Currently, we focus on upgrading our format slightly, so our player and other things may catch up as time progresses.
 For all the previous work on ABF, see /branches/libabf-1.0.
@@ -21,7 +21,8 @@ That library is no longer updated and this library is incompatible with it.
 #define SHARED
 #endif
 namespace ABF {
-using namespace std;
+using std::FILE;
+using std::string;
 class SHARED AbfDecoder {
 int* Array = nullptr;
 OpusDecoder* Decoder = nullptr;
@@ -31,7 +32,10 @@ bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
-unsigned short HeaderSize = 0, Major = 0, Minor = 0, NumSections = 0;
+unsigned short HeaderSize = 0;
+unsigned short Major = 0;
+unsigned short Minor = 0;
+unsigned short NumSections = 0;
 void ReadHeader();
 bool Validate();
 public:
@@ -64,7 +68,9 @@ class SHARED AbfEncoder {
 OpusEncoder* Encoder = nullptr;
 FILE* fout = nullptr;
 unsigned short HeaderSize = 0;
-string _Title, _Author, _Time;
+string _Title;
+string _Author;
+string _Time;
 unsigned short _NumSections = 0;
 unsigned char* Buffer = nullptr;
 // Have a max size constant defined here.
