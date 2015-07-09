@@ -52,7 +52,7 @@ fread(&HeaderSize, sizeof(short), 1, fin);
 fread(&Major, sizeof(short), 1, fin);
 fread(&Minor, sizeof(short), 1, fin);
 
-if (strcmp(Buffer, "ABF") == 0 && HeaderSize > 0 && Major == 2 && Minor == 0) _IsValid = true;
+if (strcmp(Buffer, "ABF") == 0 && HeaderSize > 0 && Major == 2 && Minor >= 0) _IsValid = true;
 else {
 if (Major == 1) {
 printf("This file was encoded with an older version of libabf. We do not support that version of the format anymore. Please re-convert your ABF book.\n");
@@ -80,6 +80,15 @@ Time = new char[TitleLength+1];
 fread(Time, 1, TitleLength, fin);
 Time[TitleLength] = '\0';
 fread(&NumSections, sizeof(short), 1, fin);
+if (Major == 2 && Minor == 1) {
+fread(&NumMinutes, 1, sizeof(short), fin);
+fread(&IndexTableStartPosition, 1, sizeof(int), fin);
+MinutePositions = new int[NumMinutes];
+int CurrentPosition = ftell();
+fseek(fin, IndexTableStartPosition, SEEK_SET);
+for (int i = 0; i < NumMinutes; i++) fread(&MinutePositions[i], 1, sizeof(int), fin);
+fseek(fin, CurrentPosition, SEEK_SET);
+}
 Array = new int[NumSections];
 for (unsigned short i = 0; i < NumSections; i++) {
 fread(&Array[i], sizeof(int), 1, fin);
@@ -104,7 +113,11 @@ const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
 const unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
-bool AbfDecoder::GoToPosition(int minutes) { return false; }
+bool AbfDecoder::GoToPosition(int minutes) { 
+
+fseek(fin, MinutePositions[minutes], SEEK_SET);
+return true;
+ }
 
 /* This function will not currently work - we therefore uncomment it until we can look at it more closely.
 
@@ -143,6 +156,11 @@ fclose();
 _IsOpen = false;
 _IsValid = false;
 }
+if (Major == 2 && Minor == 1) {
+delete[] MinutePositions;
+MinutePositions = nullptr;
+}
+
 opus_decoder_destroy(Decoder);
 delete[] Title;
 Title = nullptr;
@@ -175,6 +193,16 @@ return;
 AbfEncoder::~AbfEncoder() {
 if (CurrentBufferPosition > 0)
 fwrite(Buffer, CurrentBufferPosition, 1, fout);
+// Let's write the last bits of the file so that we can finalize it before we close it.
+IndexTableStartPosition = ftell(fout);
+int StartPosition = HeaderSize - sizeof(unsigned short) - sizeof(int);
+fseek(fout, StartPosition, SEEK_SET);
+NumMinutes = MinutePositions.size();
+fwrite(&NumMinutes, 1, sizeof(short), fout);
+fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
+fseek(fout, IndexTableStartPosition, SEEK_SET);
+for (int i = 0; i < MinutePositions.size(); i++) fwrite(&MinutePositions[i], 1, sizeof(int), fout);
+printf("Inside destructor. We are to write %d minute positions.\n", MinutePositions.size());
 fclose(fout);
 opus_encoder_destroy(Encoder);
 delete[] Buffer;
@@ -190,7 +218,7 @@ rewind(fout);
 fwrite("ABF", 1, 3, fout);
 HeaderSize = 0;
 fwrite(&HeaderSize, sizeof(short), 1, fout);
-unsigned short Major = 2, Minor = 0;
+unsigned short Major = 2, Minor = 1;
 fwrite(&Major, sizeof(short), 1, fout);
 fwrite(&Minor, sizeof(short), 1, fout);
 unsigned short Length = _Title.length();
@@ -203,6 +231,8 @@ Length = _Time.length();
 fwrite(&Length, sizeof(short), 1, fout);
 fwrite(_Time.c_str(), 1, Length, fout);
 fwrite(&_NumSections, sizeof(short), 1, fout);
+fwrite(&NumMinutes, 1, sizeof(unsigned short), fout);
+fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
 HeaderSize = ftell(fout);
 fseek(fout, 3, SEEK_SET);
 fwrite(&HeaderSize, sizeof(short), 1, fout);
@@ -239,5 +269,11 @@ memcpy(&Buffer[CurrentBufferPosition], &Bytes, sizeof(short));
 CurrentBufferPosition += sizeof(short);
 memcpy(&Buffer[CurrentBufferPosition], Output, Bytes);
 CurrentBufferPosition += Bytes;
+++FramesEncoded;
+if (FramesEncoded % 3000 == 0) {
+int Position = ftell(fout)+CurrentBufferPosition;
+MinutePositions.push_back(Position);
+printf("LIBABF: Encoded 1 minute, position %d, FramesEncoded: %d\n", Position, FramesEncoded);
+}
 }
 }
