@@ -1,3 +1,9 @@
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+
+This file contains the class implementation of the OSS API that's in use on FreeBSD.
+If your system uses another audio system, derive from the AudioSystem class and make your own implementation.
+*/
 #include <stdio.h>
 #include "unixaudio.h"
 #include "audiosystem.h"
@@ -7,7 +13,7 @@
 #include <sys/soundcard.h>
 #include <fcntl.h>
 #include <unistd.h>
-
+namespace ABF {
 UnixAudio::UnixAudio() {
 Device = open("/dev/dsp", O_WRONLY);
 int Format = AFMT_S16_NE;
@@ -48,4 +54,4 @@ LeftVolume = RightVolume -= 5;
 Volume = LeftVolume|(RightVolume<<8);
 ioctl(Device, SNDCTL_DSP_SETPLAYVOL, &Volume);
 }
-
+}

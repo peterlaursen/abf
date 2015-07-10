@@ -16,12 +16,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include "audiosystem.h"
 #include <iostream>
 #include <cstdio>
-#ifndef WIN32
 #include "../libabf/libabf.h"
-#else
-#include "../libabf/libabf-win.h"
-#endif
-
 #ifdef WIN32
 #include <process.h>
 #include <conio.h>

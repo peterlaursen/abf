@@ -1,18 +1,17 @@
-/* PLAYER.H
-Copyright (C) 2009 Peter Laursen.
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This file contains various declarations that are used within the player.
 */
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "playlist.h"
+#include "../libabf/libabf.h"
 #ifdef WIN32
 #include <windows.h>
 #include "dsaudio.h"
-#include "../libabf/libabf-win.h"
 #else
 #include "unixaudio.h"
-#include "../libabf/libabf.h"
 #endif
 
 #ifdef WIN32

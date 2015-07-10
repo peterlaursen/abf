@@ -1,6 +1,6 @@
 #include "dsaudio.h"
 #include <dsound.h>
-#include "../libabf/libabf-win.h"
+#include "../libabf/libabf.h"
 #include <windows.h>
 #include <process.h>
 #include "player.h"
@@ -9,8 +9,8 @@
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
 #pragma comment(lib, "dxguid.lib")
-using namespace ABF;
 using namespace std;
+namespace ABF {
 void DSAudio::SetupWindow() {
 WNDCLASS Class;
 Class.style = 0;
@@ -118,3 +118,4 @@ DestroyWindow(WindowHandle);
 Device->Release();
 }
 int DSAudio::LastPosition = 0;
+}

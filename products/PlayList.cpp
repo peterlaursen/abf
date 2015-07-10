@@ -1,11 +1,12 @@
-/* PLAYLIST.CPP, Version 1.0.
-Copyright (C) 2009 Peter Laursen.
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This file contains the implementation of a rough playlist class.
 */
 #include <iostream>
 #include "playlist.h"
 using namespace std;
+namespace ABF {
 void PlayList::Add(string Item) { Items.push_back(Item); ++NumberOfItems; }
 void PlayList::Add(char* Item) {
 string MyItem = Item;
@@ -46,3 +47,4 @@ char* PlayList::GetCurrentBookName() {
 return (char*)Items[CurrentItem].c_str();
 }
 int PlayList::GetTotalItems() { return NumberOfItems; }
+}

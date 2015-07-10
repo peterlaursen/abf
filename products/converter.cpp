@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
 If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
@@ -8,12 +8,10 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdlib>
 #include <cmath>
 #include "../libdaisy20/libdaisy20.h"
-#ifndef WIN32
 #include "../libabf/libabf.h"
+#ifndef WIN32
 #include <unistd.h>
 #include <signal.h>
-#else
-#include "../libabf/libabf-win.h"
 #endif
 #include <sys/stat.h>
 #include <opus/opus.h>

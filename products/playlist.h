@@ -1,19 +1,15 @@
-/* PLAYLIST.CPP, Version 1.0.
-Copyright (C) 2009 Peter Laursen.
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This contains a rough implementation of a playlist class.
 */
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
-#ifndef WIN32
 #include "../libabf/libabf.h"
-#else
-#include "../libabf/libabf-win.h"
-#endif
-
 #include "player.h"
 #include <string>
 #include <vector>
+namespace ABF {
 class PlayList {
 std::vector<std::string> Items;
 int NumberOfItems;
@@ -30,5 +26,6 @@ char* GetCurrentBookName();
 int GetTotalItems();
 
 };
+}
 #endif
 

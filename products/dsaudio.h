@@ -1,9 +1,16 @@
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+
+This file contains the definition of DSAudio - the audio system implementation available on Windows.
+*/
+
 #ifndef DSAUDIO_H
 #define DSAUDIO_H
 #include <windows.h>
 #include <dsound.h>
-#include "../libabf/libabf-win.h"
+#include "../libabf/libabf.h"
 #include "audiosystem.h"
+namespace ABF {
 class DSAudio: public AudioSystem {
 static int LastPosition;
 HWND WindowHandle;
@@ -23,4 +30,5 @@ void Stop();
 void IncreaseVolume() {}
 void DecreaseVolume() {}
 };
+}
 #endif
