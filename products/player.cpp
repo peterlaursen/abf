@@ -1,5 +1,5 @@
 /* $Id$
-$Copyright$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
 
 This is the main player for our PC platforms.
 This contains code that interfaces with our libabf library, most specifically our AbfDecoder.

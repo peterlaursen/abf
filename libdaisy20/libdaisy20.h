@@ -1,8 +1,7 @@
 /* $Id$
-$Copyright$
-
 LIBDAISY, Version 2.0
-Originally written in 2010 by Peter Laursen.
+Copyright (C) 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+
 This is to be a replacement for the old LibDaisy library. It is written mainly to improve and (I hope) simplify getting information out of Daisy books.
 
 This library is released under the same license as the rest of this package.

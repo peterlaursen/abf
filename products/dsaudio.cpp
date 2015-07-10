@@ -1,9 +1,8 @@
 /* $Id$
-$Copyright$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
-This contains an implementation of the AudioSystem class for the Windows platform.
+This implements our AudioSystem class for Windows.
 */
-
 #include "dsaudio.h"
 #include <dsound.h>
 #include "../libabf/libabf.h"

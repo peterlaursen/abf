@@ -1,5 +1,5 @@
 /* $Id$
-$Copyright$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
 If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
