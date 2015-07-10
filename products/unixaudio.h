@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+$Copyright$
 
 This contains the class definition for the OSS API in use on FreeBSD.
 If your system supports another API, make an implementation which you derive from the AudioSystem class.

@@ -1,3 +1,9 @@
+/* $Id$
+$Copyright$
+
+This contains an implementation of the AudioSystem class for the Windows platform.
+*/
+
 #include "dsaudio.h"
 #include <dsound.h>
 #include "../libabf/libabf.h"
