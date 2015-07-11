@@ -108,7 +108,11 @@ if (feof()) return;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
 }
 int AbfDecoder::ftell() const { return std::ftell(fin); }
-bool AbfDecoder::feof() const { return std::feof(fin); }
+bool AbfDecoder::feof() const { 
+if (Major == 2 && Minor >= 1)
+return (ftell() >= IndexTableStartPosition)?true:false; else return std::feof(fin);
+}
+
 const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
