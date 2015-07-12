@@ -19,9 +19,9 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
-#include "speex_resampler.h"
+#include "../products/speex_resampler.h"
 #include <iostream>
-
+using namespace std;
 using namespace ABF;
 void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
 static short MemoryBuffer[320] = {0};
