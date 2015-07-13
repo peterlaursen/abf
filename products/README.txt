@@ -2,12 +2,21 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.31
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Version 0.30-Alpha4
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 NOTE:
 
 This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
+
+What's New in 0.30-Alpha4?
+
+* Re-implemented the ability to seek to a specific minute in ABF audio books.
+* As a result of reimplementation of that feature, the format minor version has been updated to 2.1. In order to be able to seek within the files, you must re-encode your audio books.
+* All platforms now encode straight to memory without the use of temporary files. This means that we write far less to the storage media.
+* The winamp plugin now works with the new format, which it previously didn't do.
+* The previously experimental program folderconverter is now included in the main distribution.
+* Because of lack of interest and support, our graphical converter no longer exists.
 
 What's New in version 0.30-Alpha3?
 
