@@ -1,4 +1,7 @@
-/*
+/* $Id$
+Copyright (C) 2009-2015 Peter Laursen.
+Code taken from in_raw.cpp
+
 ** Example Winamp .ABF input plug-in
 ** Copyright (c) 2009 Peter Laursen.
 **
@@ -12,8 +15,6 @@
 #include <libabf.h>
 #include "..\products\database.h"
 using namespace ABF;
-// This version of the plugin uses specially built libraries, picking and choosing where necessary. This is just a playback plugin, so the converter functions supplied with the original LIBABF library are not used here.
-#pragma comment(lib, "libspeex.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "kernel32.lib")
 
@@ -58,7 +59,7 @@ void config(HWND hwndParent)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.02\r\nCopyright (C) 2009 Peter Laursen\r\n\r\nThis plugin only plays ABF books. It does not allow you to navigate or anything else. For more information, visit http://mosedal.net/abf/\r\n\r\nBased on version 0.30-Alpha1 of LibABF.",
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.03\r\nCopyright (C) 2009-2015 Peter Laursen\r\n\r\nThis plugin only plays ABF 2.0 books. It does not allow you to navigate or anything else. For more information, visit http://tdlsoftware.net/abf/\r\n\r\nBased on version 2.1 of LibABF.",
 		"About ABF Winamp Player",MB_OK);
 }
 
@@ -232,7 +233,7 @@ void getfileinfo(const char *filename, char *title, int *length_in_ms)
 	if (!filename || !*filename)  // currently playing file
 	{
 		if (length_in_ms) *length_in_ms=getlength();
-		if (title) title = AD->GetTitle();
+		if (title) title = (char*)AD->GetTitle();
 	}
 	else // some other file
 	{
@@ -251,7 +252,7 @@ void getfileinfo(const char *filename, char *title, int *length_in_ms)
 		if (title) // get non path portion of filename
 		{
 AbfDecoder Temp((char*)filename);
-title = Temp.GetTitle();
+title = (char*)Temp.GetTitle();
 }
 	}
 }
@@ -383,7 +384,7 @@ return 0;
 In_Module mod = 
 {
 	IN_VER,	// defined in IN2.H
-	"ABF Plugin Player v0.02"
+	"ABF Plugin Player v0.03"
 	// winamp runs on both alpha systems and x86 ones. :)
 #ifdef __alpha
 	"(AXP)"
