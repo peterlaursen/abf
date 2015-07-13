@@ -12,7 +12,7 @@ Code taken from in_raw.cpp
 #include <windows.h>
 
 #include <winamp/in2.h>
-#include <libabf.h>
+#include "..\libabf\libabf.h"
 #include "..\products\database.h"
 using namespace ABF;
 #pragma comment(lib, "user32.lib")
@@ -169,7 +169,7 @@ void stop() {
 	
 
 // Clean up ABF stuff.
-int LastPosition = AD->ftell() - 7200;
+int LastPosition = AD->ftell();
 if (LastPosition < 0) LastPosition = 0;
 if (!AD->feof()) SaveLastPosition(AD->GetTitle(), LastPosition);
 else DeletePosition(AD->GetTitle());
