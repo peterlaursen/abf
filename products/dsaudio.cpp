@@ -90,8 +90,7 @@ short Decoded[320];
 for (int i = 0; i < 16000; i+= 320) {
 AD->Decode(Decoded);
 for (int j = 0; j < 320; j++) {
-float Sample = Decoded[j];
-Sample *= 1.3;
+float Sample = (float)Decoded[j]*1.75;
 Sample = (Sample > 32767.0)?32767.0:Sample;
 Sample = (Sample < -32768.0)?-32768.0:Sample;
 DirectXBuffer[i+j] = (short)Sample;
