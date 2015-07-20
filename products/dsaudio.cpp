@@ -89,7 +89,13 @@ Buffer->Lock(0, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
 short Decoded[320];
 for (int i = 0; i < 16000; i+= 320) {
 AD->Decode(Decoded);
-for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
+for (int j = 0; j < 320; j++) {
+float Sample = Decoded[j];
+Sample *= 1.3;
+Sample = (Sample > 32767.0)?32767.0:Sample;
+Sample = (Sample < -32768.0)?-32768.0:Sample;
+DirectXBuffer[i+j] = (short)Sample;
+}
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
 if (PS == Quit) {
