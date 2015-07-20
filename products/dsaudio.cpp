@@ -76,7 +76,7 @@ CreateBasicBuffer(Device, &Buffer);
 bool Initialized = false;
 	while (!AD->feof() && PS == Playing) {
 if (PS == Playing)
-DSAudio::LastPosition = AD->ftell() - 7200;
+DSAudio::LastPosition = AD->ftell();
 if (LastPosition < 0) LastPosition = 0;
 DWORD PlayPosition = 0;
 do {
