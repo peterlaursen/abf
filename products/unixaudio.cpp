@@ -29,6 +29,14 @@ IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
 short Buffer[320];
 AD->Decode(Buffer);
+for (int i = 0; i < 320; i++) {
+float Sample = (float)Buffer[i];
+Sample *= 1.75;
+if (Sample > 32767.0f) Sample = 32767.0;
+if (Sample < -32768.0) Sample = -32768.0;
+Buffer[i]=(short)Sample;
+}
+
 write(Device, Buffer, sizeof(Buffer));
 }
 }
