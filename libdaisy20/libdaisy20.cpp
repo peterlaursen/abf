@@ -89,11 +89,15 @@ Volumes = atoi(TmpString.substr(Position).c_str());
 CurrentVolume = atoi(TmpString.substr(0,TmpString.find_first_of(" ")).c_str());
 }
 else if (i == 5) {
+#ifdef DEBUG
 cout << "Language: " << Tag.substr(Position, Position2 - Position) << endl;
+#endif
 Language = Tag.substr(Position, Position2 - Position);
 }
 else if (i == 6) {
+#ifdef DEBUG
 cout << "Character set: " << Tag.substr(Position, Position2-Position) << endl;
+#endif
 CharSet = Tag.substr(Position, Position2 - Position);
 }
 
