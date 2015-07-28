@@ -125,15 +125,6 @@ WHAT TO DO NEXT:
 
 Your DAISY book should take some time to convert. When it has finished, you can open the audio book in the ABF player and listen to it.
 
-Experimental Graphical Converter:
-
-On Windows, a graphical converter has been developed. It eases the burden for Windows people who also need to work with audio books.
-The Experimental Graphical Converter is started by going to the Start Menu, Programs Folder, ABF Products and choosing Graphical Converter.
-The program consists of a menu bar. The menu contains two items:
-"Convert" and "Help". The "Convert" menu enables you to convert either a folder containing various files (mp3, ogg or wav) or daisy books.
-If you choose to convert a Daisy book, you only have to choose where it's stored and then choose the output ABF file. This is done via standard Windows dialogs.
-If you choose to convert a folder, you are asked to type in a title, the book's author and how long the files are in the folder. None of this information is important, but remember that it is displayed in the player when you play the book.
-
 THE PLAYER:
 
 This is a very simple player for the ABF audio book format. We do not support any other formats, neither is support for them planned.
@@ -174,21 +165,27 @@ LIMITATIONS:
 
 As with every suite of programs, there are some limitations. These limitations are currently known and we are working to overcome them. Below they are:
 
-* The converter cannot yet convert multi-volume DAISY books. We are working on this.
-* The converter can convert DAISY 2.02 books only. We are also working on this one.
-* The player cannot save more than one position per audio book.
+* The converter can convert DAISY 2.02 books only. Since I have limited material in Daisy 3 (the current standard as of this writing), I cannot implement it.
+* We currently do not support bookmarks.
 * The products for Ubuntu suffer from terrible integration with Pulceaudio. If you must use these, the developers recommend you use Ubuntu 8.10 since it gives a much nicer experience for everyone. The developers would also recommend FreeBSD. Its audio system is very well-behaved when it comes to ABF.
 
 ACKNOWLEDGEMENTS:
 
-We, at ABF, thank the following projects and people:
+We thank the following projects and people:
 
-http://speex.org - The audio format we use.
-http://audiere.sf.net - The audio library we use.
+http://opus-codec.org: Opus, the codec we currently use for encoding our audio books.
+
+https://github.com - For hosting this mirror of parts of the repository.
+http://www.mpg123.de - For providing us with LGPL'd MP3 decoding.
+http://speex.org - The audio format we previously used for encoding our Audio books. You served well.
+http://audiere.sf.net - The audio library we previously used for playback. Nowadays, we use native audio wherever possible.
+http://www.freebsd.org - Providing us a solid base operating system to build on.
+
+
 
 CONTACTING US:
 
 To contact us, please visit
 
-http://mosedal.net/abf
+http://tdlsoftware.net/abf
 
