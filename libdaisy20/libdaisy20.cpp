@@ -121,6 +121,9 @@ int TempAuthorLength = Author.length()+1;
 char* DestBuffer = new char[TempTitleLength*2];
 char* Dst = DestBuffer;
 #ifdef FREEBSD
+#if __FreeBSD__ < 10
+char* src = nullptr;
+#endif
 #if __FreeBSD__ == 10
 #if __FreeBSD_version < 1001514 
 const char* src = TempTitle;
