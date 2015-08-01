@@ -3,7 +3,7 @@ Copyright (C) 2009-2015 Peter Laursen.
 Code taken from in_raw.cpp
 
 ** Example Winamp .ABF input plug-in
-** Copyright (c) 2009 Peter Laursen.
+** Copyright (c) 2009-2015 Peter Laursen.
 **
 **  This plugin is heavily based on the .RAW input plugin that comes with the Winamp SDK. I am pleased to see that the plugin works for Winamp as it is now, but several things can be improved.
 **
@@ -59,7 +59,7 @@ void config(HWND hwndParent)
 }
 void about(HWND hwndParent)
 {
-	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.03\r\nCopyright (C) 2009-2015 Peter Laursen\r\n\r\nThis plugin only plays ABF 2.0 books. It does not allow you to navigate or anything else. For more information, visit http://tdlsoftware.net/abf/\r\n\r\nBased on version 2.1 of LibABF.",
+	MessageBox(hwndParent,"ABF Plugin for Winamp 5.5, Version 0.03\r\nCopyright (C) 2009-2015 Peter Laursen\r\n\r\nThis plugin only plays ABF 2.0 or later books. It does not allow you to navigate or anything else. For more information, visit http://tdlsoftware.net/abf/\r\n\r\nBased on version 0.30-Alpha4 of LibABF.",
 		"About ABF Winamp Player",MB_OK);
 }
 
