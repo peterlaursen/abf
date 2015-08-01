@@ -384,7 +384,7 @@ return 0;
 In_Module mod = 
 {
 	IN_VER,	// defined in IN2.H
-	"ABF Plugin Player v0.03"
+	"ABF Plugin Player v0.30Alpha4"
 	// winamp runs on both alpha systems and x86 ones. :)
 #ifdef __alpha
 	"(AXP)"
