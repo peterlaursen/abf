@@ -98,6 +98,13 @@ Mp3File = mpg123_new(NULL, &err);
 AE.WriteSection();
 mpg123_open(Mp3File, FileList[Files]->d_name);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
+if (Channels != 1) {
+cout << "The file " << FileList[Files]->d_name << " has " << Channels << " channels. Convert it to mono first." << endl;
+mpg123_close(Mp3File);
+mpg123_delete(Mp3File);
+++Files;
+continue;
+}
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
 // Let's try to create an encoder.
