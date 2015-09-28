@@ -70,6 +70,7 @@ if (Error) {
 cout << "An error must have occurred: " << Error << endl;
 sqlite3_free(Error);
 }
+sqlite3_close(DB);
 return;
 }
 		string Query = "insert into audiobooks values(\"";
@@ -92,6 +93,7 @@ if (!Initialized) Init();
 
 sqlite3_open(DBName.c_str(), &DB);
 sqlite3_exec(DB, Query.c_str(), Callback2, p_lastposition, 0);
+sqlite3_close(DB);
 return LastPosition;
 }
 bool DBExists() {
