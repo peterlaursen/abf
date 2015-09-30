@@ -87,15 +87,12 @@ AE.SetNumSections(ListLength-2);
 AE.WriteHeader();
 #ifdef WIN32
 SetCurrentDirectory(argv[1]);
-
 #else
 chdir(argv[1]);
 #endif
-unsigned short Files = 2;
+unsigned short Files = 2; // Bypass . and ..
 while (Files < ListLength) {
-
 Mp3File = mpg123_new(NULL, &err);
-AE.WriteSection();
 mpg123_open(Mp3File, FileList[Files]->d_name);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 if (Channels != 1) {
@@ -105,6 +102,7 @@ mpg123_delete(Mp3File);
 ++Files;
 continue;
 }
+AE.WriteSection();
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
 // Let's try to create an encoder.
@@ -115,6 +113,9 @@ int ResampledSize=640;
 short* Membuf = new short[320];
 if (!Membuf) {
 printf("Cannot allocate memory.\n");
+mpg123_close(Mp3File);
+mpg123_delete(Mp3File);
+speex_resampler_destroy(Resampler);
 return 1;
 }
 
@@ -134,7 +135,6 @@ MemEncode(AE, Resampled, Processed);
 ++Files;
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
-
 speex_resampler_destroy(Resampler);
 delete [] Membuf;
 }
