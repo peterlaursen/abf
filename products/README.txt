@@ -9,6 +9,11 @@ NOTE:
 
 This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
 
+What's new in next version?
+===
+* Pulseaudio is now supported.
+* Fixed various resource leaks to do with sqlite3 handles. Nothing would have gone wrong in ordinary operations, but if a bug should appear, the handles were not freed properly.
+
 What's New in 0.30-Alpha4?
 
 * Re-implemented the ability to seek to a specific minute in ABF audio books.
