@@ -22,7 +22,7 @@ AudioFormat.format = PA_SAMPLE_S16LE;
 AudioFormat.rate = 16000;
 AudioFormat.channels = 1;
 int Error = 0;
-Device = pa_simple_new(NULL, "abfplayer", PA_STREAM_PLAYBACK, NULL, "ABF Audio Book", &Format, NULL, NULL, &Error); 
+Device = pa_simple_new(NULL, "abfplayer", PA_STREAM_PLAYBACK, NULL, "ABF Audio Book", &AudioFormat, NULL, NULL, &Error); 
 }
 LinuxAudio::~LinuxAudio() { pa_simple_free(Device); }
 void LinuxAudio::Play() {
@@ -31,8 +31,8 @@ while (!AD->feof() && PS == Playing) {
 short Buffer[320];
 AD->Decode(Buffer);
 int Error = 0;
-pa_simple_write(Device, Buffer, sizeof(Buffer), Error);
-pa_simple_drain(Device, Error);
+pa_simple_write(Device, Buffer, sizeof(Buffer), &Error);
+pa_simple_drain(Device, &Error);
 
 }
 }
