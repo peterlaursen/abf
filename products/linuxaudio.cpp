@@ -32,7 +32,6 @@ short Buffer[320];
 AD->Decode(Buffer);
 int Error = 0;
 pa_simple_write(Device, Buffer, sizeof(Buffer), &Error);
-pa_simple_drain(Device, &Error);
 
 }
 }
