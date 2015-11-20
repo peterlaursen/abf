@@ -43,10 +43,16 @@ LastPos++;
 }
 #ifndef WIN32
 static const char* BookFileName;
+static int NumberOfFiles = 0;
+static const char* CurrentFileName = nullptr;
 void Cleanup(int Signal) {
 unlink(BookFileName);
 exit(Signal);
 }
+void ConvertInfo(int Signal) {
+printf("Book consists of %d sections - working with file %s\n", NumberOfFiles, CurrentFileName);
+}
+
 #endif
 int main(int argc, char* argv[]) {
 if (argc != 3) {
@@ -70,6 +76,8 @@ return -1;
 }
 #ifndef WIN32
 signal(SIGINT, &Cleanup);
+signal(SIGINFO, &ConvertInfo);
+
 BookFileName = argv[2];
 #endif
 AbfEncoder AE(argv[2]);
@@ -79,11 +87,14 @@ AE.SetTime(D.GetTotalTime().c_str());
 AE.SetNumSections(D.GetNumSections());
 AE.WriteHeader();
 
+NumberOfFiles = D.GetNumSections();
 unsigned short Files = 0;
 while (Files < D.GetNumSections()) {
 
 Mp3File = mpg123_new(NULL, &err);
 AE.WriteSection();
+CurrentFileName = D.GetSectionFile(Files);
+
 mpg123_open(Mp3File, D.GetSectionFile(Files));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);

@@ -1,3 +1,8 @@
+/* $Id$
+
+This file contains compatibility functions for FreeBSD.
+*/
+
 #include "compat.h"
 #include <stdio.h>
 #include <termios.h>
