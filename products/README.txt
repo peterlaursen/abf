@@ -11,6 +11,7 @@ This is Alpha software. Run at your own risk. This software has not been known t
 
 What's new in next version?
 ===
+* Implemented a SIGINFO handler. We see what file is currently been converted + how many sections are available.
 * Pulseaudio is now supported.
 * Fixed various resource leaks to do with sqlite3 handles. Nothing would have gone wrong in ordinary operations, but if a bug should appear, the handles were not freed properly.
 
