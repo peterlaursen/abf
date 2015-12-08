@@ -45,9 +45,10 @@ if (PL.GetTotalItems() == 0) return;
 }
 
 bool JumpToTime(AbfDecoder& AD) {
+#ifndef WIN32
 termios term;
 cfmakesane(&term);
-
+#endif
 if (AD.GetMajor() == 2 && AD.GetMinor() != 1) {
 cout << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
 cout << "You must re-encode with a supported encoder in order to get this ability." << endl;
@@ -152,10 +153,11 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
+#ifndef WIN32
 termios term;
 cfmakesane(&term);
 tcsetattr(0, TCSANOW, &term);
-
+#endif
 cout << endl << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection + 1 << ": ";
 unsigned short NewSection;
 cin.clear();
@@ -164,8 +166,10 @@ NewSection -= 1;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
+#ifndef WIN32
 cfmakeraw(&term);
 tcsetattr(0, TCSANOW, &term);
+#endif
 PS = Playing;
 }
 if (PS == GoTime) {
@@ -309,11 +313,12 @@ return nullptr;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
+#ifndef WIN32
 termios oldt, newt;
 tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
-
+#endif
 // Open the audio device.
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
@@ -357,6 +362,5 @@ if (PS != Quit)
 cout << endl << "Playlist empty; exitting..." << endl;
 // Ensure our shell character comes on its own line
 cout << endl;
-
 return 0;
 }
