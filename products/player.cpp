@@ -54,8 +54,9 @@ cout << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support se
 cout << "You must re-encode with a supported encoder in order to get this ability." << endl;
 return false;
 }
+#ifndef WIN32
 tcsetattr(0, TCSANOW, &term);
-
+#endif
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: (1-" << AD.GetMinutes() << "): " << endl;
@@ -65,13 +66,16 @@ cin >> Minutes;
 cin.ignore(10000, '\n');
 if (Minutes > AD.GetMinutes()) {
 cout << "Error, the book isn't that long." << endl;
+#ifndef WIN32
 cfmakeraw(&term);
 tcsetattr(0, TCSANOW, &term);
-
+#endif
 return false;
 }
+#ifndef WIN32
 cfmakeraw(&term);
 tcsetattr(0, TCSANOW, &term);
+#endif
 return AD.GoToPosition(--Minutes);
 }
 #ifdef WIN32

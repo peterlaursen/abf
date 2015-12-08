@@ -41,10 +41,10 @@ LastPos++;
 }
 }
 }
-#ifndef WIN32
 static const char* BookFileName;
 static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
+#ifndef WIN32
 void Cleanup(int Signal) {
 unlink(BookFileName);
 exit(Signal);
