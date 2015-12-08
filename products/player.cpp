@@ -10,6 +10,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #else
 #include "unixaudio.h"
 #include "compat.h"
+#include <termios.h>
 #endif
 #include "database.h"
 #include "player.h"
@@ -44,11 +45,15 @@ if (PL.GetTotalItems() == 0) return;
 }
 
 bool JumpToTime(AbfDecoder& AD) {
+termios term;
+cfmakesane(&term);
+
 if (AD.GetMajor() == 2 && AD.GetMinor() != 1) {
 cout << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
 cout << "You must re-encode with a supported encoder in order to get this ability." << endl;
 return false;
 }
+tcsetattr(0, TCSANOW, &term);
 
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 cin.clear();
@@ -59,9 +64,13 @@ cin >> Minutes;
 cin.ignore(10000, '\n');
 if (Minutes > AD.GetMinutes()) {
 cout << "Error, the book isn't that long." << endl;
+cfmakeraw(&term);
+tcsetattr(0, TCSANOW, &term);
+
 return false;
 }
-
+cfmakeraw(&term);
+tcsetattr(0, TCSANOW, &term);
 return AD.GoToPosition(--Minutes);
 }
 #ifdef WIN32
@@ -143,6 +152,10 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
+termios term;
+cfmakesane(&term);
+tcsetattr(0, TCSANOW, &term);
+
 cout << endl << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection + 1 << ": ";
 unsigned short NewSection;
 cin.clear();
@@ -151,6 +164,8 @@ NewSection -= 1;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
+cfmakeraw(&term);
+tcsetattr(0, TCSANOW, &term);
 PS = Playing;
 }
 if (PS == GoTime) {
@@ -294,6 +309,11 @@ return nullptr;
 }
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
+termios oldt, newt;
+tcgetattr(0, &oldt);
+cfmakeraw(&newt);
+tcsetattr(0, TCSANOW, &newt);
+
 // Open the audio device.
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
 char* Filename;
