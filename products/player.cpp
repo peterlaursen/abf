@@ -110,7 +110,7 @@ cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << en
 #ifdef WIN32
 // Put this into a scope of its own so that it vanishes as soon as possible.
 {
-char ConTitle[255];
+char ConTitle[255] = {0};
 GetConsoleTitle(ConTitle, 255);
 string Temp = ConTitle;
 Temp += " - ";
@@ -118,8 +118,8 @@ Temp += AD.GetTitle();
 SetConsoleTitle(Temp.c_str());
 }
 #endif
-short Buffer[320];
-short Buffer1[32000];
+//short Buffer[320];
+//short Buffer1[32000];
 const int* Array = AD.GetSections();
 int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
@@ -133,7 +133,6 @@ break;
 }
 }
 }
-float Volume = 1.0f;
 while (!AD.feof() && PS != Quit) {
 // Ensure that CurrentSection is up-to-date
 if (AD.ftell() > Array[CurrentSection] && AD.ftell() 
