@@ -62,12 +62,6 @@ Content.seekg(0, ios::beg);
 int Position = 0;
 while ((Position = Tag.find(Metadata[i])) == string::npos && !Content.eof()) 
 GetTag();
-if (i != 4  && Content.eof()) {
-throw string("Error: Could not find " + Metadata[i]+"\n");
-IsValid = false;
-
-return false;
-}
 // We have found the requested meta data
 int Position2 = Tag.find("t=\"", Position);
 Position = Position2 + 3;
