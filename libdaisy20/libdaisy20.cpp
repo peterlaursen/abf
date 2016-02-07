@@ -58,10 +58,16 @@ string("\"dc:identifier"),
 string("\"ncc:setInfo"), string("\"dc:language"), string("\"ncc:charset"), };
 for (int i = 0; i < NumMetadata; i++) {
 // First, we'll seek for the title.
+Content.clear();
 Content.seekg(0, ios::beg);
 int Position = 0;
+#ifdef DEBUG
+cout << "Looking for metadata " << Metadata[i] << endl;
+#endif
 while ((Position = Tag.find(Metadata[i])) == string::npos && !Content.eof()) 
 GetTag();
+if (Content.eof()) continue;
+
 // We have found the requested meta data
 int Position2 = Tag.find("t=\"", Position);
 Position = Position2 + 3;
