@@ -106,9 +106,6 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 if (feof()) return;
 
 int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
-if (Error != OPUS_OK) {
-fprintf(stderr, "Error in decoding opus frame.\n");
-}
 
 }
 int AbfDecoder::ftell() const { return std::ftell(fin); }
