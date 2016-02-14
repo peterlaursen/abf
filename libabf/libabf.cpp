@@ -36,7 +36,7 @@ if (Validate()) ReadHeader();
 int Error = 0;
 Decoder = opus_decoder_create(16000, 1, &Error);
 if (Error != OPUS_OK) {
-printf("Something went wrong in creating our decoder!\n");
+fprintf(stderr, "Something went wrong in creating our decoder!\n");
 ::fclose(fin);
 _IsOpen = false;
 _IsValid = false;
@@ -55,7 +55,7 @@ fread(&Minor, sizeof(short), 1, fin);
 if (strcmp(Buffer, "ABF") == 0 && HeaderSize > 0 && Major == 2 && Minor >= 0) _IsValid = true;
 else {
 if (Major == 1) {
-printf("This file was encoded with an older version of libabf. We do not support that version of the format anymore. Please re-convert your ABF book.\n");
+fprintf(stderr, "This file was encoded with an older version of libabf. We do not support that version of the format anymore. Please re-convert your ABF book.\n");
 }
 _IsValid = false;
 }
@@ -106,7 +106,9 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 if (feof()) return;
 
 int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
-
+if (Error < 0 || Error != OPUS_OK) {
+fprintf(stderr, "Error decoding Opus frame.\n");
+}
 }
 int AbfDecoder::ftell() const { return std::ftell(fin); }
 bool AbfDecoder::feof() const { 
@@ -143,7 +145,7 @@ Seek(HeaderSize, SEEK_SET);
 unsigned short FrameSize = 72;
 long SearchPosition = (Minutes*FrameSize) + HeaderSize;
 if (SearchPosition > FileSize) {
-printf("The book isn't that long.\n");
+fprintf(stderr, "The book isn't that long.\n");
 Seek(LastPosition, SEEK_SET);
 return false;
 }
@@ -189,7 +191,7 @@ fout = fopen(Filename, "wb+");
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
 if (Error != OPUS_OK) {
-printf("Error in creating our encoder!\n");
+fprintf(stderr, "Error in creating our encoder!\n");
 delete[] Buffer;
 return;
 }
