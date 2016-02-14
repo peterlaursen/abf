@@ -11,6 +11,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include "unixaudio.h"
 #include "compat.h"
 #include <termios.h>
+#include <glob.h>
 #endif
 #include "database.h"
 #include "player.h"
@@ -321,9 +322,17 @@ termios oldt, newt;
 tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
+glob_t g;
+for (int i = 1; i < argc; i++) {
+glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
+for (int i = 0; i < g.gl_matchc; i++) PL.Add(g.gl_pathv[i]);
+}
+globfree(&g);
 #endif
 // Open the audio device.
+#ifdef WIN32
 for (int i = 1; i < argc; i++) PL.Add(argv[i]);
+#endif
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){
 if (PS == Quit) break;
