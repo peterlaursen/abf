@@ -11,6 +11,9 @@ This is Alpha software. Run at your own risk. This software has not been known t
 
 What's new in next version?
 ===
+* Implement an argument globbing routine in the player. This means that we now fully support shell globbing in addition to single book arguments.
+* Fix a Daisy book character conversion error that prevented us from converting Danish characters to UTF-8. This bug was fixed in Libdaisy20.
+
 * Implemented a SIGINFO handler. We see what file is currently been converted + how many sections are available.
 * Pulseaudio is now supported.
 * Fixed various resource leaks to do with sqlite3 handles. Nothing would have gone wrong in ordinary operations, but if a bug should appear, the handles were not freed properly.
