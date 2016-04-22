@@ -27,6 +27,11 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <unistd.h>
 #include <pthread.h>
 #endif
+#ifdef GPIO
+#include <sys/types.h>
+#include <libgpio.h>
+#endif
+
 using namespace std;
 using namespace ABF;
 AudioSystem* Device;
@@ -268,7 +273,14 @@ if (GlobalAD->feof()) PS = BookIsFinished;
 return nullptr;
 #endif
 }
+#ifdef GPIO
+gpio_handle_t devhandle = 0;
+#endif
 void Input() {
+#ifdef GPIO
+if (gpio_pin_get(devhandle, 13) == 0) PS = Quit;
+#endif
+
 char Key = getch(); 
 if (Key == 'a') {
 PS = AddBook;
@@ -304,6 +316,12 @@ void* ThreadFunc(void*) {
 #endif
 
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
+#ifdef GPIO
+if (gpio_pin_get(devhandle, 13) == 0) {
+PS=Quit;
+break;
+}
+#endif
 if (kbhit()) Input();
 #ifdef WIN32
 Sleep(250);
@@ -328,6 +346,10 @@ glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
 for (int i = 0; i < g.gl_matchc; i++) PL.Add(g.gl_pathv[i]);
 }
 globfree(&g);
+#endif
+#ifdef GPIO
+devhandle = gpio_open(0);
+gpio_pin_pullup(devhandle, 13);
 #endif
 // Open the audio device.
 #ifdef WIN32
@@ -370,6 +392,9 @@ pthread_join(id, 0);
 #endif
 }
 delete Device;
+#ifdef GPIO
+gpio_close(devhandle);
+#endif
 if (PS != Quit)
 cout << endl << "Playlist empty; exitting..." << endl;
 // Ensure our shell character comes on its own line
