@@ -131,7 +131,7 @@ const char* src = TempTitle;
 char* src = TempTitle;
 #endif
 #endif
-#if __FreeBSD__ == 11
+#if __FreeBSD__ >= 11
 #if __FreeBSD_version >= 1100069
 char* src = TempTitle;
 #else
