@@ -1,0 +1,7 @@
+LibABF
+
+LibABF is the library responsible for encoding and decoding Audio books in our format.
+This library is the foundation library for the format as such and should be considered the reference implementation.
+As of now, encoding is single-threaded, meaning that encoding takes a bit of time.
+We have started work on making encoding multi-threaded, thereby we should take a little shorter if the book consists of many files, which is typically the idea behind Daisy 2.02 books.
+
