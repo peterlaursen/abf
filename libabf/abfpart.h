@@ -25,11 +25,14 @@ OpusEncoder* Encoder = nullptr;
 ofstream PartFile;
 unsigned int Sequence; // number of this part.
 AbfPartStatus Status = Waiting;
+static unsigned int LastSequence;
 public:
-AbfPart(unsigned int Sequence, const string FileName);
+AbfPart(unsigned int Sequence = LastSequence, const string FileName = "Test");
 ~AbfPart();
 AbfPartStatus GetStatus() const { return Status; }
 unsigned int GetPartNumber() const { return Sequence; }
+void SetFileName(const string FileName);
+void SetPartNumber(unsigned int Sequence);
 void Write(short* Array);
 };
 }
