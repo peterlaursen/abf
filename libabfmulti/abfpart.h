@@ -9,12 +9,14 @@ It contains various flags and other housekeeping information for the ABF encoder
 #include <iosfwd>
 #include <fstream>
 #include <string>
+#include <vector>
 #include <opus/opus.h>
 
 namespace ABFMulti {
 using std::ofstream;
 using std::string;
 using std::ios_base;
+using std::vector;
 enum AbfPartStatus {
 Waiting,
 Encoding,
@@ -25,9 +27,12 @@ OpusEncoder* Encoder = nullptr;
 ofstream PartFile;
 unsigned int Sequence; // number of this part.
 AbfPartStatus Status = Waiting;
+vector<unsigned int> MinutePositions;
+unsigned int FramesEncoded = 0;
 static unsigned int LastSequence;
 public:
-AbfPart(unsigned int Sequence = LastSequence, const string FileName = "Test");
+AbfPart(unsigned int Sequence = LastSequence);
+AbfPart(const string FileName): AbfPart(LastSequence) { SetFileName(FileName); }
 ~AbfPart();
 AbfPartStatus GetStatus() const { return Status; }
 unsigned int GetPartNumber() const { return Sequence; }
@@ -37,4 +42,3 @@ void Write(short* Array);
 };
 }
 #endif
-

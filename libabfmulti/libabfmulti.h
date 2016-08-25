@@ -28,6 +28,3 @@ AbfPart* GetAbfPart(unsigned int PartNumber) { return &AbfParts[PartNumber]; }
 };
 }
 #endif
-
-
-
