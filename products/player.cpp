@@ -343,7 +343,7 @@ tcsetattr(0, TCSANOW, &newt);
 glob_t g;
 for (int i = 1; i < argc; i++) {
 glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
-for (int i = 0; i < g.gl_matchc; i++) PL.Add(g.gl_pathv[i]);
+for (int i = 0; i < g.gl_pathc; i++) PL.Add(g.gl_pathv[i]);
 }
 globfree(&g);
 #endif
