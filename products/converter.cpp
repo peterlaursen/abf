@@ -76,8 +76,9 @@ return -1;
 }
 #ifndef WIN32
 signal(SIGINT, &Cleanup);
+#ifdef FREEBSD
 signal(SIGINFO, &ConvertInfo);
-
+#endif
 BookFileName = argv[2];
 #endif
 AbfEncoder AE(argv[2]);
