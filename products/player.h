@@ -18,6 +18,7 @@ This file contains various declarations that are used within the player.
 typedef HANDLE ThreadType;
 #endif
 #ifdef LINUX
+#include "linuxcompat.h"
 typedef pthread_t ThreadType;
 #endif
 #ifdef FREEBSD
