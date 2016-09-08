@@ -10,7 +10,7 @@ namespace ABFMulti {
 using std::ostringstream;
 using std::cout;
 using std::endl;
-void AbfEncoder::SetNumParts(unsigned int NumSections) {
+void AbfEncoder::SetNumParts(unsigned short NumSections) {
 if (AbfParts != nullptr) {
 	delete[] AbfParts; // Free the memory
 	AbfParts = nullptr;

@@ -17,13 +17,21 @@ using std::ofstream;
 using std::ios_base;
 class AbfEncoder {
 AbfPart* AbfParts = nullptr;
+unsigned short NumSections = 0;
+const string AbfIdentifier = "ABF";
+const unsigned short Major = 2;
+const unsigned short Minor = 1;
+string _Title, _Author, _Time;
 ofstream FinalAudioBook;
 public:
 AbfEncoder(string FileName): FinalAudioBook(FileName) {}
 ~AbfEncoder() {
 if (AbfParts != nullptr) delete[] AbfParts;
 }
-void SetNumParts(unsigned int Sections);
+void SetTitle(const string& Title) { _Title = Title; }
+void SetAuthor(const string& Author) { _Author = Author; }
+void SetTime(const string& Time) { _Time = Time; }
+void SetNumParts(unsigned short Sections);
 AbfPart* GetAbfPart(unsigned int PartNumber) { return &AbfParts[PartNumber]; }
 };
 }
