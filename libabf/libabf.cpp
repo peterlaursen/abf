@@ -179,6 +179,16 @@ delete[] Array;
 Array = nullptr;
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
+/* Try to insert some gain macros here... */
+const int AbfDecoder::GetGain() {
+int Gain = 0;
+opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
+return Gain;
+}
+void AbfDecoder::SetGain(int NewGain) {
+opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
+}
+
 AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
 AbfEncoder::AbfEncoder(const char* Filename) {

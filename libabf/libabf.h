@@ -67,6 +67,9 @@ This function only works with ABF 2.1, the absolutely latest format.
 */
 const int GetMinutes() const { return NumMinutes; }
 bool GoToPosition(const int Minutes);
+const int GetGain();
+void SetGain(int NewGain);
+
 };
 class SHARED AbfEncoder {
 OpusEncoder* Encoder = nullptr;
