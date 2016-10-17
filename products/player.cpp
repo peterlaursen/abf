@@ -103,14 +103,15 @@ return 0;
 }
 cout << "Commands you can use in the player: " << endl;
 cout << "Key - Description" << endl;
+cout << "a - Add book to playlist, r - Remove book from playlist." << endl;
 cout << "f - Go to first section, l - go to last section" << endl;
 cout << "x - Play, c or v - Pause" << endl;
 cout << "b - Next section, z - Previous section" << endl;
 cout << "B - Next book, Z = Previous book" << endl;
 cout << "g - go to section, j - jump to time" << endl;
-cout << "< - Volume Down, > - Volume Up" << endl;
+cout << "< - Volume Down, > - Volume Up, + - Increase gain, '-' - Decrease gain" << endl;
 cout << "q - Quit" << endl;
-cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetTime() << endl;
+cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetMinutes() << " minutes." << endl;
 #ifdef WIN32
 // Put this into a scope of its own so that it vanishes as soon as possible.
 {
@@ -303,6 +304,17 @@ if (Key == 'z') PS = Previous;
 if (Key == 'B') PS = NextBook;
 if (Key == 'Z') PS = PreviousBook;
 if (Key == 'q') PS = Quit;
+// Try to add some keys for gain adjustments
+if (Key == '+') {
+int Gain = GlobalAD->GetGain();
+Gain += 100;
+GlobalAD->SetGain(Gain);
+}
+if (Key == '-') {
+int Gain = GlobalAD->GetGain();
+Gain -= 100;
+GlobalAD->SetGain(Gain);
+}
 }
 #ifdef WIN32
 void ThreadFunc(void*) {
