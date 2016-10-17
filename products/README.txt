@@ -2,14 +2,10 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.30-Alpha4
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+Version 0.40-Release
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016 Peter Laursen.
 
-NOTE:
-
-This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
-
-What's new in next version?
+What's new in Version 0.40?
 ===
 * The player now also builds on Linux.
 * Added GPIO support for the ARM version. This is not built by default. To enable it, define GPIO while building the source. This has only been tested on a Raspberry Pi 2. We expect one button on pin 13.
