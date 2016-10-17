@@ -11,10 +11,13 @@ This is Alpha software. Run at your own risk. This software has not been known t
 
 What's new in next version?
 ===
+* The player now also builds on Linux.
+* Added GPIO support for the ARM version. This is not built by default. To enable it, define GPIO while building the source. This has only been tested on a Raspberry Pi 2. We expect one button on pin 13.
+* Add keys for adjusting the playback gain of the decoder. The keys are + and - (minus).
 * Implement an argument globbing routine in the player. This means that we now fully support shell globbing in addition to single book arguments.
 * Fix a Daisy book character conversion error that prevented us from converting Danish characters to UTF-8. This bug was fixed in Libdaisy20.
 
-* Implemented a SIGINFO handler. We see what file is currently been converted + how many sections are available.
+* Implemented a SIGINFO handler. We output what file is currently being converted + how many sections the file contains. This is only available on FreeBSD.
 * Pulseaudio is now supported.
 * Fixed various resource leaks to do with sqlite3 handles. Nothing would have gone wrong in ordinary operations, but if a bug should appear, the handles were not freed properly.
 
