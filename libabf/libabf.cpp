@@ -164,19 +164,32 @@ _IsOpen = false;
 _IsValid = false;
 }
 if (Major == 2 && Minor == 1) {
+if (MinutePositions != nullptr) {
 delete[] MinutePositions;
 MinutePositions = nullptr;
 }
+}
 
+if (Decoder != nullptr) {
 opus_decoder_destroy(Decoder);
+Decoder = nullptr;
+}
+if (Title != nullptr) {
 delete[] Title;
 Title = nullptr;
+}
+if (Author != nullptr) {
 delete[] Author;
 Author = nullptr;
+}
+if (Time != nullptr) {
 delete[] Time;
 Time = nullptr;
+}
+if (Array != nullptr) {
 delete[] Array;
 Array = nullptr;
+}
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
 /* Try to insert some gain macros here... */
