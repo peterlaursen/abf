@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
 
 This is our interface to our ABF library. Currently, we focus on upgrading our format slightly, so our player and other things may catch up as time progresses.
 For all the previous work on ABF, see /branches/libabf-1.0.
