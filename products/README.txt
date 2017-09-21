@@ -2,15 +2,16 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.30-Alpha4
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+Version 0.50
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
 
 NOTE:
 
-This is Alpha software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of alpha programs.
+This is Beta software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of beta programs.
 
-What's new in next version?
+What's new in Version 0.50?
 ===
+* The abfencoder is now multithreaded meaning that conversion should be faster.
 * The player now also builds on Linux.
 * Added GPIO support for the ARM version. This is not built by default. To enable it, define GPIO while building the source. This has only been tested on a Raspberry Pi 2. We expect one button on pin 13.
 * Add keys for adjusting the playback gain of the decoder. The keys are + and - (minus).
@@ -25,7 +26,7 @@ What's New in 0.30-Alpha4?
 
 * Re-implemented the ability to seek to a specific minute in ABF audio books.
 * As a result of reimplementation of that feature, the format minor version has been updated to 2.1. In order to be able to seek within the files, you must re-encode your audio books.
-* All platforms now encode straight to memory without the use of temporary files. This means that we write far less to the storage media.
+* All platforms now encode straight to memory without the use of temporary files. This means that we write far less to the storage medium.
 * The winamp plugin now works with the new format, which it previously didn't do.
 * The previously experimental program folderconverter is now included in the main distribution.
 * Because of lack of interest and support, our graphical converter no longer exists.
@@ -123,7 +124,7 @@ No matter what the platform, you invoke the converter like this:
 converter <path to daisy book> <ABF output>
 where <path to daisy book> specifies where your daisy book is located and <ABF Output> specifies the location and name of your ABF file.
 
-EXAMPLE::
+EXAMPLE:
 
 Below is a short example of a typical invocation:
 
@@ -163,6 +164,8 @@ Shift+Z - Move to the previous book in the playlist.
 x - Resume playback from the last position
 < - The less than character lowers the volume.
 > - The greater than character raises the volume.
++ - This increases the playback gain. Sometimes, audio books are very low and this means you may have difficulty hearing it.
+- (minus) - Lower playback gain.
 a - Add a book to the playlist.
 r - Remove the currently playing book from the playlist.
 q - Quit the player and save the current position.
@@ -179,7 +182,6 @@ As with every suite of programs, there are some limitations. These limitations a
 
 * The converter can convert DAISY 2.02 books only. Since I have limited material in Daisy 3 (the current standard as of this writing), I cannot implement it.
 * We currently do not support bookmarks.
-* The products for Ubuntu suffer from terrible integration with Pulceaudio. If you must use these, the developers recommend you use Ubuntu 8.10 since it gives a much nicer experience for everyone. The developers would also recommend FreeBSD. Its audio system is very well-behaved when it comes to ABF.
 
 ACKNOWLEDGEMENTS:
 
