@@ -1,108 +1,63 @@
 /* $Id$
-Copyright (C) 2013, 2014 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
-This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
-If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
+This small program attempts to read a folder of MP3 files.
+They are to be converted into our ABF audio book, so we are a little picky about the format.
+
 */
 #include <cstdio>
 #include <cstdlib>
 #include <cmath>
-#include "../libabf/libabf.h"
-#ifndef WIN32
+#include "../abfencoder/abfencoder.h"
 #include <unistd.h>
 #include <signal.h>
-#include <dirent.h>
-#else
-#include <windows.h>
-#include "../libdaisy20/scandir.h"
-#endif
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
 #include "../products/speex_resampler.h"
 #include <iostream>
+#include <glob.h>
 using namespace std;
 using namespace ABF;
-void MemEncode(AbfEncoder& AE, short* Input, const unsigned int& Processed) {
-static short MemoryBuffer[320] = {0};
-static int LastPos = 0;
-if (LastPos + Processed >= 320) {
-int Remaining = 0;
-for (int i = LastPos, j = 0; i < 320; i++, j++) {
-MemoryBuffer[i] = Input[j];
-++Remaining;
-}
-AE.Encode(MemoryBuffer);
-LastPos = 0;
-for (int i = 0; i < Processed-Remaining; i++) {
-MemoryBuffer[i]=Input[Remaining+i];
-++LastPos;
-}
-}
-else {
-for (int i = LastPos, j=0; j < Processed; i++,j++) {
-MemoryBuffer[i]=Input[j];
-LastPos++;
-}
-}
-}
-#ifndef WIN32
 static const char* BookFileName;
+static int NumberOfFiles = 0;
+static const char* CurrentFileName = nullptr;
+static glob_t Paths;
 void Cleanup(int Signal) {
 unlink(BookFileName);
 exit(Signal);
 }
-#endif
-int main(int argc, char* argv[]) {
-if (argc != 3) {
-printf("Error, need at least an input folder and an output file name.\n");
-return (EXIT_FAILURE);
+void ConvertInfo(int Signal) {
+printf("Book consists of %d sections - working with file %s\n", NumberOfFiles, CurrentFileName);
 }
-// Let's open the file and get some information, later to be used for the Speex resampler.
-mpg123_init();
+
+void* ConverterThread(void* ThreadAE) {
+// Put everything here into a while loop...
+//I hope it works.
+while (true) {
+AbfEncoder* AE = (AbfEncoder*)ThreadAE;
+AE->Lock();
+int MyFile = -1;
+for (unsigned short i = 0; i < AE->GetNumSections(); i++) {
+if (AE->GetStatus(i) == Waiting) {
+AE->SetStatus(i, Encoding);
+MyFile = i;
+break;
+}
+}
+AE->Unlock();
+if (MyFile == -1) 
+return nullptr; // Exit the thread
+
 mpg123_handle* Mp3File;
 long SamplingRate = 0;
 int Channels = 0, Encoding = 0;
 int err = MPG123_OK;
-dirent** FileList = NULL;
-int ListLength = scandir(argv[1], &FileList, NULL, alphasort);
-cout << "We found " << ListLength << " files." << endl;
-#ifndef WIN32
-signal(SIGINT, &Cleanup);
-BookFileName = argv[2];
-#endif
-string Title, Author, Time;
-cout << endl << "Book Title: ";
-getline(cin, Title);
-cout << endl << "Author: ";
-getline(cin, Author);
-cout << endl << "Book Duration: ";
-getline(cin, Time);
-
-AbfEncoder AE(argv[2]);
-AE.SetTitle(Title.c_str());
-AE.SetAuthor(Author.c_str());
-AE.SetTime(Time.c_str());
-AE.SetNumSections(ListLength-2);
-AE.WriteHeader();
-#ifdef WIN32
-SetCurrentDirectory(argv[1]);
-#else
-chdir(argv[1]);
-#endif
-unsigned short Files = 2; // Bypass . and ..
-while (Files < ListLength) {
 Mp3File = mpg123_new(NULL, &err);
-mpg123_open(Mp3File, FileList[Files]->d_name);
+CurrentFileName = Paths.gl_pathv[MyFile];
+
+mpg123_open(Mp3File, Paths.gl_pathv[MyFile]);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-if (Channels != 1) {
-cout << "The file " << FileList[Files]->d_name << " has " << Channels << " channels. Convert it to mono first." << endl;
-mpg123_close(Mp3File);
-mpg123_delete(Mp3File);
-++Files;
-continue;
-}
-AE.WriteSection();
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
 
 // Let's try to create an encoder.
@@ -110,19 +65,10 @@ SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10
 short Buffer[320] = {0};
 short Resampled[640] = {0};
 int ResampledSize=640;
-short* Membuf = new short[320];
-if (!Membuf) {
-printf("Cannot allocate memory.\n");
-mpg123_close(Mp3File);
-mpg123_delete(Mp3File);
-speex_resampler_destroy(Resampler);
-return 1;
-}
-
 int SamplesWritten = 0;
 int Status = MPG123_OK;
 
-printf("Working with file %s.\n", FileList[Files]->d_name);
+printf("Working with file %s.\n", Paths.gl_pathv[MyFile]);
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
@@ -130,19 +76,61 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-MemEncode(AE, Resampled, Processed);
+int Temp = Processed;
+AE->Encode(MyFile, Resampled, Temp);
 } while (Status == MPG123_OK);
-++Files;
+AE->Lock();
+AE->CloseSection(MyFile);
+AE->Unlock();
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
 speex_resampler_destroy(Resampler);
-delete [] Membuf;
 }
+return nullptr;
+}
+int main(int argc, char* argv[]) {
+if (argc != 3) {
+fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
+return (EXIT_FAILURE);
+}
+// Let's open the file and get some information, later to be used for the Speex resampler.
+mpg123_init();
+string Title, Author, Time;
+char Pattern[4096] = {0};
+sprintf(Pattern, "%s/*.mp3", argv[1]);
+try {
+printf("Title: ");
+getline(cin, Title);
+printf("\nAuthor: ");
+getline(cin, Author);
+printf("\nTime: ");
+getline(cin, Time);
+glob(Pattern, 0, NULL, &Paths);
+
+} catch (string& E) {
+fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
+globfree(&Paths);
+return (EXIT_FAILURE);
+}
+signal(SIGINT, &Cleanup);
+#ifdef FREEBSD
+signal(SIGINFO, &ConvertInfo);
+#endif
+BookFileName = argv[2];
+AbfEncoder AE(argv[2], (unsigned short)Paths.gl_pathc);
+AE.SetTitle(Title.c_str());
+AE.SetAuthor(Author.c_str());
+AE.SetTime(Time.c_str());
+AE.WriteHeader();
+void* PAE = &AE;
+pthread_t ThreadHandle[4];
+NumberOfFiles = Paths.gl_pathc;
+for (int i = 0; i < 4; i++) {
+pthread_create(&ThreadHandle[i], NULL, ConverterThread, PAE);
+}
+for (int i = 0; i < 4; i++) pthread_join(ThreadHandle[i], 0);
+AE.Gather();
 mpg123_exit();
-for (int i = 0; i < ListLength; i++) {
-free(FileList[i]);
+globfree(&Paths);
+return (EXIT_SUCCESS);
 }
-free(FileList);
-
-}
-
