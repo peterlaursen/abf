@@ -7,6 +7,7 @@ They are to be converted into our ABF audio book, so we are a little picky about
 */
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <cmath>
 #include "../abfencoder/abfencoder.h"
 #include <unistd.h>
@@ -62,22 +63,29 @@ SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
-short Buffer[320] = {0};
-short Resampled[640] = {0};
-int ResampledSize=640;
+short *Buffer = new short[32768] ;
+short* Resampled = new short[32768] ;
+int ResampledSize=32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
 
 printf("Working with file %s.\n", Paths.gl_pathv[MyFile]);
 do {
 unsigned int Processed = ResampledSize;
-size_t Decoded;
-Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
+size_t Decoded = 0;
+Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-int Temp = Processed;
-AE->Encode(MyFile, Resampled, Temp);
+short TempEncoder[320] = {0};
+int Temp = 0;
+while (Temp < Processed) {
+int EncSize = 320;
+if (Temp + 320 > Processed) EncSize = Processed - Temp;
+memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
+Temp += EncSize;
+AE->Encode(MyFile, TempEncoder, EncSize);
+}
 } while (Status == MPG123_OK);
 AE->Lock();
 AE->CloseSection(MyFile);
@@ -85,6 +93,9 @@ AE->Unlock();
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
 speex_resampler_destroy(Resampler);
+delete[] Resampled;
+delete[] Buffer;
+Buffer = Resampled = nullptr;
 }
 return nullptr;
 }
