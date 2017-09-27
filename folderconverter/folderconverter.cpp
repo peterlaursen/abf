@@ -73,7 +73,7 @@ printf("Working with file %s.\n", Paths.gl_pathv[MyFile]);
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded = 0;
-Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
+Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 65535, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
