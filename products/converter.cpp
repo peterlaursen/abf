@@ -6,6 +6,7 @@ If everything goes well, this will be done all in memory so that the only file t
 */
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <cmath>
 #include "../libdaisy20/libdaisy20.h"
 #include "../abfencoder/abfencoder.h"
@@ -63,9 +64,9 @@ SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
-short Buffer[320] = {0};
-short Resampled[640] = {0};
-int ResampledSize=640;
+short* Buffer = new short[32768];
+short* Resampled = new short[32768];
+int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
 
@@ -73,20 +74,31 @@ printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
-Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 640, &Decoded);
+Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 //printf("MP3 status: %d\n", Status);
 
 unsigned int TotalSamples = Decoded/2;
+
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-int Temp = Processed;
-AE->Encode(MyFile, Resampled, Temp);
+short TempEncoder[320] = {0};
+int Temp = 0;
+while (Temp < Processed) {
+int EncSize = 320;
+if (Temp + 320  > Processed) EncSize = Processed - Temp;
+memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
+Temp += EncSize;
+AE->Encode(MyFile, TempEncoder, EncSize);
+}
+
 } while (Status == MPG123_OK);
 AE->Lock();
 AE->CloseSection(MyFile);
 AE->Unlock();
 mpg123_close(Mp3File);
 mpg123_delete(Mp3File);
-
+delete[] Buffer;
+delete[] Resampled;
+Buffer = Resampled = nullptr;
 speex_resampler_destroy(Resampler);
 }
 return nullptr;
