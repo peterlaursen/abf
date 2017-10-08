@@ -124,4 +124,12 @@ int _DataSize = fread(Data, FrameSize, 1, fout);
 ++FramesRead;
 } while(!feof(fout));
 }
+void AbfEncoder::Cleanup() {
+Lock();
+for (int i = 0; i < _NumSections; i++) {
+AbfSections[i].Close();
+unlink(AbfSections[i].TempFile());
+}
+Unlock();
+}
 }
