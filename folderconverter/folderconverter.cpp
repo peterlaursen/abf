@@ -20,12 +20,14 @@ They are to be converted into our ABF audio book, so we are a little picky about
 #include <glob.h>
 using namespace std;
 using namespace ABF;
-static const char* BookFileName;
+static const char* BookFileName = nullptr;
 static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
 static glob_t Paths;
+static AbfEncoder* GlobalAE = nullptr;
 void Cleanup(int Signal) {
 unlink(BookFileName);
+GlobalAE->Cleanup();
 exit(Signal);
 }
 void ConvertInfo(int Signal) {
@@ -108,7 +110,8 @@ return (EXIT_FAILURE);
 mpg123_init();
 string Title, Author, Time;
 char Pattern[4096] = {0};
-sprintf(Pattern, "%s/*.mp3", argv[1]);
+int PatternLength = sprintf(Pattern, "%s/*.mp3", argv[1]);
+Pattern[PatternLength] = '\0';
 try {
 printf("Title: ");
 getline(cin, Title);
@@ -129,6 +132,7 @@ signal(SIGINFO, &ConvertInfo);
 #endif
 BookFileName = argv[2];
 AbfEncoder AE(argv[2], (unsigned short)Paths.gl_pathc);
+GlobalAE = &AE;
 AE.SetTitle(Title.c_str());
 AE.SetAuthor(Author.c_str());
 AE.SetTime(Time.c_str());

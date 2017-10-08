@@ -19,12 +19,14 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <mpg123.h>
 #include "speex_resampler.h"
 using namespace ABF;
-static const char* BookFileName;
+static const char* BookFileName = nullptr;
 static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
-DaisyBook* Book = nullptr;
+static DaisyBook* Book = nullptr;
+static AbfEncoder* GlobalAE = nullptr;
 #ifndef WIN32
 void Cleanup(int Signal) {
+GlobalAE->Cleanup();
 unlink(BookFileName);
 exit(Signal);
 }
@@ -104,11 +106,11 @@ speex_resampler_destroy(Resampler);
 return nullptr;
 }
 int main(int argc, char* argv[]) {
-/*if (argc != 3) {
+if (argc != 3) {
 fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
 return (EXIT_FAILURE);
 }
-*/
+
 // Let's open the file and get some information, later to be used for the Speex resampler.
 mpg123_init();
 DaisyBook D(argv[1]);
@@ -116,7 +118,8 @@ if (!D.BookIsValid()) {
 fprintf(stderr, "No daisy Book. Exitting\n");
 return (EXIT_FAILURE);
 }
-
+AbfEncoder AE(argv[2], D.GetNumSections());
+GlobalAE = &AE;
 try {
 D.GetMetadata();
 D.GetAudioFiles();
@@ -132,7 +135,6 @@ signal(SIGINFO, &ConvertInfo);
 #endif
 BookFileName = argv[2];
 #endif
-AbfEncoder AE(argv[2], D.GetNumSections());
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
