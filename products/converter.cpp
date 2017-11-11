@@ -118,8 +118,6 @@ if (!D.BookIsValid()) {
 fprintf(stderr, "No daisy Book. Exitting\n");
 return (EXIT_FAILURE);
 }
-AbfEncoder AE(argv[2], D.GetNumSections());
-GlobalAE = &AE;
 try {
 D.GetMetadata();
 D.GetAudioFiles();
@@ -127,6 +125,9 @@ D.GetAudioFiles();
 fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
 return (EXIT_FAILURE);
 }
+printf("Sections: %d\n", D.GetNumSections());
+AbfEncoder AE(argv[2], D.GetNumSections());
+GlobalAE = &AE;
 Book = &D;
 #ifndef WIN32
 signal(SIGINT, &Cleanup);
