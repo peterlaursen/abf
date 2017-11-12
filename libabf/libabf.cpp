@@ -103,6 +103,9 @@ unsigned short Bytes;
 unsigned char Input[320] = {0};
 fread(&Bytes, 2, 1, fin);
 int BytesRead = fread(Input, 1, Bytes, fin);
+#ifdef DEBUG
+printf("Bytes: %d\n", Bytes);
+#endif
 if (feof()) return;
 
 int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
