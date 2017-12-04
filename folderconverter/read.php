@@ -1,4 +1,4 @@
-a<?php
+<?php
 $handle = fopen("metadata.txt", "r");
 $chaptersread = 0;
 
