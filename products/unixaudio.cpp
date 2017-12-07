@@ -15,7 +15,11 @@ If your system uses another audio system, derive from the AudioSystem class and 
 #include <unistd.h>
 namespace ABF {
 UnixAudio::UnixAudio() {
+#ifdef BLUETOOTH
+Device = open("/dev/dspbt", O_WRONLY);
+#else
 Device = open("/dev/dsp", O_WRONLY);
+#endif
 int Format = AFMT_S16_NE;
 ioctl(Device, SNDCTL_DSP_SETFMT, &Format);
 Format = 1;
