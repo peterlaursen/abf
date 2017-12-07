@@ -37,7 +37,7 @@ using namespace ABF;
 AudioSystem* Device;
 volatile PlayerStatus PS = Playing;
 PlayList PL;
-AbfDecoder* GlobalAD;
+AbfDecoder* GlobalAD = nullptr;
 #ifndef WIN32
 termios oldt, newt;
 #endif
@@ -91,6 +91,8 @@ char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
 GlobalAD = &AD;
 Device = AudioSystem::Create(GlobalAD);
+cout << "Audio device created." << endl;
+
 bool IsValid = AD.IsValid();
 if (!IsValid) {
 cerr << "Error, not a valid ABF book." << endl;
