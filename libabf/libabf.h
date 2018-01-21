@@ -39,7 +39,6 @@ unsigned short HeaderSize = 0, Major = 0, Minor = 0, NumSections = 0, NumMinutes
 int IndexTableStartPosition = 0;
 void ReadHeader();
 bool Validate();
-int FrameSize = 320;
 public:
 AbfDecoder(const char* Filename);
 AbfDecoder();
@@ -70,8 +69,7 @@ const int GetMinutes() const { return NumMinutes; }
 bool GoToPosition(const int Minutes);
 const int GetGain();
 void SetGain(int NewGain);
-void SetSamplingRate(int NewRate);
-const int GetFrameSize() const { return FrameSize; }
+
 };
 class SHARED AbfEncoder {
 OpusEncoder* Encoder = nullptr;

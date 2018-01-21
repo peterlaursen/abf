@@ -3,9 +3,11 @@ Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 P
 
 This contains the base class definition for an audio playback system.
 It is used by the player to produce audio.
-We have one implementation in this folder, as this is a BSD player:
+We have three different implementations in the tree:
 unixaudio.cpp/unixaudio.h: Implements the OSS API that's used on FreeBSD.
-To implement a new playback system, derive from this class and use the virtual functions.
+dsaudio.cpp/dsaudio.h: Implements the DirectSound API that's in use on Windows.
+linuxaudio.cpp/linuxaudio.h: Implements a Pulseaudio backend mainly used on Linux
+To implement a new playback system, derive from this class.
 */
 #ifndef AUDIOSYSTEM_H
 #define AUDIOSYSTEM_H
@@ -27,7 +29,7 @@ virtual void Stop() = 0;
 const bool isPlaying() const { return IsPlaying; }
 virtual void DecreaseVolume() = 0;
 virtual void IncreaseVolume() = 0;
-const ABF::AbfDecoder* GetDecoder() { return AD; }
+ABF::AbfDecoder* GetDecoder() { return AD; }
 };
 }
 #endif

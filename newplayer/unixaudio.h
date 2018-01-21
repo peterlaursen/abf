@@ -12,7 +12,6 @@ namespace ABF {
 class UnixAudio : public AudioSystem {
 int Device = 0;
 int Volume = 0;
-short* Buffer = nullptr;
 public:
 UnixAudio();
 

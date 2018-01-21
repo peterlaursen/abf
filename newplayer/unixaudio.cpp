@@ -25,27 +25,18 @@ Device = open("/dev/dspbt", O_WRONLY);
 #else
 Device = open("/dev/dsp", O_WRONLY);
 #endif
-int Format = 1;
-
-printf("%d, %d\n", ioctl(Device, SNDCTL_DSP_COOKEDMODE, &Format), Format);
-Format = AFMT_S16_NE;
+int Format = AFMT_S16_NE;
 ioctl(Device, SNDCTL_DSP_SETFMT, &Format);
 Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
 Format = 16000;
-printf("%d, %d\n", ioctl(Device, SNDCTL_DSP_SPEED, &Format), Format);
-if (Format != 16000) {
-AD->SetSamplingRate(Format);
-if (Buffer != nullptr) delete[] Buffer;
+ioctl(Device, SNDCTL_DSP_SPEED, &Format);
 }
-Buffer = new short[AD->GetFrameSize()];
-}
-UnixAudio::~UnixAudio() { close(Device); 
-if (Buffer != nullptr) delete[] Buffer;
-}
+UnixAudio::~UnixAudio() { close(Device); }
 void UnixAudio::Play() {
 IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
+short Buffer[320] = {0};
 AD->Decode(Buffer);
 write(Device, Buffer, sizeof(Buffer));
 }
