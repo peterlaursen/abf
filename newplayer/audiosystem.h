@@ -15,12 +15,12 @@ class AudioSystem {
 private:
 static AudioSystem* AS;
 protected:
-const ABF::AbfDecoder* AD;
+ABF::AbfDecoder* AD;
 bool IsPlaying;
-virtual void Init(const ABF::AbfDecoder* AD);
+virtual void Init(ABF::AbfDecoder* AD);
 public:
 AudioSystem(): AD(nullptr), IsPlaying(false) {}
-static AudioSystem* Create(const ABF::AbfDecoder* AD);
+static AudioSystem* Create(ABF::AbfDecoder* AD);
 virtual ~AudioSystem() {}
 virtual void Play() = 0;
 virtual void Stop() = 0;

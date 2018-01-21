@@ -34,12 +34,19 @@ Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
 Format = 16000;
 printf("%d, %d\n", ioctl(Device, SNDCTL_DSP_SPEED, &Format), Format);
+if (Format != 16000) {
+AD->SetSamplingRate(Format);
+if (Buffer != nullptr) delete[] Buffer;
+Buffer = new Buffer[AD->GetFrameSize()];
 }
-UnixAudio::~UnixAudio() { close(Device); }
+else Buffer = new char[AD->GetFrameSize()];
+}
+UnixAudio::~UnixAudio() { close(Device); 
+if (Buffer != nullptr) delete[] Buffer;
+}
 void UnixAudio::Play() {
 IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
-short Buffer[320] = {0};
 AD->Decode(Buffer);
 write(Device, Buffer, sizeof(Buffer));
 }

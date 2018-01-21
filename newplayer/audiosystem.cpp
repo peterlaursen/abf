@@ -8,10 +8,10 @@ This contains the implementation of the AudioSystem class.
 #include "unixaudio.h"
 namespace ABF {
 AudioSystem* AudioSystem::AS = nullptr;
-AudioSystem* AudioSystem::Create(const AbfDecoder* AD) {
+AudioSystem* AudioSystem::Create(AbfDecoder* AD) {
 AS = new UnixAudio();
 AS->Init(AD);
 return AS;
 }
-void AudioSystem::Init(const AbfDecoder* _AD) { AD = _AD; }
+void AudioSystem::Init(AbfDecoder* _AD) { AD = _AD; }
 }

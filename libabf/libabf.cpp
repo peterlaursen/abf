@@ -23,8 +23,8 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
-AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false) {}
-AbfDecoder::AbfDecoder(const char* Filename) {
+AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false), FrameSize(320) {}
+AbfDecoder::AbfDecoder(const char* Filename): FrameSize(320) {
 Initialize(Filename);
 }
 void AbfDecoder::Initialize(const char* Filename) {
@@ -108,7 +108,7 @@ printf("Bytes: %d\n", Bytes);
 #endif
 if (feof()) return;
 
-int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
+int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
 }
@@ -211,6 +211,7 @@ opus_decoder_destroy(Decoder);
 // Initialize the decoder with a new sampling rate.
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);
+FrameSize = 960; // 20 milliseconds of audio at 48000 hz
 }
 AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
