@@ -37,12 +37,7 @@ ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
 Format = 16000;
 ioctl(Device, SNDCTL_DSP_SPEED, &Format);
 if (Format != 16000) {
-OpusDecoder* OD = AD->GetOpusDecoder();
-opus_decoder_destroy(OD);
-int Error = 0;
-OD = nullptr;
-OD = opus_decoder_create(48000, 1, &Error);
-AD->SetOpusDecoder(OD);
+AD->SetSamplingRate(Format);
 FrameSize = 960;
 }
 }

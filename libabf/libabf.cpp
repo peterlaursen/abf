@@ -108,10 +108,7 @@ printf("Bytes: %d\n", Bytes);
 #endif
 if (feof()) return;
 
-int SamplingRate = 0;
-opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
-
-int FrameSize = (SamplingRate=48000)?960:320;
+int FrameSize = (GetSamplingRate()==48000)?960:320;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
@@ -208,8 +205,23 @@ return Gain;
 void AbfDecoder::SetGain(int NewGain) {
 opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 }
-OpusDecoder* AbfDecoder::GetOpusDecoder() { return Decoder; }
-void AbfDecoder::SetOpusDecoder(OpusDecoder* Dec) { Decoder = Dec; }
+/*
+Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
+We do this in the Opus decoder itself, which saves us from worrying too much about it.
+*/
+const int AbfDecoder::GetSamplingRate() const {
+int SamplingRate = 0;
+opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
+return SamplingRate;
+}
+
+void AbfDecoder::SetSamplingRate(int SamplingRate) {
+// Do we need to do any work?
+if (SamplingRate == 16000) return;
+opus_decoder_destroy(Decoder);
+int Error = 0;
+Decoder = opus_decoder_create(SamplingRate, 1, &Error);
+}
 
 AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
