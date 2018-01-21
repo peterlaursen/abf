@@ -204,6 +204,8 @@ return Gain;
 void AbfDecoder::SetGain(int NewGain) {
 opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 }
+OpusDecoder* AbfDecoder::GetOpusDecoder() { return Decoder; }
+void AbfDecoder::SetOpusDecoder(OpusDecoder* Dec) { Decoder = Dec; }
 
 AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
