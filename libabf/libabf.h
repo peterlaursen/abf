@@ -69,7 +69,7 @@ const int GetMinutes() const { return NumMinutes; }
 bool GoToPosition(const int Minutes);
 const int GetGain();
 void SetGain(int NewGain);
-
+void SetSamplingRate(int NewRate);
 };
 class SHARED AbfEncoder {
 OpusEncoder* Encoder = nullptr;

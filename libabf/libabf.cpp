@@ -204,7 +204,14 @@ return Gain;
 void AbfDecoder::SetGain(int NewGain) {
 opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 }
-
+void AbfDecoder::SetSamplingRate(int SamplingRate) {
+/* We have to destroy the decoder first, since we cannot change the sampling rate on an already initialized encoder.
+*/
+opus_decoder_destroy(Decoder);
+// Initialize the decoder with a new sampling rate.
+int Error = 0;
+Decoder = opus_decoder_create(SamplingRate, 1, &Error);
+}
 AbfEncoder::AbfEncoder(): fout(nullptr) {}
 
 AbfEncoder::AbfEncoder(const char* Filename) {
