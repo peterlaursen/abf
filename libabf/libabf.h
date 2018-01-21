@@ -59,7 +59,7 @@ int ftell() const;
 void fclose();
 int Seek(long offset, int whence);
 const int* GetSections() const;
-void Decode(short* Output);
+void Decode(short* Output) const;
 /*
 This function only works with ABF 2.1, the absolutely latest format.
 

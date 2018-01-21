@@ -98,7 +98,7 @@ return;
 const int* AbfDecoder::GetSections() const {
 return Array;
 }
-void AbfDecoder::Decode(short* Output) {
+void AbfDecoder::Decode(short* Output) const {
 unsigned short Bytes;
 unsigned char Input[320] = {0};
 fread(&Bytes, 2, 1, fin);
