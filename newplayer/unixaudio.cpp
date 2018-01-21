@@ -25,6 +25,9 @@ Device = open("/dev/dspbt", O_WRONLY);
 #else
 Device = open("/dev/dsp", O_WRONLY);
 #endif
+}
+void UnixAudio::Init(AbfDecoder* _AD) {
+AD = _AD;
 int Format = 1;
 ioctl(Device, SNDCTL_DSP_COOKEDMODE, &Format);
 Format = AFMT_S16_NE;
@@ -33,12 +36,21 @@ Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
 Format = 16000;
 ioctl(Device, SNDCTL_DSP_SPEED, &Format);
+if (Format != 16000) {
+OpusDecoder* OD = AD->GetOpusDecoder();
+opus_decoder_destroy(OD);
+int Error = 0;
+OD = nullptr;
+OD = opus_decoder_create(48000, 1, &Error);
+AD->SetOpusDecoder(OD);
+FrameSize = 960;
+}
 }
 UnixAudio::~UnixAudio() { close(Device); }
 void UnixAudio::Play() {
 IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
-short Buffer[320] = {0};
+short Buffer[FrameSize];
 AD->Decode(Buffer);
 write(Device, Buffer, sizeof(Buffer));
 }

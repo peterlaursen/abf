@@ -108,7 +108,11 @@ printf("Bytes: %d\n", Bytes);
 #endif
 if (feof()) return;
 
-int Error = opus_decode(Decoder, Input, BytesRead, Output, 320, 0);
+int SamplingRate = 0;
+opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
+
+int FrameSize = (SamplingRate=48000)?960:320;
+int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
 }
