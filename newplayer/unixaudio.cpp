@@ -1,10 +1,10 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 Peter Laursen.
 
 This file contains the class implementation of the OSS API that's in use on FreeBSD.
 If your system uses another audio system, derive from the AudioSystem class and make your own implementation.
 */
-#include <stdio.h>
+#include <cstdio>
 #include "unixaudio.h"
 #include "audiosystem.h"
 #include "player.h"
@@ -14,7 +14,12 @@ If your system uses another audio system, derive from the AudioSystem class and 
 #include <fcntl.h>
 #include <unistd.h>
 namespace ABF {
-UnixAudio::UnixAudio() {
+UnixAudio::UnixAudio(): Device(0), Volume(0) {
+/* If the preprocessor symbol BLUETOOTH is defined, we open the device /dev/dspbt
+This is mainly for use with the virtual_oss port.
+If not, we open the standard audio device (/dev/dsp).
+*/
+
 #ifdef BLUETOOTH
 Device = open("/dev/dspbt", O_WRONLY);
 #else
@@ -31,7 +36,7 @@ UnixAudio::~UnixAudio() { close(Device); }
 void UnixAudio::Play() {
 IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
-short Buffer[320];
+short Buffer[320] = {0};
 AD->Decode(Buffer);
 write(Device, Buffer, sizeof(Buffer));
 }

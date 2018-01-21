@@ -2,6 +2,7 @@
 #include "audiosystem.h"
 #include "unixaudio.h"
 #include "player.h"
+#include <sys/types.h>
 #include <sys/event.h>
 #include <pthread.h>
 #include <termios.h>
