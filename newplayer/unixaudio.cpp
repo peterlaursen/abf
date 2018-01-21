@@ -37,9 +37,8 @@ printf("%d, %d\n", ioctl(Device, SNDCTL_DSP_SPEED, &Format), Format);
 if (Format != 16000) {
 AD->SetSamplingRate(Format);
 if (Buffer != nullptr) delete[] Buffer;
-Buffer = new char[AD->GetFrameSize()];
 }
-else Buffer = new char[AD->GetFrameSize()];
+Buffer = new short[AD->GetFrameSize()];
 }
 UnixAudio::~UnixAudio() { close(Device); 
 if (Buffer != nullptr) delete[] Buffer;
