@@ -25,7 +25,9 @@ Device = open("/dev/dspbt", O_WRONLY);
 #else
 Device = open("/dev/dsp", O_WRONLY);
 #endif
-int Format = AFMT_S16_NE;
+int Format = 1;
+ioctl(Device, SNDCTL_DSP_COOKEDMODE, &Format);
+Format = AFMT_S16_NE;
 ioctl(Device, SNDCTL_DSP_SETFMT, &Format);
 Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
