@@ -1,3 +1,8 @@
+/* $Id$
+Copyright (C) 2018 Peter Laursen.
+
+This is a new player, built from the ground up to be slightly more efficient than the original player.
+*/
 #include "../libabf/libabf.h"
 #include "audiosystem.h"
 #include "unixaudio.h"
