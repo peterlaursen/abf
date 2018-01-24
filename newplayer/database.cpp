@@ -13,7 +13,7 @@ using namespace std;
 namespace ABF {
 static bool Initialized = false;
 static string DBName;
-void Init() {
+void Database::Init() {
 #ifdef WIN32
 DBName += getenv("LOCALAPPDATA");
 DBName += "\\.abfplayer.db";
@@ -36,7 +36,7 @@ int* p_lastposition = (int*)Type;
  *p_lastposition = LastPosition;
 return 0;
 }
-void SaveLastPosition(const char* Title, int LastPosition) {
+void Database::SaveLastPosition(const char* Title, int LastPosition) {
 if (!Initialized) {
 Init();
 }
@@ -82,7 +82,7 @@ sqlite3_exec(DB, Query.c_str(), 0, 0, &Error);
 sqlite3_free(Error);
 sqlite3_close(DB);
 }
-int GetLastPosition(const char* Title) {
+int Database::GetLastPosition(const char* Title) {
 string Query = "select lastposition from audiobooks where title = \"";
 Query += Title;
 Query += "\";";
@@ -90,26 +90,25 @@ int LastPosition = 0;
 int* p_lastposition = &LastPosition;
 sqlite3* DB;
 if (!Initialized) Init();
-
 sqlite3_open(DBName.c_str(), &DB);
 sqlite3_exec(DB, Query.c_str(), Callback2, p_lastposition, 0);
 sqlite3_close(DB);
 return LastPosition;
 }
-bool DBExists() {
+bool Database::DBExists() {
 FILE* fin = fopen(DBName.c_str(), "rb");
 if (!fin) return false;
 fclose(fin);
 return true;
 }
-void CreateDatabase() {
+void Database::CreateDatabase() {
 sqlite3_initialize();
 sqlite3* DB;
 sqlite3_open_v2(DBName.c_str(), &DB, SQLITE_OPEN_READWRITE|SQLITE_OPEN_CREATE, 0);
 sqlite3_exec(DB, "create table audiobooks(title varchar(255) not null, lastposition int not null);", 0, 0, 0);
 sqlite3_close(DB);
 }
-void DeletePosition(const char* Title) {
+void Database::DeletePosition(const char* Title) {
 string Query = "delete from audiobooks where title = \"";
 Query += Title;
 Query += "\";";
