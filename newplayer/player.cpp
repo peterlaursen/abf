@@ -8,9 +8,15 @@
 #include <termios.h>
 using namespace std;
 using namespace ABF;
+struct ThreadState {
+AbfDecoder& AD;
+AudioSystem& AS;
+};
 static termios term;
 volatile PlayerStatus PS = Playing;
-void* thread(void*) {
+void* thread(void* _ABF) {
+ThreadState* TS = (ThreadState*)_ABF;
+printf("Title: %s\n", TS->AD.GetTitle());
 int kq = kqueue();
 struct kevent kev;
 EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE|EV_ONESHOT, 0, 0, 0);
@@ -30,12 +36,13 @@ fprintf(stderr, "Usage: %s <filename> ...\n", argv[0]);
 return 1;
 }
 cfmakeraw(&term);
-tcsetattr(0, TCSANOW, &term);;
+tcsetattr(0, TCSANOW, &term);
 AbfDecoder AD(argv[1]);
 
 AudioSystem* Device = AudioSystem::Create(&AD);
+ThreadState TS {AD, *Device};
 ThreadType threadhandle;
-pthread_create(&threadhandle, NULL, thread, NULL);
+pthread_create(&threadhandle, NULL, thread, &TS);
 Device->Play();
 pthread_join(threadhandle, NULL);
 Device->Stop();
