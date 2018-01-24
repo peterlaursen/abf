@@ -15,6 +15,21 @@ using namespace std;
 using namespace ABF;
 static termios term;
 volatile PlayerStatus PS = Playing;
+void HandleInput(char key, ThreadState& TS) {
+termios myterm;
+tcgetattr(0, &myterm);
+cfmakesane(&myterm);
+if (key == 'p') {
+int MaxNum = TS.AD.GetNumSections();
+tcsetattr(0, TCSANOW, &myterm);
+int number = 0;
+printf("\nType in the section (1-%d): \n", TS.AD.GetNumSections());
+scanf("%d", &number);
+if (number > 0 && number <= MaxNum) TS.AD.Seek(TS.AD.GetSections()[--number], SEEK_SET);
+getchar(); // Remove a newline
+tcsetattr(0, TCSANOW, &term);
+}
+}
 void* thread(void* _ABF) {
 ThreadState* TS = (ThreadState*)_ABF;
 printf("Title: %s\n", TS->AD.GetTitle());
@@ -25,7 +40,8 @@ char key;
 do {
 kevent(kq, &kev, 1, &kev, 1, NULL);
 key = getchar();
-printf("Received event.\n");
+printf("Received event. Key: %d, %c\n", key, key);
+HandleInput(key, *TS);
 } while (key != 'q');
 PS = Quit;
 return nullptr;
@@ -36,10 +52,13 @@ if (argc != 2) {
 fprintf(stderr, "Usage: %s <filename> ...\n", argv[0]);
 return 1;
 }
-cfmakeraw(&term);
+termios oldterm;
+tcgetattr(0, &oldterm);
+tcgetattr(0, &term);
+term.c_lflag &= ~ICANON;
+term.c_lflag&=~ECHO;
 tcsetattr(0, TCSANOW, &term);
 AbfDecoder AD(argv[1]);
-
 AudioSystem* Device = AudioSystem::Create(&AD);
 ThreadState TS {AD, *Device};
 ThreadType threadhandle;
