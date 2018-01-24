@@ -8,10 +8,6 @@
 #include <termios.h>
 using namespace std;
 using namespace ABF;
-struct ThreadState {
-AbfDecoder& AD;
-AudioSystem& AS;
-};
 static termios term;
 volatile PlayerStatus PS = Playing;
 void* thread(void* _ABF) {

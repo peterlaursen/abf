@@ -28,4 +28,8 @@ BookIsFinished,
 Quit
 };
 extern volatile PlayerStatus PS;
+struct ThreadState {
+ABF::AbfDecoder& AD;
+ABF::AudioSystem& AS;
+};
 #endif
