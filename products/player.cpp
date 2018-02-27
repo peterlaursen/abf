@@ -205,7 +205,6 @@ AD.Seek(Array[CurrentSection], SEEK_SET);
 PS = Playing;
 }
 if (PS == NextBook || PS == PreviousBook) break;
-
 if (PS == Next) {
 // Get current position
 if (CurrentSection == AD.GetNumSections()) continue;
