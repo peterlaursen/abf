@@ -51,10 +51,8 @@ ioctl(Device, SNDCTL_DSP_GETPLAYVOL, &Volume);
 int LeftVolume = 0, RightVolume = 0;
 LeftVolume = Volume & 0x7f;
 RightVolume = Volume >> 8 & 0x7f;
-
 if (LeftVolume == 0) return;
 LeftVolume = RightVolume -= 5;
-
 Volume = LeftVolume|(RightVolume<<8);
 ioctl(Device, SNDCTL_DSP_SETPLAYVOL, &Volume);
 }
