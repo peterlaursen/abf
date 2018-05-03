@@ -14,10 +14,10 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #ifdef WIN32
 #ifdef BUILD_DLL
 #pragma comment(lib, "opus.lib")
-#pragma comment(lib, "celt.lib")
-#pragma comment(lib, "silk_common.lib")
-#pragma comment(lib, "silk_float.lib")
-#pragma comment(lib, "silk_fixed.lib")
+//#pragma comment(lib, "celt.lib")
+//#pragma comment(lib, "silk_common.lib")
+//#pragma comment(lib, "silk_float.lib")
+//#pragma comment(lib, "silk_fixed.lib")
 #endif
 #endif
 using namespace std;

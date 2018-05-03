@@ -12,7 +12,7 @@ This file contains the definition of DSAudio - the audio system implementation a
 #include "audiosystem.h"
 namespace ABF {
 class DSAudio: public AudioSystem {
-static int LastPosition = 0;
+static int LastPosition;
 HWND WindowHandle = 0;
 IDirectSoundBuffer8* Buffer = 0;
 IDirectSound8* Device = 0;
