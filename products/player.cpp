@@ -12,6 +12,8 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include "compat.h"
 #include <termios.h>
 #include <glob.h>
+#include <sys/types.h>
+#include <sys/event.h>
 #endif
 #include "database.h"
 #include "player.h"
@@ -28,7 +30,6 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <pthread.h>
 #endif
 #ifdef GPIO
-#include <sys/types.h>
 #include <libgpio.h>
 #endif
 
@@ -277,7 +278,11 @@ void Input() {
 if (gpio_pin_get(devhandle, 13) == 0) PS = Quit;
 #endif
 
+#ifndef WIN32
+char Key = getchar();
+#else
 char Key = getch(); 
+#endif
 if (Key == 'a') {
 PS = AddBook;
 Device->Stop();
@@ -321,7 +326,11 @@ void ThreadFunc(void*) {
 #else
 void* ThreadFunc(void*) {
 #endif
-
+#ifdef FREEBSD
+int kq = kqueue();
+struct kevent kev;
+EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE|EV_ONESHOT, 0, 0, 0);
+#endif
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
 #ifdef GPIO
 if (gpio_pin_get(devhandle, 13) == 0) {
@@ -329,10 +338,12 @@ PS=Quit;
 break;
 }
 #endif
-if (kbhit()) Input();
 #ifdef WIN32
+if (kbhit()) Input();
 Sleep(250);
 #else
+kevent(kq, &kev, 1, &kev, 1, NULL);
+Input();
 usleep(250);
 #endif
 }
