@@ -91,7 +91,7 @@ memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
 Temp += EncSize;
 AE->Encode(MyFile, TempEncoder, EncSize);
 }
-
+pthread_yield();
 } while (Status == MPG123_OK);
 AE->Lock();
 AE->CloseSection(MyFile);
