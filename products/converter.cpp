@@ -142,7 +142,7 @@ AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
 void* PAE = &AE;
-int NumThreads = std::thread::hardware_concurrency() + 1;
+int NumThreads = std::thread::hardware_concurrency();
 pthread_t ThreadHandle[NumThreads];
 NumberOfFiles = D.GetNumSections();
 for (int i = 0; i < NumThreads; i++) {
