@@ -8,6 +8,7 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
+#include <thread>
 #include "../libdaisy20/libdaisy20.h"
 #include "../abfencoder/abfencoder.h"
 #ifndef WIN32
@@ -141,12 +142,13 @@ AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
 void* PAE = &AE;
-pthread_t ThreadHandle[4];
+int NumThreads = std::thread::hardware_concurrency() + 1;
+pthread_t ThreadHandle[NumThreads];
 NumberOfFiles = D.GetNumSections();
-for (int i = 0; i < 4; i++) {
+for (int i = 0; i < NumThreads; i++) {
 pthread_create(&ThreadHandle[i], NULL, ConverterThread, PAE);
 }
-for (int i = 0; i < 4; i++) pthread_join(ThreadHandle[i], 0);
+for (int i = 0; i < NumThreads; i++) pthread_join(ThreadHandle[i], 0);
 AE.Gather();
 mpg123_exit();
 return (EXIT_SUCCESS);
