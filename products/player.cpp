@@ -13,9 +13,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <termios.h>
 #include <glob.h>
 #include <sys/types.h>
-#ifdef FREEBSD
 #include <sys/event.h>
-#endif
 #endif
 #include "database.h"
 #include "player.h"
@@ -350,13 +348,8 @@ break;
 if (kbhit()) Input();
 Sleep(250);
 #else
-#ifdef FREEBSD
-
 kevent(kq, &kev, 1, &kev, 1, NULL);
-#endif
-#ifdef LINUX
-if (kbhit()) Input();
-#endif
+Input();
 usleep(250);
 #endif
 }
