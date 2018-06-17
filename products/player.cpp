@@ -133,24 +133,11 @@ SetConsoleTitle(Temp.c_str());
 //short Buffer[320];
 //short Buffer1[32000];
 const int* Array = AD.GetSections();
-int CurrentSection = 0;
 int LastPosition = GetLastPosition(AD.GetTitle());
 if (LastPosition > 0) {
 AD.Seek(LastPosition, SEEK_SET);
-// Set CurrentSection to the correct section
-for (int i = 0; i < AD.GetNumSections(); i++) {
-if (Array[i] > LastPosition) {
-CurrentSection = i-1;
-break;
-}
-}
 }
 while (!AD.feof() && PS != Quit) {
-// Ensure that CurrentSection is up-to-date
-if (AD.ftell() > Array[CurrentSection] && AD.ftell() 
-> Array[CurrentSection + 1]) 
-CurrentSection += 1;
-// The rest of this loop processes key presses.
 if (PS == VolumeDown) {
 Device->DecreaseVolume();
 PS = Playing;
@@ -171,11 +158,19 @@ Device->Stop();
 #ifndef WIN32
 tcsetattr(0, TCSANOW|TCSAFLUSH, &oldt);
 #endif
-cout << endl << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection + 1 << ":" << endl;
+unsigned short MaxSections = AD.GetNumSections()-1;
+int CurrentSection = -1;
+for (int i = 0; i < AD.GetNumSections(); i++) {
+if (Array[i] >= AD.ftell()) {
+CurrentSection = i - 1;
+break;
+}
+}
+if (CurrentSection == -1) CurrentSection = MaxSections;
+cout << endl << "Go To Section: (0-" << MaxSections << "), current section is " << CurrentSection << ":" << endl;
 unsigned short NewSection;
 cin >> NewSection;
-NewSection -= 1;
-if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
+if (NewSection >= MaxSections) NewSection = MaxSections;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 #ifndef WIN32
@@ -192,36 +187,32 @@ PS = Playing;
 cin.clear();
 continue;
 }
-// Set current section
-int Position = AD.ftell();
-for (int i = 0; i <= AD.GetNumSections(); i++) {
-if (Array[i] > Position) {
-CurrentSection = i - 1;
-break;
-}
-}
 PS = Playing;
 continue;
 }
 if (PS == FirstSection) {
-CurrentSection = 0;
-AD.Seek(Array[CurrentSection], SEEK_SET);
+AD.Seek(Array[0], SEEK_SET);
 PS = Playing;
+continue;
 }
 if (PS == LastSection) {
-CurrentSection = AD.GetNumSections()-1;
-AD.Seek(Array[CurrentSection], SEEK_SET);
+Device->Stop();
+AD.Seek(Array[AD.GetNumSections()-1], SEEK_SET);
 PS = Playing;
+continue;
 }
 if (PS == NextBook || PS == PreviousBook) break;
 if (PS == Next) {
 // Get current position
-if (CurrentSection == AD.GetNumSections()) continue;
+Device->Stop();
 int CurPos = AD.ftell();
+if (CurPos >= Array[AD.GetNumSections()-1]) {
+PS = Playing;
+continue;
+}
 for (int i = 0; i < AD.GetNumSections(); i++) {
 if (Array[i] > CurPos) {
 AD.Seek(Array[i], SEEK_SET);
-CurrentSection = i;
 break;
 }
 }
@@ -243,18 +234,21 @@ continue;
 }
 if (PS == Previous) {
 // Prevent us from going to -1
-if (CurrentSection == 0) {
+Device->Stop();
+if (AD.ftell() < Array[1]) {
 PS = Playing;
 continue;
 }
-if (CurrentSection >= AD.GetNumSections()) CurrentSection = AD.GetNumSections()-1;
-Device->Stop();
 // Get current position
 int CurPos = AD.ftell();
+if (CurPos >= Array[AD.GetNumSections()-1]) {
+AD.Seek(Array[AD.GetNumSections()-2], SEEK_SET);
+PS = Playing;
+continue;
+}
 for (int i = 0; i < AD.GetNumSections(); i++) {
-if (Array[i] < CurPos && Array[i+1] > CurPos) {
-CurrentSection = i-1;
-AD.Seek(Array[CurrentSection], SEEK_SET);
+if (Array[i] >= CurPos) {
+AD.Seek(Array[i-2], SEEK_SET);
 break;
 }
 }
