@@ -46,11 +46,17 @@ termios oldt, newt;
 #endif
 
 void AddBookToPlaylist() {
-
+#ifndef WIN32
+tcsetattr(0, TCSANOW, &oldt);
+#endif
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
-PL.Add(NewBook);
+if (access(NewBook.c_str(), F_OK)) cout << "Book file does not exist." << endl;
+else PL.Add(NewBook);
+#ifndef WIN32
+tcsetattr(0, TCSAFLUSH|TCSANOW, &newt);
+#endif
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -67,21 +73,18 @@ return false;
 tcsetattr(0, TCSANOW, &oldt);
 #endif
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
-cin.clear();
 cout << endl << "Type in the position you want to go to in minutes: (1-" << AD.GetMinutes() << "): " << endl;
 int Minutes = 0;
 cin >> Minutes;
-// Clear cin (this is a bad hack!). Turn our minutes into seconds
-cin.ignore(10000, '\n');
 if (Minutes > AD.GetMinutes()) {
 cout << "Error, the book isn't that long." << endl;
 #ifndef WIN32
-tcsetattr(0, TCSANOW, &newt);
+tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
 #endif
 return false;
 }
 #ifndef WIN32
-tcsetattr(0, TCSANOW, &newt);
+tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
 #endif
 return AD.GoToPosition(--Minutes);
 }
@@ -166,25 +169,27 @@ continue;
 if (PS == GoToSection) {
 Device->Stop();
 #ifndef WIN32
-tcsetattr(0, TCSANOW, &oldt);
+tcsetattr(0, TCSANOW|TCSAFLUSH, &oldt);
 #endif
-cout << endl << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection + 1 << ": ";
+cout << endl << "Go To Section: (1-" << AD.GetNumSections() << "), current section is " << CurrentSection + 1 << ":" << endl;
 unsigned short NewSection;
-cin.clear();
 cin >> NewSection;
 NewSection -= 1;
 if (NewSection >= AD.GetNumSections()) NewSection = AD.GetNumSections() - 1;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
 #ifndef WIN32
-tcsetattr(0, TCSANOW, &newt);
+tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
+cin.clear();
 #endif
 PS = Playing;
+continue;
 }
 if (PS == GoTime) {
 Device->Stop();
 if (!JumpToTime(AD)) {
 PS = Playing;
+cin.clear();
 continue;
 }
 // Set current section
@@ -196,6 +201,7 @@ break;
 }
 }
 PS = Playing;
+continue;
 }
 if (PS == FirstSection) {
 CurrentSection = 0;
