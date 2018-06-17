@@ -73,7 +73,16 @@ return false;
 tcsetattr(0, TCSANOW, &oldt);
 #endif
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
-cout << endl << "Type in the position you want to go to in minutes: (1-" << AD.GetMinutes() << "): " << endl;
+const int* Positions = AD.GetMinutePositions();
+int CurrentMinute = 0;
+for (int i = 0; i < AD.GetMinutes(); i++) {
+if (Positions[i] >= AD.ftell()) {
+CurrentMinute = i;
+break;
+}
+}
+
+cout << endl << "Type in the position you want to go to in minutes: (1-" << AD.GetMinutes() << "), current minute is " << CurrentMinute << ": " << endl;
 int Minutes = 0;
 cin >> Minutes;
 if (Minutes > AD.GetMinutes()) {
