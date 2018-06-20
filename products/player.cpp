@@ -370,7 +370,8 @@ int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
 #ifndef WIN32
 tcgetattr(0, &oldt);
-cfmakeraw(&newt);
+newt.c_lflag &= ~ICANON;
+newt.c_flag &= ~ECHO;
 tcsetattr(0, TCSANOW, &newt);
 glob_t g;
 for (int i = 1; i < argc; i++) {
