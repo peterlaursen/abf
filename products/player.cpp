@@ -340,7 +340,7 @@ void* ThreadFunc(void*) {
 #ifdef FREEBSD
 int kq = kqueue();
 struct kevent kev;
-EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE|EV_ONESHOT, 0, 0, 0);
+EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE, 0, 0, 0);
 #endif
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
 #ifdef GPIO
