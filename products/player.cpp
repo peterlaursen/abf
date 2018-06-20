@@ -371,7 +371,7 @@ if (argc < 2) AddBookToPlaylist();
 #ifndef WIN32
 tcgetattr(0, &oldt);
 newt.c_lflag &= ~ICANON;
-newt.c_flag &= ~ECHO;
+newt.c_lflag &= ~ECHO;
 tcsetattr(0, TCSANOW, &newt);
 glob_t g;
 for (int i = 1; i < argc; i++) {
