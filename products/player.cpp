@@ -47,7 +47,7 @@ termios oldt, newt;
 
 void AddBookToPlaylist() {
 #ifndef WIN32
-cfmakesane(&oldt);
+tcsetattr(0, TCSANOW, &oldt);
 #endif
 string NewBook;
 cout << "Type in the book to add." << endl;
@@ -55,7 +55,7 @@ getline(cin, NewBook);
 if (access(NewBook.c_str(), F_OK)) cout << "Book file does not exist." << endl;
 else PL.Add(NewBook);
 #ifndef WIN32
-tcsetattr(0, TCSANOW, &newt);
+tcsetattr(0, TCSAFLUSH|TCSANOW, &newt);
 #endif
 }
 void RemoveBookFromPlaylist() {
@@ -70,7 +70,7 @@ cout << "You must re-encode with a supported encoder in order to get this abilit
 return false;
 }
 #ifndef WIN32
-cfmakesane(&oldt);
+tcsetattr(0, TCSANOW, &oldt);
 #endif
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 const int* Positions = AD.GetMinutePositions();
@@ -165,7 +165,7 @@ continue;
 if (PS == GoToSection) {
 Device->Stop();
 #ifndef WIN32
-cfmakesane(&oldt);
+tcsetattr(0, TCSANOW|TCSAFLUSH, &oldt);
 #endif
 unsigned short MaxSections = AD.GetNumSections()-1;
 int CurrentSection = -1;
@@ -340,7 +340,7 @@ void* ThreadFunc(void*) {
 #ifdef FREEBSD
 int kq = kqueue();
 struct kevent kev;
-EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE, 0, 0, 0);
+EV_SET(&kev, 0, EVFILT_READ, EV_ADD|EV_ENABLE|EV_ONESHOT, 0, 0, 0);
 #endif
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
 #ifdef GPIO
@@ -369,7 +369,7 @@ return nullptr;
 int main(int argc, char* argv[]) {
 if (argc < 2) AddBookToPlaylist();
 #ifndef WIN32
-cfmakesane(&oldt);
+tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
 glob_t g;
@@ -432,7 +432,7 @@ cout << endl << "Playlist empty; exitting..." << endl;
 // Ensure our shell character comes on its own line
 cout << endl;
 #ifndef WIN32
-cfmakesane(&oldt);
+tcsetattr(0, TCSANOW, &oldt);
 #endif
 return 0;
 }
