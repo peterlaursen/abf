@@ -376,11 +376,16 @@ tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
 #endif
+int Start = 1;
+
 if (argc < 2) AddBookToPlaylist();
-if (argv[1] == "-d") DevName = argv[2];
+if (!strcmp(argv[1], "-d")) {
+Start = 3;
+DevName = argv[2];
+}
 #ifndef WIN32
 glob_t g;
-for (int i = 1; i < argc; i++) {
+for (int i = Start; i < argc; i++) {
 glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
 for (int i = 0; i < g.gl_pathc; i++) PL.Add(g.gl_pathv[i]);
 }
@@ -390,9 +395,8 @@ globfree(&g);
 devhandle = gpio_open(0);
 gpio_pin_pullup(devhandle, 13);
 #endif
-// Open the audio device.
 #ifdef WIN32
-for (int i = 1; i < argc; i++) PL.Add(argv[i]);
+for (int i = Start; i < argc; i++) PL.Add(argv[i]);
 #endif
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){
@@ -403,7 +407,6 @@ PS = Playing;
 }
 if (PS == NextBook) {
 if (PL.GetTotalItems() == 0) break;
-
 if (!PL.NextBook()) break;
 PS = Playing;
 }
@@ -412,7 +415,6 @@ if (PL.GetTotalItems() == 1) break;
 PS = NextBook;
 continue;
 }
-
 Filename = PL.GetCurrentBookName();
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
@@ -437,7 +439,6 @@ gpio_close(devhandle);
 if (PS != Quit)
 cout << endl << "Playlist empty; exitting..." << endl;
 // Ensure our shell character comes on its own line
-cout << endl;
 #ifndef WIN32
 tcsetattr(0, TCSANOW, &oldt);
 #endif
