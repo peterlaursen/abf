@@ -18,8 +18,8 @@ If your system uses another audio system, derive from the AudioSystem class and 
 namespace ABF {
 using std::string;
 UnixAudio::UnixAudio(string DevName): Device(0), Volume(0) {
-if (empty(DevName)) DevName = "/dev/dsp";
-Device = open(DevName, O_WRONLY);
+if (DevName.empty()) DevName = "/dev/dsp";
+Device = open(DevName.c_str(), O_WRONLY);
 }
 void UnixAudio::Init(AbfDecoder* _AD) {
 AD = _AD;
