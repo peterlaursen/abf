@@ -14,6 +14,8 @@ If your system uses another audio system, derive from the AudioSystem class and 
 #include <string>
 namespace ABF {
 using std::string;
+using std::cerr;
+using std::endl;
 LinuxAudio::LinuxAudio(string DevName) {
 /*
 Pulseaudio apparently requires the format to be set up in a slightly different way to OSS on FreeBSD.
