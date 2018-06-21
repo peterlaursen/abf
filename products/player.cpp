@@ -65,8 +65,8 @@ if (PL.GetTotalItems() == 0) return;
 
 bool JumpToTime(AbfDecoder& AD) {
 if (AD.GetMajor() == 2 && AD.GetMinor() != 1) {
-cout << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
-cout << "You must re-encode with a supported encoder in order to get this ability." << endl;
+cerr << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
+cerr << "You must re-encode with a supported encoder in order to get this ability." << endl;
 return false;
 }
 #ifndef WIN32
