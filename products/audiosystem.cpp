@@ -21,11 +21,10 @@ AudioSystem* AudioSystem::AS = nullptr;
 AudioSystem* AudioSystem::Create(AbfDecoder* AD, string DevName) {
 #ifndef WIN32
 #ifndef PULSE
-AS = new UnixAudio();
+AS = new UnixAudio(DevName);
 #else
-AS = new LinuxAudio();
+AS = new LinuxAudio(DevName);
 #endif
-
 #else
 AS = new DSAudio();
 #endif
