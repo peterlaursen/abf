@@ -15,7 +15,7 @@ To implement a new playback system, derive from this class.
 #include "../libabf/libabf.h"
 #include <string>
 namespace ABF {
-use std::string;
+using std::string;
 class AudioSystem {
 private:
 static AudioSystem* AS;
