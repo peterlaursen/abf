@@ -10,7 +10,7 @@ If your system supports another API, make an implementation which you derive fro
 #include "audiosystem.h"
 #include <string>
 namespace ABF {
-use std::string;
+using std::string;
 class UnixAudio : public AudioSystem {
 int Device = 0;
 int Volume = 0;
