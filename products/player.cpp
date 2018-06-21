@@ -385,12 +385,12 @@ DevName = argv[2];
 }
 }
 #ifndef WIN32
-glob_t g;
+glob_t g = nullptr;
 for (int i = Start; i < argc; i++) {
 glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
 for (int i = 0; i < g.gl_pathc; i++) PL.Add(g.gl_pathv[i]);
 }
-globfree(&g);
+if (!g) globfree(&g);
 #endif
 #ifdef GPIO
 devhandle = gpio_open(0);
