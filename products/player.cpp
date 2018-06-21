@@ -285,6 +285,10 @@ return nullptr;
 gpio_handle_t devhandle = 0;
 #endif
 void Input() {
+// In order to ensure our input is not repeated unnecessarily if you press the G or J key, we return if PlayerState is  equal to GoTime or GoToSection.
+// If we don't do this, it seems our first few characters were skipped from the input.
+// What happened in reality was that the Input() function was called again, then only afterwards relinquishing the input.
+if (PS == GoToSection || PS == GoTime) return;
 #ifdef GPIO
 if (gpio_pin_get(devhandle, 13) == 0) PS = Quit;
 #endif
@@ -367,11 +371,13 @@ return nullptr;
 #endif
 }
 int main(int argc, char* argv[]) {
-if (argc < 2) AddBookToPlaylist();
 #ifndef WIN32
 tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
+#endif
+if (argc < 2) AddBookToPlaylist();
+#ifndef WIN32
 glob_t g;
 for (int i = 1; i < argc; i++) {
 glob(argv[i], GLOB_BRACE|GLOB_TILDE, NULL, &g);
