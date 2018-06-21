@@ -4,7 +4,6 @@ Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 P
 This is the main player for our PC platforms.
 This contains code that interfaces with our libabf library, most specifically our AbfDecoder.
 */
-
 #ifdef WIN32
 #include "dsaudio.h"
 #else
@@ -34,10 +33,11 @@ This contains code that interfaces with our libabf library, most specifically ou
 #ifdef GPIO
 #include <libgpio.h>
 #endif
-
+#include <string>
 using namespace std;
 using namespace ABF;
-AudioSystem* Device;
+AudioSystem* Device = nullptr;
+string DevName = "";
 volatile PlayerStatus PS = Playing;
 PlayList PL;
 AbfDecoder* GlobalAD = nullptr;
@@ -105,7 +105,7 @@ void* Thread(void* Filename) {
 char* Temp = (char*)Filename;
 AbfDecoder AD(Temp);
 GlobalAD = &AD;
-Device = AudioSystem::Create(GlobalAD);
+Device = AudioSystem::Create(GlobalAD, DevName);
 
 bool IsValid = AD.IsValid();
 if (!IsValid) {
@@ -377,6 +377,7 @@ cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
 #endif
 if (argc < 2) AddBookToPlaylist();
+if (argv[1] == "-d") DevName = argv[2];
 #ifndef WIN32
 glob_t g;
 for (int i = 1; i < argc; i++) {
