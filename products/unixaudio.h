@@ -8,7 +8,9 @@ If your system supports another API, make an implementation which you derive fro
 #define UNIXAUDIO_H
 #include "../libabf/libabf.h"
 #include "audiosystem.h"
+#include <string>
 namespace ABF {
+use std::string;
 class UnixAudio : public AudioSystem {
 int Device = 0;
 int Volume = 0;
@@ -16,8 +18,7 @@ int FrameSize = 320;
 protected:
 virtual void Init(ABF::AbfDecoder*);
 public:
-UnixAudio();
-
+UnixAudio(string DevName = "");
 ~UnixAudio();
 virtual void Play();
 virtual void Stop();

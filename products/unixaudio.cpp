@@ -13,18 +13,13 @@ If your system uses another audio system, derive from the AudioSystem class and 
 #include <sys/soundcard.h>
 #include <fcntl.h>
 #include <unistd.h>
-namespace ABF {
-UnixAudio::UnixAudio(): Device(0), Volume(0) {
-/* If the preprocessor symbol BLUETOOTH is defined, we open the device /dev/dspbt
-This is mainly for use with the virtual_oss port.
-If not, we open the standard audio device (/dev/dsp).
-*/
+#include <string>
 
-#ifdef BLUETOOTH
-Device = open("/dev/dspbt", O_WRONLY);
-#else
-Device = open("/dev/dsp", O_WRONLY);
-#endif
+namespace ABF {
+using std::string;
+UnixAudio::UnixAudio(string DevName): Device(0), Volume(0) {
+if (empty(DevName)) DevName = "/dev/dsp";
+Device = open(DevName, O_WRONLY);
 }
 void UnixAudio::Init(AbfDecoder* _AD) {
 AD = _AD;
