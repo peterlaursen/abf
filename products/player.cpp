@@ -377,9 +377,8 @@ cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
 #endif
 int Start = 1;
-
 if (argc < 2) AddBookToPlaylist();
-if (argc > 2) {
+if (argc >= 2) {
 if (!strcmp(argv[1], "-d")) {
 Start = 3;
 DevName = argv[2];
