@@ -18,7 +18,7 @@ This contains the implementation of the AudioSystem class.
 namespace ABF {
 using std::string;
 AudioSystem* AudioSystem::AS = nullptr;
-AudioSystem* AudioSystem::Create(AbfDecoder* AD, string DevName = "") {
+AudioSystem* AudioSystem::Create(AbfDecoder* AD, string DevName) {
 #ifndef WIN32
 #ifndef PULSE
 AS = new UnixAudio();
