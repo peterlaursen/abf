@@ -7,15 +7,17 @@ If your system supports another API, make an implementation which you derive fro
 #ifndef LinuxAudio_H
 #define LinuxAudio_H
 #include <pulse/simple.h>
+#include <string>
 #include "../libabf/libabf.h"
 #include "audiosystem.h"
 namespace ABF {
+using std::string;
 class LinuxAudio : public AudioSystem {
 pa_simple* Device;
 pa_sample_spec AudioFormat;
 int Volume;
 public:
-LinuxAudio();
+LinuxAudio(string DevName = "");
 ~LinuxAudio();
 virtual void Play();
 virtual void Stop();
