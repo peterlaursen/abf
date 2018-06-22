@@ -52,8 +52,12 @@ tcsetattr(0, TCSANOW, &oldt);
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
-if (access(NewBook.c_str(), F_OK)) cout << "Book file does not exist." << endl;
+#ifdef WIN32
+PL.Add(NewBook);
+#else
+if (access(NewBook.c_str(), F_OK)) cerr << "Book file does not exist." << endl;
 else PL.Add(NewBook);
+#endif
 #ifndef WIN32
 tcsetattr(0, TCSAFLUSH|TCSANOW, &newt);
 #endif
