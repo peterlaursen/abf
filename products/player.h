@@ -7,12 +7,8 @@ This file contains various declarations that are used within the player.
 #define PLAYER_H
 #include "playlist.h"
 #include "../abfdecoder/abfdecoder.h"
-#ifdef WIN32
 #include <windows.h>
 #include "dsaudio.h"
-#else
-#include "unixaudio.h"
-#endif
 #include <thread>
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
