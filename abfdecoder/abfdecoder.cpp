@@ -19,8 +19,10 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 using namespace std;
 namespace ABF {
 int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
-AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false) {}
-AbfDecoder::AbfDecoder(const char* Filename) {
+AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false), _IsValid(false) {
+HeaderSize = Major = Minor = NumMinutes = NumSections = 0;
+}
+AbfDecoder::AbfDecoder(const char* Filename): AbfDecoder() {
 Initialize(Filename);
 }
 void AbfDecoder::Initialize(const char* Filename) {
@@ -217,108 +219,5 @@ if (SamplingRate == 16000) return;
 opus_decoder_destroy(Decoder);
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);
-}
-
-AbfEncoder::AbfEncoder(): fout(nullptr) {}
-
-AbfEncoder::AbfEncoder(const char* Filename) {
-Initialize(Filename);
-}
-void AbfEncoder::Initialize(const char* Filename) {
-Buffer = new unsigned char[MaxBufferSize];
-memset(Buffer, '\0', MaxBufferSize);
-fout = fopen(Filename, "wb+");
-int Error = 0;
-Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
-if (Error != OPUS_OK) {
-fprintf(stderr, "Error in creating our encoder!\n");
-delete[] Buffer;
-return;
-}
-
-}
-AbfEncoder::~AbfEncoder() {
-if (CurrentBufferPosition > 0)
-fwrite(Buffer, CurrentBufferPosition, 1, fout);
-// Let's write the last bits of the file so that we can finalize it before we close it.
-IndexTableStartPosition = ftell(fout);
-int StartPosition = HeaderSize - sizeof(unsigned short) - sizeof(int);
-fseek(fout, StartPosition, SEEK_SET);
-NumMinutes = MinutePositions.size();
-fwrite(&NumMinutes, 1, sizeof(short), fout);
-fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
-fseek(fout, IndexTableStartPosition, SEEK_SET);
-for (int i = 0; i < MinutePositions.size(); i++) fwrite(&MinutePositions[i], 1, sizeof(int), fout);
-fclose(fout);
-opus_encoder_destroy(Encoder);
-delete[] Buffer;
-Buffer = nullptr;
-CurrentBufferPosition = 0;
-}
-void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
-void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
-void AbfEncoder::SetTime(const char* Time) { _Time = Time; }
-void AbfEncoder::SetNumSections(unsigned short NumSections) { _NumSections = NumSections; }
-void AbfEncoder::WriteHeader() {
-rewind(fout);
-fwrite("ABF", 1, 3, fout);
-HeaderSize = 0;
-fwrite(&HeaderSize, sizeof(short), 1, fout);
-unsigned short Major = 2, Minor = 1;
-fwrite(&Major, sizeof(short), 1, fout);
-fwrite(&Minor, sizeof(short), 1, fout);
-unsigned short Length = _Title.length();
-fwrite(&Length, sizeof(short), 1, fout);
-fwrite(_Title.c_str(), 1, Length, fout);
-Length = _Author.length();
-fwrite(&Length, sizeof(short), 1, fout);
-fwrite(_Author.c_str(), 1, Length, fout);
-Length = _Time.length();
-fwrite(&Length, sizeof(short), 1, fout);
-fwrite(_Time.c_str(), 1, Length, fout);
-fwrite(&_NumSections, sizeof(short), 1, fout);
-fwrite(&NumMinutes, 1, sizeof(unsigned short), fout);
-fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
-HeaderSize = ftell(fout);
-fseek(fout, 3, SEEK_SET);
-fwrite(&HeaderSize, sizeof(short), 1, fout);
-fseek(fout, HeaderSize, SEEK_SET);
-int Size = 0;
-for (unsigned short i = 0; i < _NumSections; i++) {
-fwrite(&Size, sizeof(int), 1, fout);
-}
-}
-void AbfEncoder::WriteSection() {
-static int CurrentSection = 0;
-if (CurrentBufferPosition > 0) {
-fwrite(Buffer, CurrentBufferPosition, 1, fout);
-memset(Buffer, '\0', MaxBufferSize);
-CurrentBufferPosition = 0;
-}
-int Position = ftell(fout);
-fseek(fout, HeaderSize, SEEK_SET);
-for (int i = 0; i < CurrentSection; i++) fseek(fout, 4, SEEK_CUR);
-// We are now at the beginning of a section header.
-fwrite(&Position, sizeof(int), 1, fout);
-fseek(fout, Position, SEEK_SET);
-CurrentSection += 1;
-}
-void AbfEncoder::Encode(const short* Input) {
-unsigned char Output[200] = {0};
-short Bytes = opus_encode(Encoder, Input, 320, Output, 200);
-if (CurrentBufferPosition + Bytes >= MaxBufferSize - 1) {
-fwrite(Buffer, CurrentBufferPosition, 1, fout);
-memset(Buffer, '\0', MaxBufferSize);
-CurrentBufferPosition = 0;
-}
-memcpy(&Buffer[CurrentBufferPosition], &Bytes, sizeof(short));
-CurrentBufferPosition += sizeof(short);
-memcpy(&Buffer[CurrentBufferPosition], Output, Bytes);
-CurrentBufferPosition += Bytes;
-++FramesEncoded;
-if (FramesEncoded % 3000 == 0) {
-int Position = ftell(fout)+CurrentBufferPosition;
-MinutePositions.push_back(Position);
-}
 }
 }

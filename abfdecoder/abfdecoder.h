@@ -34,7 +34,7 @@ bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
-unsigned short HeaderSize = Major = Minor = NumSections = NumMinutes = 0;
+unsigned short HeaderSize, Major, Minor, NumSections, NumMinutes;
 int IndexTableStartPosition = 0;
 void ReadHeader();
 bool Validate();
