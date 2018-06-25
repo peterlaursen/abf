@@ -99,8 +99,8 @@ if (AbfSections[i].Status != Finished) continue;
 FILE* fd = fopen(AbfSections[i].TempFile(), "rb");
 int status = 0;
 do {
-status = fread(&FileBuffer, 1024, 1, fd);
-fwrite(&FileBuffer, status, 1, fout);
+status = fread(&FileBuffer, 1, 1024, fd);
+fwrite(FileBuffer, status, 1, fout);
 } while (status > 0);
 }
 fseek(fout, HeaderSize, SEEK_SET);

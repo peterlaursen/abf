@@ -1,4 +1,4 @@
-/* $Id$
+;/* $Id$
 Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
@@ -14,6 +14,7 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <opus/opus.h>
 #include <mpg123.h>
 #include "speex_resampler.h"
+using namespace std;
 using namespace ABF;
 static const char* BookFileName = nullptr;
 static int NumberOfFiles = 0;
@@ -118,14 +119,17 @@ AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
 AbfEncoder* PAE = &AE;
 int NumThreads = std::thread::hardware_concurrency();
-std::thread* ThreadHandle = new std::thread[NumThreads];
 NumberOfFiles = D.GetNumSections();
+thread* ThreadHandle = new thread[NumThreads];
 for (int i = 0; i < NumThreads; i++) {
-ThreadHandle[i] = std::thread(ConverterThread, PAE);
+ThreadHandle[i] = thread(ConverterThread, PAE);
 }
 for (int i = 0; i < NumThreads; i++) ThreadHandle[i].join();
 delete[] ThreadHandle;
+ConverterThread(&AE);
+cout << "Before gather..." << endl;
 AE.Gather();
+cout << "After gather." << endl;
 mpg123_exit();
 return (EXIT_SUCCESS);
 }
