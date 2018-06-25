@@ -13,16 +13,7 @@ This file contains various declarations that are used within the player.
 #else
 #include "unixaudio.h"
 #endif
-
-#ifdef WIN32
-typedef HANDLE ThreadType;
-#endif
-#ifdef LINUX
-typedef pthread_t ThreadType;
-#endif
-#ifdef FREEBSD
-typedef pthread* ThreadType;
-#endif
+#include <thread>
 enum PlayerStatus {
 Nothing = 0, // A default value only to be used in the beginning
 Playing,
