@@ -248,7 +248,6 @@ GlobalAD->SetGain(Gain);
 }
 void ThreadFunc() {
 while (PS != Quit && PS != BookIsFinished && PS != PreviousBook && PS != NextBook) {
-#ifdef WIN32
 if (kbhit()) Input();
 Sleep(250);
 }

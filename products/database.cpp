@@ -14,13 +14,8 @@ namespace ABF {
 static bool Initialized = false;
 static string DBName;
 void Init() {
-#ifdef WIN32
 DBName += getenv("LOCALAPPDATA");
 DBName += "\\.abfplayer.db";
-#else
-DBName += getenv("HOME");
-DBName += "/.abfplayer.db";
-#endif
 if (!DBExists()) CreateDatabase();
 Initialized = true;
 }
