@@ -19,12 +19,13 @@ We do this so that it will become easier for the converter to start doing multit
 #include <cstdio>
 #include <string>
 #include <vector>
-#include <pthread.h>
+#include <mutex>
 #include <opus/opus.h>
 #include <cstdlib>
 #include "abfsection.h"
 namespace ABF {
 using std::FILE;
+using std::mutex;
 using std::string;
 using std::vector;
 class AbfEncoder {
@@ -40,9 +41,8 @@ int IndexTableStartPosition = 0;
 int FramesEncoded = 0;
 vector<int> MinutePositions;
 void Initialize(const char*);
-
 AbfSection* AbfSections = nullptr; // Our ABFSections
-pthread_mutex_t mtx; // Mutex we use.
+mutex mtx; // Mutex we use.
 public:
 AbfEncoder(const char* Filename, unsigned short NumSections);
 ~AbfEncoder();

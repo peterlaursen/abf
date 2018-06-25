@@ -32,16 +32,13 @@ if (_NumSections > 0) {
 AbfSections = new AbfSection[_NumSections];
 }
 fout = fopen(Filename, "wb+");
-pthread_mutex_init(&mtx, NULL);
 }
 AbfEncoder::~AbfEncoder() {
 Lock();
-
 for (int i = 0; i < _NumSections; i++) {
 AbfSections[i].Close();
 }
 Unlock();
-pthread_mutex_destroy(&mtx);
 // Let's write the last bits of the file so that we can finalize it before we close it.
 IndexTableStartPosition = ftell(fout);
 int StartPosition = HeaderSize - sizeof(unsigned short) - sizeof(int);
@@ -55,10 +52,10 @@ delete[] AbfSections;
 fclose(fout);
 }
 void AbfEncoder::Lock() { 
-pthread_mutex_lock(&mtx);
+mtx.lock();
 }
 void AbfEncoder::Unlock() {
-pthread_mutex_unlock(&mtx);
+mtx.unlock();
 }
 void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
 void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
