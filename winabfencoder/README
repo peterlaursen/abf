@@ -1,0 +1,12 @@
+LibABF
+
+LibABF is the library responsible for encoding and decoding Audio books in our format.
+This library is the foundation library for the format as such and should be considered the reference implementation.
+As of now, encoding is single-threaded, meaning that encoding takes a bit of time.
+
+After long deliberations, it has been decided to keep the original LibABF API and extend it to allow more control over the encoding process.
+This will be done by adding a few functions to the libabf.h AbfEncoder class.
+Decoding should be unaffected.
+
+As of this writing, libabfmulti has been retired.
+
