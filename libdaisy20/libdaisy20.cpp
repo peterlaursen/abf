@@ -7,23 +7,14 @@ This is to be a replacement for the old LibDaisy library. It is written mainly t
 This library is released under the same license as the rest of this package.
 */
 #include "libdaisy20.h"
-#include <cstdio>
 #include <iostream>
 #include <cstdlib>
-#include <iconv.h>
-#ifdef FREEBSD
-#include <sys/param.h>
-#endif
 using namespace std;
 namespace ABF {
 DaisyBook::DaisyBook(char* SpecifiedPath): Path(SpecifiedPath), Volumes(0) {
 int Length = Path.length() - 1;
 if (Path[Length] != '/' || Path[Length] != '\\')
-#ifdef WIN32
 Path += '\\';
-#else
-Path += '/';
-#endif
 FileListLength = scandir(SpecifiedPath, &FileList, NULL, alphasort);
 Content.open((Path + "ncc.html").c_str());
 if (!Content) IsValid = false;
@@ -34,7 +25,6 @@ if (Content.is_open()) Content.close();
 if (Smil.is_open()) Smil.close();
 for (int i = 0; i < FileListLength; i++) free(FileList[i]);
 free(FileList);
-
 }
 const string& DaisyBook::GetTag(bool FromNCC) {
 if (FromNCC) {
@@ -67,7 +57,6 @@ cout << "Looking for metadata " << Metadata[i] << endl;
 while ((Position = Tag.find(Metadata[i])) == string::npos && !Content.eof()) 
 GetTag();
 if (Content.eof()) continue;
-
 // We have found the requested meta data
 int Position2 = Tag.find("t=\"", Position);
 Position = Position2 + 3;
@@ -82,7 +71,6 @@ Volumes = 1;
 CurrentVolume = 1;
 break;
 }
-
 string TmpString = Tag.substr(Position, Position2-Position);
 Position = TmpString.find_last_of(" ");
 Volumes = atoi(TmpString.substr(Position).c_str());
@@ -100,85 +88,12 @@ cout << "Character set: " << Tag.substr(Position, Position2-Position) << endl;
 #endif
 CharSet = Tag.substr(Position, Position2 - Position);
 }
-
 }
 /* Right, we have now finished getting our metadata.
-It has been decided that we convert all our character inputs to UTF-8.
-This is done only for the title and the author, but that is also important enough.
+On Unix, we convert all this to UTF-8.
+Until we find a proper way to do it on Windows, we don't do this here.
 */
-
-iconv_t Iconv = iconv_open("utf-8", CharSet.c_str());
-if (Iconv == (iconv_t)-1) {
-cerr << "Could not open our iconv converter: " << endl;
-}
-char* TempTitle = (char*)Title.c_str();
-int TempTitleLength = Title.length()+1;
-char* TempAuthor = (char*)Author.c_str();
-#ifdef DEBUG
-cout << "TempTitle: " << TempTitle << ", Author: " << TempAuthor << endl;
-#endif
-int TempAuthorLength = Author.length()+1;
-char* DestBuffer = new char[TempTitleLength*2];
-char* Dst = DestBuffer;
-#ifdef FREEBSD
-#if __FreeBSD__ < 10
-char* src = nullptr;
-#endif
-#if __FreeBSD__ == 10
-#if __FreeBSD_version < 1001514 
-const char* src = TempTitle;
-#else
-char* src = TempTitle;
-#endif
-#endif
-#if __FreeBSD__ >= 11
-#if __FreeBSD_version >= 1100069
-char* src = TempTitle;
-#else
-const char* src = TempTitle;
-#endif
-#endif
-#else /* Not defined FREEBSD */
-#ifdef WIN32
-const char* src = TempTitle;
-#else /* Everything but FreeBSD and WIndows, apparently */
-char* src = TempTitle;
-#endif
-#endif
-size_t SrcLeft = TempTitleLength;
-size_t DstLeft = TempTitleLength*2;
-iconv(Iconv, &src, &SrcLeft,&Dst, &DstLeft);
-#ifdef DEBUG
-cout << "Remaining characters: " << DstLeft << endl;
-#endif
-*Dst='\0';
-Title = string(DestBuffer);
-#ifdef DEBUG
-cout << "Title: " << Title << endl;
-#endif
-delete[] DestBuffer;
-Dst = 0;
-DestBuffer = 0;
-DestBuffer = new char[TempAuthorLength*2];
-Dst = DestBuffer;
-src = TempAuthor;
-SrcLeft = TempAuthorLength;
-DstLeft = TempAuthorLength*2;
-iconv(Iconv, &src, &SrcLeft, &Dst, &DstLeft);
-#ifdef DEBUG
-cout << "Characters left: " << DstLeft << endl;
-
-#endif
-*Dst='\0';
-Author = string(DestBuffer);
-delete[] DestBuffer;
-Dst = nullptr;
-DestBuffer = nullptr;
-
-#ifdef DEBUG
-cout << "Author: " << Author << endl;
-#endif
-iconv_close(Iconv);
+cout << "TempTitle: " << Title << ", Author: " << Author << endl;
 return true;
 }
 const string& DaisyBook::GetTitle() { return Title; }
@@ -229,11 +144,7 @@ int Position = Tag.find("href=") + 6;
 int Position2 = Tag.find("#");
 string AF = Tag.substr(Position, Position2-Position);
 for (int i = 0; i < FileListLength; i++) {
-#ifdef WIN32
 int Comparison = istrcmp(AF.c_str(), FileList[i]->d_name);
-#else
-int Comparison = strcasecmp(AF.c_str(), FileList[i]->d_name);
-#endif
 if (Comparison == 0) {
 AF = FileList[i]->d_name;
 break;
@@ -253,11 +164,7 @@ Position = Tag.find("src=\"") + 5;
 Position2 = Tag.find("\"", Position);
 string TempFile = Tag.substr(Position, Position2 - Position);
 for (int i = 0; i < FileListLength; i++) {
-#ifdef WIN32
 int Comparison = istrcmp(TempFile.c_str(), FileList[i]->d_name);
-#else
-int Comparison = strcasecmp(TempFile.c_str(), FileList[i]->d_name);
-#endif
 if (Comparison == 0) {
 AudioFile = Path + FileList[i]->d_name;
 break;

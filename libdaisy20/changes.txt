@@ -1,0 +1,2 @@
+This library is slightly different from the Unix library of the same name.
+The biggest difference is that the library does no longer do character conversions to UTF-8.

@@ -18,7 +18,6 @@ http://www.linuxmisc.com/9-unix-programmer/9218bf8724abe157.htm
  */
 #ifndef SCANDIR_H
 #define SCANDIR_H
-#ifdef WIN32
 #include <stdio.h>
 #define MAXNAMLEN FILENAME_MAX
 /* directory entry structure */
@@ -56,6 +55,5 @@ extern "C" {
  );
 #ifdef __cplusplus
 }
-#endif
 #endif
 #endif

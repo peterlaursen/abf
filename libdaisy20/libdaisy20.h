@@ -8,25 +8,15 @@ This library is released under the same license as the rest of this package.
 */
 #ifndef LIBDAISY20_H
 #define LIBDAISY20_H
-#ifdef WIN32
 #ifdef BUILD_DLL
 #define SHARED __declspec(dllexport)
 #else
 #define SHARED __declspec(dllimport)
 #endif
-#else
-#define SHARED
-#include <strings.h>
-#endif
 #include <string>
 #include <vector>
 #include <fstream>
-#ifndef WIN32
-#include <dirent.h>
-#else
 #include "scandir.h"
-#endif
-
 namespace ABF {
 class SHARED DaisyBook {
 std::string Path;
