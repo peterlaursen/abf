@@ -109,11 +109,7 @@ bool IsValid = AD.IsValid();
 if (!IsValid) {
 cerr << "Error, not a valid ABF book." << endl;
 PS = Quit;
-#ifdef WIN32
 return;
-#else
-return 0;
-#endif
 }
 cout << "Commands you can use in the player: " << endl;
 cout << "Key - Description" << endl;
