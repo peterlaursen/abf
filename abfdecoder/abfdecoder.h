@@ -5,9 +5,8 @@ This is our interface to our ABF library. Currently, we focus on upgrading our f
 For all the previous work on ABF, see /branches/libabf-1.0.
 That library is no longer updated and this library is incompatible with it.
 */
-
-#ifndef LIBABF_H
-#define LIBABF_H
+#ifndef ABFDECODER_H
+#define ABFDECODER_H
 #include <cstdio>
 #include <string>
 #include <vector>
