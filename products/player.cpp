@@ -275,9 +275,6 @@ if (PS == Quit || PS == PreviousBook || PS == NextBook)
 SaveLastPosition(AD.GetTitle(), AD.ftell()); // Store the position 2 seconds before. In this version, we store the exact position instead - but we must reimplement the two second pause again. We'll have to see how we might do that properly.
 else DeletePosition(AD.GetTitle());
 if (GlobalAD->feof()) PS = BookIsFinished;
-#ifndef WIN32
-return nullptr;
-#endif
 }
 #ifdef GPIO
 gpio_handle_t devhandle = 0;
