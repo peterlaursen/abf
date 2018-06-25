@@ -6,7 +6,7 @@ If your system supports another API, make an implementation which you derive fro
 */
 #ifndef UNIXAUDIO_H
 #define UNIXAUDIO_H
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include "audiosystem.h"
 #include <string>
 namespace ABF {

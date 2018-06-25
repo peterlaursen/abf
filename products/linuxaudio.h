@@ -8,7 +8,7 @@ If your system supports another API, make an implementation which you derive fro
 #define LinuxAudio_H
 #include <pulse/simple.h>
 #include <string>
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include "audiosystem.h"
 namespace ABF {
 using std::string;

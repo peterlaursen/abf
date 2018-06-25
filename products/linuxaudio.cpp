@@ -9,7 +9,7 @@ If your system uses another audio system, derive from the AudioSystem class and 
 #include "audiosystem.h"
 #include "player.h"
 #include <pulse/simple.h>
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include <fcntl.h>
 #include <string>
 namespace ABF {
