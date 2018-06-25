@@ -22,13 +22,12 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <iostream>
 #include <cstdio>
 #include "../abfdecoder/abfdecoder.h"
+#include <thread>
 #ifdef WIN32
-#include <process.h>
 #include <conio.h>
 #include <windows.h>
 #else
 #include <unistd.h>
-#include <pthread.h>
 #endif
 #ifdef GPIO
 #include <libgpio.h>
@@ -101,13 +100,8 @@ tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
 #endif
 return AD.GoToPosition(--Minutes);
 }
-#ifdef WIN32
-void Thread(void* Filename) {
-#else
-void* Thread(void* Filename) {
-#endif
-char* Temp = (char*)Filename;
-AbfDecoder AD(Temp);
+void Thread(char* Filename) {
+AbfDecoder AD(Filename);
 GlobalAD = &AD;
 Device = AudioSystem::Create(GlobalAD, DevName);
 
@@ -340,11 +334,7 @@ Gain -= 100;
 GlobalAD->SetGain(Gain);
 }
 }
-#ifdef WIN32
-void ThreadFunc(void*) {
-#else
-void* ThreadFunc(void*) {
-#endif
+void ThreadFunc() {
 #ifdef FREEBSD
 int kq = kqueue();
 struct kevent kev;
@@ -370,9 +360,6 @@ Input();
 usleep(250);
 #endif
 }
-#ifndef WIN32
-return nullptr;
-#endif
 }
 int main(int argc, char* argv[]) {
 #ifndef WIN32
@@ -425,19 +412,12 @@ continue;
 Filename = PL.GetCurrentBookName();
 #ifdef WIN32
 SetConsoleTitle("ABF Player");
-ThreadType ThreadID = (ThreadType)_beginthread(Thread, 0, Filename);
-ThreadType Thread2 = (ThreadType)_beginthread(ThreadFunc, 0, NULL);
-#else
-ThreadType id, Thread2;
-pthread_create(&id, 0, Thread, Filename);
-pthread_create(&Thread2, 0, ThreadFunc, 0);
 #endif
-
-#ifdef WIN32
-WaitForSingleObject(ThreadID, INFINITE);
-#else
-pthread_join(id, 0);
-#endif
+thread Threads[2];
+Threads[0] = thread(Thread, Filename);
+Threads[1] = thread(ThreadFunc);
+Threads[0].join();
+Threads[1].join();
 }
 delete Device;
 #ifdef GPIO
