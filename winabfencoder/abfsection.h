@@ -5,16 +5,24 @@ We split our encoder out into more files.
 */
 #ifndef ABFSECTION_H
 #define ABFSECTION_H
+#ifndef SHARED
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED
+#endif
+#endif
 #include <opus/opus.h>
+#include <stdio.h>
 namespace ABF {
-enum EncodingStatus {
+enum SHARED EncodingStatus {
 Waiting,
 Encoding,
 Finished
 };
-class AbfSection {
+class SHARED AbfSection {
 OpusEncoder* Encoder = nullptr;
-int fd = 0;
+FILE* fd = nullptr;
 short TempBuffer[320] = {0};
 short TempBufferPosition = 0;
 char FileTemplate[40]= {0};
@@ -26,9 +34,8 @@ AbfSection();
 EncodingStatus Status = Waiting;
 void Close();
 void Encode(const short* Samples, int& Length);
-int Getfd() const { return fd; }
+FILE* Getfd() const { return fd; }
 const char* TempFile() { return FileTemplate; }
-
 };
 }
 #endif

@@ -8,27 +8,26 @@ We split our encoder out into more files.
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <unistd.h>
+#include <windows.h>
 using namespace std;
 namespace ABF {
 AbfSection::AbfSection() {
-sprintf(FileTemplate, "/tmp/abfconvXXXXXX");
-fd = mkstemp(FileTemplate);
+GetTempFileName(".", "ABFConv", 0, FileTemplate); 
+fd = fopen(FileTemplate, "wb+");
 #ifdef DEBUG
-printf("Temporary file: %s, fd = %d\n", FileTemplate, fd);
+printf("Temporary file: %s\n", FileTemplate);
 #endif
 int Error = 0;
 Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
-
 if (Error != OPUS_OK) fprintf(stderr, "Error in creating our encoder!\n");
 FileBuffer = new char[1024*1024];
 }
 AbfSection::~AbfSection() {
-close(fd);
+fclose(fd);
 opus_encoder_destroy(Encoder);
 delete[] FileBuffer;
 FileBufferPosition = 0;
-unlink(FileTemplate);
+DeleteFile(FileTemplate);
 }
 void AbfSection::Close() {
 for (int i = TempBufferPosition; i<320; i++) TempBuffer[i]=0;
@@ -36,8 +35,8 @@ int Length=320;
 TempBufferPosition = 0;
 Encode(TempBuffer, Length);
 if (FileBufferPosition > 0) {
-size_t tmp = write(fd, FileBuffer, FileBufferPosition);
-close(fd);
+size_t tmp = fwrite(FileBuffer, FileBufferPosition, 1, fd);
+fclose(fd);
 FileBufferPosition = 0;
 }
 return;
@@ -61,7 +60,7 @@ memcpy(&FileBuffer[FileBufferPosition], Output, Bytes);
 FileBufferPosition += Bytes;
 }
 else {
-size_t tmp = write(fd, FileBuffer, FileBufferPosition);
+size_t tmp = fwrite(FileBuffer, FileBufferPosition, 1, fd);
 FileBufferPosition = 0;
 memset(FileBuffer, 0, 1024*1024);
 memcpy(&FileBuffer[FileBufferPosition], &Bytes, 2);

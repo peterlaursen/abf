@@ -8,7 +8,6 @@ Note that this library contain both our ABF Encoder and ABF Decoder.
 The API is fairly self-explanatory.
 
 Additional notes:
-We remove the ABFDecoder from this test library.
 We furthermore rename this libabf implementation to something else.
 This API differs slightly from the original ABF API.
 We do this so that it will become easier for the converter to start doing multithreading.
@@ -16,6 +15,11 @@ We do this so that it will become easier for the converter to start doing multit
 
 #ifndef ABFENCODER_H
 #define ABFENCODER_H
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -28,7 +32,7 @@ using std::FILE;
 using std::mutex;
 using std::string;
 using std::vector;
-class AbfEncoder {
+class SHARED AbfEncoder {
 FILE* fout = nullptr; // Main ABF Audio Book
 int* fds = nullptr; // File descriptors for sections
 unsigned short HeaderSize = 0;
@@ -59,7 +63,6 @@ void Gather();
 void Lock(); // Lock mutex
 void Unlock(); // Unlock mutex
 void Cleanup(); // Clean up our ABFSection parts.
-
 };
 }
 #endif

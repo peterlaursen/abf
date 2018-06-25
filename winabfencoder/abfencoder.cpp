@@ -1,33 +1,27 @@
 /* $Fossil libabfnewapi branch$
 Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
 
-This is the main ABF library which is used for converting books to our ABF format.
-It is also used for decoding the format.
-
+This is an encoder for our audio book format for Windows.
 Note that this library uses ABF 2.0 only.
 For the previous library utilizing Speex for its encoding and decoding, see /code/branches/abf-1.0.
 
 Note that we remove the ABFDecoder from this library.
 We also rename this implementation to something else.
-Note furthermore that this is intended to work only on Unix platforms.
-
 */
 
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <unistd.h>
-#include <pthread.h>
+#include <thread>
 #include "abfencoder.h"
 #include "abfsection.h"
-#include <fcntl.h>
+#include <windows.h>
 using namespace std;
 namespace ABF {
 AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections): _NumSections(NumSections) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
-
 if (_NumSections > 0) {
 AbfSections = new AbfSection[_NumSections];
 }
@@ -102,10 +96,10 @@ fwrite(&CurPos, sizeof(int), 1, fout);
 fseek(fout, CurPos, SEEK_SET);
 if (AbfSections[i].Status != Finished) continue;
 
-int fd = open(AbfSections[i].TempFile(), O_RDONLY);
+FILE* fd = fopen(AbfSections[i].TempFile(), "rb");
 int status = 0;
 do {
-status = read(fd, &FileBuffer, 1024);
+status = fread(&FileBuffer, 1024, 1, fd);
 fwrite(&FileBuffer, status, 1, fout);
 } while (status > 0);
 }
@@ -125,7 +119,7 @@ void AbfEncoder::Cleanup() {
 Lock();
 for (int i = 0; i < _NumSections; i++) {
 AbfSections[i].Close();
-unlink(AbfSections[i].TempFile());
+DeleteFile(AbfSections[i].TempFile());
 }
 Unlock();
 }
