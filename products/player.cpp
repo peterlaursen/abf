@@ -21,7 +21,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include "audiosystem.h"
 #include <iostream>
 #include <cstdio>
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #ifdef WIN32
 #include <process.h>
 #include <conio.h>

@@ -12,7 +12,7 @@ To implement a new playback system, derive from this class.
 */
 #ifndef AUDIOSYSTEM_H
 #define AUDIOSYSTEM_H
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include <string>
 namespace ABF {
 using std::string;

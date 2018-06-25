@@ -5,7 +5,7 @@ This contains a rough implementation of a playlist class.
 */
 #ifndef PLAYLIST_H
 #define PLAYLIST_H
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include "player.h"
 #include <string>
 #include <vector>

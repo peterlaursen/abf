@@ -5,7 +5,6 @@ This contains the implementation of the AudioSystem class.
 */
 #include "audiosystem.h"
 #ifndef WIN32
-#include "../libabf/libabf.h"
 #include <string>
 #ifndef PULSE
 #include "unixaudio.h"

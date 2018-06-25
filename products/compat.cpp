@@ -5,7 +5,9 @@ This file contains compatibility functions for FreeBSD.
 
 #include "compat.h"
 #include <stdio.h>
+#ifndef WIN32
 #include <termios.h>
+#endif
 int getch() {
 return getchar();
 }

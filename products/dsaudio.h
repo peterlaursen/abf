@@ -8,7 +8,7 @@ This file contains the definition of DSAudio - the audio system implementation a
 #define DSAUDIO_H
 #include <windows.h>
 #include <dsound.h>
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #include "audiosystem.h"
 namespace ABF {
 class DSAudio: public AudioSystem {

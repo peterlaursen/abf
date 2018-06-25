@@ -6,7 +6,7 @@ This file contains various declarations that are used within the player.
 #ifndef PLAYER_H
 #define PLAYER_H
 #include "playlist.h"
-#include "../libabf/libabf.h"
+#include "../abfdecoder/abfdecoder.h"
 #ifdef WIN32
 #include <windows.h>
 #include "dsaudio.h"
