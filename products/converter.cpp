@@ -4,18 +4,13 @@ Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
 If everything goes well, this will be done all in memory so that the only file that's written is the Opus output file.
 */
-#include <cstdio>
+#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
 #include <thread>
 #include "../libdaisy20/libdaisy20.h"
 #include "../abfencoder/abfencoder.h"
-#ifndef WIN32
-#include <unistd.h>
-#include <signal.h>
-#endif
-#include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
 #include "speex_resampler.h"
@@ -25,22 +20,10 @@ static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
 static DaisyBook* Book = nullptr;
 static AbfEncoder* GlobalAE = nullptr;
-#ifndef WIN32
-void Cleanup(int Signal) {
-GlobalAE->Cleanup();
-unlink(BookFileName);
-exit(Signal);
-}
-void ConvertInfo(int Signal) {
-printf("Book consists of %d sections - working with file %s\n", NumberOfFiles, CurrentFileName);
-}
-
-#endif
-void* ConverterThread(void* ThreadAE) {
+void ConverterThread(AbfEncoder* AE) {
 // Put everything here into a while loop...
 //I hope it works.
 while (true) {
-AbfEncoder* AE = (AbfEncoder*)ThreadAE;
 AE->Lock();
 int MyFile = -1;
 for (unsigned short i = 0; i < AE->GetNumSections(); i++) {
@@ -52,7 +35,7 @@ break;
 }
 AE->Unlock();
 if (MyFile == -1) 
-return nullptr; // Exit the thread
+return; // Exit the thread
 
 mpg123_handle* Mp3File;
 long SamplingRate = 0;
@@ -81,7 +64,6 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 //printf("MP3 status: %d\n", Status);
 
 unsigned int TotalSamples = Decoded/2;
-
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
 short TempEncoder[320] = {0};
 int Temp = 0;
@@ -92,7 +74,6 @@ memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
 Temp += EncSize;
 AE->Encode(MyFile, TempEncoder, EncSize);
 }
-pthread_yield();
 } while (Status == MPG123_OK);
 AE->Lock();
 AE->CloseSection(MyFile);
@@ -104,7 +85,7 @@ delete[] Resampled;
 Buffer = Resampled = nullptr;
 speex_resampler_destroy(Resampler);
 }
-return nullptr;
+return;
 }
 int main(int argc, char* argv[]) {
 if (argc != 3) {
@@ -130,25 +111,20 @@ printf("Sections: %d\n", D.GetNumSections());
 AbfEncoder AE(argv[2], D.GetNumSections());
 GlobalAE = &AE;
 Book = &D;
-#ifndef WIN32
-signal(SIGINT, &Cleanup);
-#ifdef FREEBSD
-signal(SIGINFO, &ConvertInfo);
-#endif
 BookFileName = argv[2];
-#endif
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
 AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
-void* PAE = &AE;
+AbfEncoder* PAE = &AE;
 int NumThreads = std::thread::hardware_concurrency();
-pthread_t ThreadHandle[NumThreads];
+std::thread* ThreadHandle = new std::thread[NumThreads];
 NumberOfFiles = D.GetNumSections();
 for (int i = 0; i < NumThreads; i++) {
-pthread_create(&ThreadHandle[i], NULL, ConverterThread, PAE);
+ThreadHandle[i] = std::thread(ConverterThread, PAE);
 }
-for (int i = 0; i < NumThreads; i++) pthread_join(ThreadHandle[i], 0);
+for (int i = 0; i < NumThreads; i++) ThreadHandle[i].join();
+delete[] ThreadHandle;
 AE.Gather();
 mpg123_exit();
 return (EXIT_SUCCESS);
