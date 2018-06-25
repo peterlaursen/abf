@@ -70,38 +70,5 @@ void SetGain(int NewGain);
 const int GetSamplingRate() const;
 void SetSamplingRate(int SampleRate);
 };
-class SHARED AbfEncoder {
-OpusEncoder* Encoder = nullptr;
-FILE* fout = nullptr;
-unsigned short HeaderSize = 0;
-string _Title;
-string _Author;
-string _Time;
-unsigned short _NumSections = 0;
-unsigned short NumMinutes = 0;
-int IndexTableStartPosition = 0;
-unsigned char* Buffer = nullptr;
-// Have a max size constant defined here.
-const int MaxBufferSize = (1024 * 1024) * 2;
-int CurrentBufferPosition = 0;
-/* The below is used for seeking:
-* We only seek on a per-minute basis - we don't seek per second. This makes sense for the audio only. If we need to seek for seconds too, we'll still speed up things considerably by seeking first to the correct byte position.
-*/
-int FramesEncoded = 0;
-vector<int> MinutePositions;
-
-public:
-AbfEncoder(const char* Filename);
-AbfEncoder();
-void Initialize(const char*);
-~AbfEncoder();
-void SetTitle(const char* Title);
-void SetAuthor(const char* Author);
-void SetTime(const char* Time);
-void SetNumSections(unsigned short NumSections);
-void WriteHeader();
-void WriteSection();
-void Encode(const short* Input);
-};
 }
 #endif
