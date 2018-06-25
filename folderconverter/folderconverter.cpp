@@ -5,7 +5,7 @@ This small program attempts to read a folder of MP3 files.
 They are to be converted into our ABF audio book, so we are a little picky about the format.
 
 */
-#include <cstdio>
+#include <iostream>
 #include <cstdlib>
 #include <cstring>
 #include <cmath>
@@ -31,9 +31,8 @@ GlobalAE->Cleanup();
 exit(Signal);
 }
 void ConvertInfo(int Signal) {
-fprintf(stderr, "Book consists of %d sections - working with file %s\n", NumberOfFiles, CurrentFileName);
+cerr << "Book consists of " << NumberOfFiles << " sections - working with file " << CurrentFileName << endl;
 }
-
 void ConverterThread(AbfEncoder* AE) {
 // Put everything here into a while loop...
 //I hope it works.
@@ -66,7 +65,7 @@ short* Resampled = new short[32768] ;
 int ResampledSize=32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-printf("Working with file %s.\n", Paths.gl_pathv[MyFile]);
+cout << "Working with file " << Paths.gl_pathv[MyFile] << endl;
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded = 0;
@@ -97,7 +96,7 @@ Buffer = Resampled = nullptr;
 }
 int main(int argc, char* argv[]) {
 if (argc != 3) {
-fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
+cerr << "Error, need at least an input folder and an output file name." << endl;
 return (EXIT_FAILURE);
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
@@ -107,16 +106,15 @@ char Pattern[4096] = {0};
 int PatternLength = sprintf(Pattern, "%s/*.mp3", argv[1]);
 Pattern[PatternLength] = '\0';
 try {
-printf("Title: ");
+cout << "Title: ";
 getline(cin, Title);
-printf("\nAuthor: ");
+cout << endl << "Author: ";
 getline(cin, Author);
-printf("\nTime: ");
+cout << endl << "Time: ";
 getline(cin, Time);
 glob(Pattern, 0, NULL, &Paths);
-
 } catch (string& E) {
-fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
+cerr << "Caught exception: %s\nWe exit because of this.\n" << E.c_str() << endl;
 globfree(&Paths);
 return (EXIT_FAILURE);
 }
