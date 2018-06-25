@@ -34,7 +34,7 @@ bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
 char* Time = nullptr;
-unsigned short HeaderSize = 0, Major = 0, Minor = 0, NumSections = 0, NumMinutes = 0;
+unsigned short HeaderSize = Major = Minor = NumSections = NumMinutes = 0;
 int IndexTableStartPosition = 0;
 void ReadHeader();
 bool Validate();
@@ -61,13 +61,11 @@ const int* GetSections() const;
 void Decode(short* Output) const;
 /*
 This function only works with ABF 2.1, the absolutely latest format.
-
-
 */
 const int GetMinutes() const { return NumMinutes; }
 const int* GetMinutePositions() { return MinutePositions; }
 bool GoToPosition(const int Minutes);
-const int GetGain();
+const int GetGain() const;
 void SetGain(int NewGain);
 const int GetSamplingRate() const;
 void SetSamplingRate(int SampleRate);

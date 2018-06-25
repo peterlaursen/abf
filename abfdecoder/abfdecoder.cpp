@@ -193,7 +193,7 @@ Array = nullptr;
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
 /* Try to insert some gain macros here... */
-const int AbfDecoder::GetGain() {
+const int AbfDecoder::GetGain() const {
 int Gain = 0;
 opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
 return Gain;
