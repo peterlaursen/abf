@@ -4,17 +4,12 @@ Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018 P
 This is the main player for our PC platforms.
 This contains code that interfaces with our libabf library, most specifically our AbfDecoder.
 */
-#ifdef WIN32
-#include "dsaudio.h"
-#else
 #include "unixaudio.h"
-#include "compat.h"
 #include <termios.h>
 #include <glob.h>
 #include <sys/types.h>
 #ifdef FREEBSD
 #include <sys/event.h>
-#endif
 #endif
 #include "database.h"
 #include "player.h"
@@ -23,12 +18,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <cstdio>
 #include "../abfdecoder/abfdecoder.h"
 #include <thread>
-#ifdef WIN32
-#include <conio.h>
-#include <windows.h>
-#else
 #include <unistd.h>
-#endif
 #ifdef GPIO
 #include <libgpio.h>
 #endif
@@ -40,26 +30,15 @@ string DevName = "";
 volatile PlayerStatus PS = Playing;
 PlayList PL;
 AbfDecoder* GlobalAD = nullptr;
-#ifndef WIN32
 termios oldt, newt;
-#endif
-
 void AddBookToPlaylist() {
-#ifndef WIN32
 tcsetattr(0, TCSANOW, &oldt);
-#endif
 string NewBook;
 cout << "Type in the book to add." << endl;
 getline(cin, NewBook);
-#ifdef WIN32
-PL.Add(NewBook);
-#else
 if (access(NewBook.c_str(), F_OK)) cerr << "Book file does not exist." << endl;
 else PL.Add(NewBook);
-#endif
-#ifndef WIN32
 tcsetattr(0, TCSAFLUSH|TCSANOW, &newt);
-#endif
 }
 void RemoveBookFromPlaylist() {
 PL.Remove(PL.GetCurrentBook());
@@ -72,9 +51,7 @@ cerr << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support se
 cerr << "You must re-encode with a supported encoder in order to get this ability." << endl;
 return false;
 }
-#ifndef WIN32
 tcsetattr(0, TCSANOW, &oldt);
-#endif
 // This function will (hopefully) allow people to jump to various time positions within an audio book.
 const int* Positions = AD.GetMinutePositions();
 int CurrentMinute = 0;
@@ -90,14 +67,10 @@ int Minutes = 0;
 cin >> Minutes;
 if (Minutes > AD.GetMinutes()) {
 cout << "Error, the book isn't that long." << endl;
-#ifndef WIN32
 tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
-#endif
 return false;
 }
-#ifndef WIN32
 tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
-#endif
 return AD.GoToPosition(--Minutes);
 }
 void Thread(char* Filename) {
@@ -122,19 +95,6 @@ cout << "g - go to section, j - jump to time" << endl;
 cout << "< - Volume Down, > - Volume Up, + - Increase gain, '-' - Decrease gain" << endl;
 cout << "q - Quit" << endl;
 cout << "Title: " << AD.GetTitle() << endl << "Author: " << AD.GetAuthor() << endl << "This book lasts " << AD.GetMinutes() << " minutes." << endl;
-#ifdef WIN32
-// Put this into a scope of its own so that it vanishes as soon as possible.
-{
-char ConTitle[255] = {0};
-GetConsoleTitle(ConTitle, 255);
-string Temp = ConTitle;
-Temp += " - ";
-Temp += AD.GetTitle();
-SetConsoleTitle(Temp.c_str());
-}
-#endif
-//short Buffer[320];
-//short Buffer1[32000];
 const int* Array = AD.GetSections();
 int LastPosition = GetLastPosition(AD.GetTitle());
 if (LastPosition > 0) {
@@ -158,9 +118,7 @@ continue;
 }
 if (PS == GoToSection) {
 Device->Stop();
-#ifndef WIN32
 tcsetattr(0, TCSANOW|TCSAFLUSH, &oldt);
-#endif
 unsigned short MaxSections = AD.GetNumSections()-1;
 int CurrentSection = -1;
 for (int i = 0; i < AD.GetNumSections(); i++) {
@@ -176,10 +134,8 @@ cin >> NewSection;
 if (NewSection >= MaxSections) NewSection = MaxSections;
 CurrentSection = NewSection;
 AD.Seek(Array[CurrentSection], SEEK_SET);
-#ifndef WIN32
 tcsetattr(0, TCSANOW|TCSAFLUSH, &newt);
 cin.clear();
-#endif
 PS = Playing;
 continue;
 }
@@ -284,11 +240,7 @@ if (PS == GoToSection || PS == GoTime) return;
 if (gpio_pin_get(devhandle, 13) == 0) PS = Quit;
 #endif
 
-#ifndef WIN32
 char Key = getchar();
-#else
-char Key = getch(); 
-#endif
 if (Key == 'a') {
 PS = AddBook;
 Device->Stop();
@@ -340,10 +292,6 @@ PS=Quit;
 break;
 }
 #endif
-#ifdef WIN32
-if (kbhit()) Input();
-Sleep(250);
-#else
 #ifdef FREEBSD
 kevent(kq, &kev, 1, &kev, 1, NULL);
 #elif defined(LINUX)
@@ -355,11 +303,9 @@ usleep(250);
 }
 }
 int main(int argc, char* argv[]) {
-#ifndef WIN32
 tcgetattr(0, &oldt);
 cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
-#endif
 int Start = 1;
 if (argc >= 2) {
 if (!strcmp(argv[1], "-d")) {
@@ -368,7 +314,6 @@ DevName = argv[2];
 }
 }
 if (argc == Start) AddBookToPlaylist();
-#ifndef WIN32
 glob_t g;
 bool Globbed = false;
 for (int i = Start; i < argc; i++) {
@@ -377,13 +322,9 @@ Globbed = true;
 for (int i = 0; i < g.gl_pathc; i++) PL.Add(g.gl_pathv[i]);
 }
 if (Globbed) globfree(&g);
-#endif
 #ifdef GPIO
 devhandle = gpio_open(0);
 gpio_pin_pullup(devhandle, 13);
-#endif
-#ifdef WIN32
-for (int i = Start; i < argc; i++) PL.Add(argv[i]);
 #endif
 char* Filename;
 while (PL.GetCurrentBook() < PL.GetTotalItems()){
@@ -403,9 +344,6 @@ PS = NextBook;
 continue;
 }
 Filename = PL.GetCurrentBookName();
-#ifdef WIN32
-SetConsoleTitle("ABF Player");
-#endif
 thread Threads[2];
 Threads[0] = thread(Thread, Filename);
 Threads[1] = thread(ThreadFunc);
@@ -419,8 +357,6 @@ gpio_close(devhandle);
 if (PS != Quit)
 cout << endl << "Playlist empty; exitting..." << endl;
 // Ensure our shell character comes on its own line
-#ifndef WIN32
 tcsetattr(0, TCSANOW, &oldt);
-#endif
 return 0;
 }
