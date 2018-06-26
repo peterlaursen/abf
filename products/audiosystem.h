@@ -6,7 +6,7 @@ It is used by the player to produce audio.
 We have three different implementations in the tree:
 unixaudio.cpp/unixaudio.h: Implements the OSS API that's used on FreeBSD.
 linuxaudio.cpp/linuxaudio.h: Implements a Pulseaudio class
-dsaudio.cpp/dsaudio.h: Implements the DirectSound API that's in use on Windows.
+dsaudio.cpp/dsaudio.h: Implements the DirectSound API that's in use on Windows. (This code is now present in "^/branches/win32")
 
 To implement a new playback system, derive from this class.
 */
