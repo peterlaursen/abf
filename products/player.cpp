@@ -299,7 +299,6 @@ if (kbhit())
 #endif
 Input();
 usleep(250);
-#endif
 }
 }
 int main(int argc, char* argv[]) {
