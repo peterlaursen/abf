@@ -11,6 +11,11 @@ This is Beta software. Run at your own risk. This software has not been known to
 
 What's new in Version 0.50?
 ===
+
+* The Windows version of the player now lives in "^/branches/win32". Snapshots of the player will be provided from that branch.
+* The player in trunk is only tested on FreeBSD and Ubuntu 18.04.
+* On FreeBSD, the player now uses much fewer resources than it did previously.
+* Fixed a long-standing bug in the player to do with input. It appeared that the first character was being misread, but that was not the case.
 * The abfencoder is now multithreaded meaning that conversion should be faster.
 * The player now also builds on Linux.
 * Added GPIO support for the ARM version. This is not built by default. To enable it, define GPIO while building the source. This has only been tested on a Raspberry Pi 2. We expect one button on pin 13.
