@@ -35,7 +35,7 @@ InstType "Ordinary Components"
 InstType "Player Only"
 Var ABFInstallDir
 Function CreateUninstaller
-WriteUninstaller "$ABFInstallDir\ABF-Uninstaller.exe"
+WriteUninstaller "$INSTDIR\ABF-Uninstaller.exe"
 FunctionEnd
 ; This function performs some after-installation setup
 Function AfterFileCopying
@@ -46,7 +46,7 @@ CreateDirectory "$SMPROGRAMS\ABF Products"
 SetOutPath "$SMPROGRAMS\ABF Products"
 CreateShortCut "$SMPROGRAMS\ABF Products\Documentation.lnk" "$INSTDIR\README.txt"
 CreateShortCut "$SMPROGRAMS\ABF Products\Launch Player.lnk" "$INSTDIR\abfplayer.exe"
-CreateShortCut "$SMPROGRAMS\ABF Products\Uninstall ABF Products.lnk" "$INSTDIR\ABFUninstaller.exe"
+CreateShortCut "$SMPROGRAMS\ABF Products\Uninstall ABF Products.lnk" "$INSTDIR\ABF-Uninstaller.exe"
 CreateShortCut "$SMPROGRAMS\ABF Products\ABF Website.lnk" "http://tdlsoftware.net/abf"
 ; Try to set a file association
 StrCpy $5 "ABFAudioBook"
