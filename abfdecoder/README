@@ -1,6 +1,4 @@
-LibABF
+ABFDecoder
 
-LibABF is the library responsible for encoding and decoding Audio books in our format.
-This library is the foundation library for the format as such and should be considered the reference implementation.
-As of now, encoding is single-threaded, meaning that encoding takes a bit of time.
-
+ABFDecoder is the library responsible for decoding Audio books in our format.
+If you need to encode audio books, look to ABFEncoder.
