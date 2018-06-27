@@ -23,7 +23,7 @@ OutFile "abf0.50-installer.exe"
 RequestExecutionLevel admin
 ; Ask the compiler to compress using LZMA
 SetCompressor /solid lzma
-InstallDir "$PROGRAMFILES\abf\"
+InstallDir "$PROGRAMFILES64\abf\"
 Page license
 Page directory
 Page Components
@@ -40,16 +40,15 @@ WriteUninstaller "$ABFInstallDir\ABF-Uninstaller.exe"
 FunctionEnd
 ; This function performs some after-installation setup
 Function AfterFileCopying
-${EnvVarUpdate} $0 "PATH" "P" HKCU $ABFInstallDir
 ; Create the uninstaller
 Call CreateUninstaller
 ; After this, create some start menu icons.
 CreateDirectory "$SMPROGRAMS\ABF Products"
 SetOutPath "$SMPROGRAMS\ABF Products"
-CreateShortCut "Documentation.lnk" "$ABFInstallDir\README.txt"
-CreateShortCut "Launch Player.lnk" "$ABFInstallDir\abfplayer.exe"
-CreateShortCut "Uninstall ABF Products.lnk" "$ABFInstallDir\ABFUninstaller.exe"
-CreateShortCut "ABF Website.lnk" "http://tdlsoftware.net/abf"
+CreateShortCut "$SMPROGRAMS\ABF Products\Documentation.lnk" "$INSTDIR\README.txt"
+CreateShortCut "$SMPROGRAMS\ABF Products\Launch Player.lnk" "$INSTDIR\abfplayer.exe"
+CreateShortCut "$SMPROGRAMS\ABF Products\Uninstall ABF Products.lnk" "$INSTDIR\ABFUninstaller.exe"
+CreateShortCut "$SMPROGRAMS\ABF Products\ABF Website.lnk" "http://tdlsoftware.net/abf"
 ; Try to set a file association
 StrCpy $5 "ABFAudioBook"
 WriteRegStr HKCR ".abf" "" $5
