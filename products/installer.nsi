@@ -13,7 +13,6 @@ Copyright (C) 2008-2018 Peter Laursen.
 Contents: ABF Converter, ABF Player, ReadMe file, License,  Required Libraries (ABFDecoder,, ABFEncoder, LIBDaisy20)
 Version used to generate this installer: NSIS Version 3.03
 */
-!Include "envvars.nsh"
 !Include "winmessages.nsh"
 ; Set the Installer name - This is shown on the title bar
 Name "ABF Products"
