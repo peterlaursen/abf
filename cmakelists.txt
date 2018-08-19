@@ -1,0 +1,24 @@
+#[[$Id$
+Copyright (C) 2018 Peter Laursen.
+
+We try a CMake project file for the Windows build
+]]
+cmake_minimum_required(VERSION "3.12")
+add_library(opus STATIC IMPORTED)
+set_property(TARGET opus PROPERTY IMPORTED_LOCATION "c:/peter/opus-1.2.1/win32/vs2015/x64/release/opus.lib")
+set_property(TARGET opus PROPERTY INTERFACE_INCLUDE_DIRECTORIES c:/peter/opus-1.2.1/include)
+add_library(mpg123 SHARED IMPORTED)
+set_property(TARGET mpg123 PROPERTY IMPORTED_LOCATION "c:/peter/mpg123/mpg123-0.dll")
+set_property(TARGET mpg123 PROPERTY INTERFACE_INCLUDE_DIRECTORIES "c:/peter/mpg123")
+add_library(daisy SHARED libdaisy20/libdaisy20.cpp libdaisy20/scandir.c)
+target_compile_definitions(daisy PRIVATE WIN32 BUILD_DLL)
+add_library(abfdecoder SHARED abfdecoder/abfdecoder.cpp)
+target_compile_definitions(abfdecoder PRIVATE WIN32 BUILD_DLL)
+target_link_libraries(abfdecoder opus)
+add_library(abfencoder SHARED abfencoder/abfencoder.cpp abfencoder/abfsection.cpp)
+target_compile_definitions(abfencoder PRIVATE WIN32 BUILD_DLL)
+target_link_libraries(abfencoder opus)
+add_executable(abfconverter products/converter.cpp products/resample.c)
+target_link_libraries(abfconverter abfencoder daisy mpg123 opus)
+add_executable(abfplayer products/player.cpp products/sqlite3.c products/database.cpp products/audiosystem.cpp products/dsaudio.cpp products/playlist.cpp)
+target_link_libraries(abfplayer abfdecoder)
