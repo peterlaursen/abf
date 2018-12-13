@@ -346,7 +346,7 @@ Filename = PL.GetCurrentBookName();
 thread Threads[2];
 Threads[0] = thread(Thread, Filename);
 Threads[1] = thread(ThreadFunc);
-//Threads[0].join();
+Threads[0].join();
 Threads[1].join();
 }
 delete Device;
