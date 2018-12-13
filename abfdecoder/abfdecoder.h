@@ -49,10 +49,10 @@ bool IsOpen() const { return _IsOpen; }
 const char* GetTitle() const;
 const char* GetAuthor() const;
 const char* GetTime() const;
-const unsigned short GetNumSections() const;
-const unsigned short GetHeaderSize() const { return HeaderSize; }
-const unsigned short GetMajor() { return Major; }
-const unsigned short GetMinor() const { return Minor; }
+unsigned short GetNumSections() const;
+unsigned short GetHeaderSize() const { return HeaderSize; }
+unsigned short GetMajor() { return Major; }
+unsigned short GetMinor() const { return Minor; }
 bool feof() const;
 int ftell() const;
 void fclose();
@@ -62,12 +62,12 @@ void Decode(short* Output) const;
 /*
 This function only works with ABF 2.1, the absolutely latest format.
 */
-const int GetMinutes() const { return NumMinutes; }
+int GetMinutes() const { return NumMinutes; }
 const int* GetMinutePositions() { return MinutePositions; }
 bool GoToPosition(const int Minutes);
-const int GetGain() const;
+int GetGain() const;
 void SetGain(int NewGain);
-const int GetSamplingRate() const;
+int GetSamplingRate() const;
 void SetSamplingRate(int SampleRate);
 };
 }

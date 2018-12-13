@@ -97,6 +97,7 @@ const int* AbfDecoder::GetSections() const {
 return Array;
 }
 void AbfDecoder::Decode(short* Output) const {
+if (feof()) return;
 unsigned short Bytes;
 unsigned char Input[320] = {0};
 fread(&Bytes, 2, 1, fin);
@@ -104,7 +105,6 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 #ifdef DEBUG
 printf("Bytes: %d\n", Bytes);
 #endif
-if (feof()) return;
 
 int FrameSize = (GetSamplingRate()==48000)?960:320;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
@@ -121,7 +121,7 @@ return (ftell() >= IndexTableStartPosition)?true:false; else return std::feof(fi
 const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
-const unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
+unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
 bool AbfDecoder::GoToPosition(int minutes) { 
 
 fseek(fin, MinutePositions[minutes], SEEK_SET);
@@ -195,7 +195,7 @@ Array = nullptr;
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
 /* Try to insert some gain macros here... */
-const int AbfDecoder::GetGain() const {
+int AbfDecoder::GetGain() const {
 int Gain = 0;
 opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
 return Gain;
@@ -207,7 +207,7 @@ opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
 We do this in the Opus decoder itself, which saves us from worrying too much about it.
 */
-const int AbfDecoder::GetSamplingRate() const {
+int AbfDecoder::GetSamplingRate() const {
 int SamplingRate = 0;
 opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
 return SamplingRate;
