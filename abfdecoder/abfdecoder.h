@@ -11,20 +11,12 @@ That library is no longer updated and this library is incompatible with it.
 #include <string>
 #include <vector>
 #include <opus/opus.h>
-#ifdef WIN32
-#ifdef BUILD_DLL
-#define SHARED __declspec(dllexport)
-#else
-#define SHARED __declspec(dllimport)
-#endif
-#else
-#define SHARED
-#endif
+#include "../config.h"
 namespace ABF {
 using std::FILE;
 using std::string;
 using std::vector;
-class SHARED AbfDecoder {
+class AbfDecoder {
 int* Array = nullptr;
 int* MinutePositions = nullptr;
 OpusDecoder* Decoder = nullptr;

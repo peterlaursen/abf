@@ -18,7 +18,7 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #endif
 using namespace std;
 namespace ABF {
-int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
+int   AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
 AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false), _IsValid(false) {
 HeaderSize = Major = Minor = NumMinutes = NumSections = 0;
 }
@@ -32,7 +32,7 @@ if (!fin) _IsOpen = false;
 else _IsOpen = true;
 if (Validate()) ReadHeader();
 int Error = 0;
-Decoder = opus_decoder_create(16000, 1, &Error);
+Decoder = opus_decoder_create(ABF_SAMPLING_RATE, 1, &Error);
 if (Error != OPUS_OK) {
 fprintf(stderr, "Something went wrong in creating our decoder!\n");
 ::fclose(fin);
@@ -106,7 +106,7 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 printf("Bytes: %d\n", Bytes);
 #endif
 
-int FrameSize = (GetSamplingRate()==48000)?960:320;
+int FrameSize = ABF_SAMPLING_RATE/50;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
@@ -214,8 +214,9 @@ return SamplingRate;
 }
 
 void AbfDecoder::SetSamplingRate(int SamplingRate) {
+return;
 // Do we need to do any work?
-if (SamplingRate == 16000) return;
+if (SamplingRate == ABF_SAMPLING_RATE) return;
 opus_decoder_destroy(Decoder);
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);

@@ -74,6 +74,8 @@ int SamplesWritten = 0;
 int Status = MPG123_OK;
 const int FrameSize = SAMPLING_RATE/50;
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
+printf("\nSampling rate: %d, Frame size: %d\n", SAMPLING_RATE, FrameSize);
+
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;

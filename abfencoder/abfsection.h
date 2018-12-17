@@ -7,7 +7,11 @@ We split our encoder out into more files.
 #define ABFSECTION_H
 #include <opus/opus.h>
 namespace ABF {
-const int SAMPLING_RATE = 16000;
+#ifndef RATE
+#define RATE 16000
+#endif
+
+const int SAMPLING_RATE = RATE;
 enum EncodingStatus {
 Waiting,
 Encoding,
