@@ -1,4 +1,4 @@
-/* AbfSection.h
+/* $id$
 Copyright (C) 2017 Peter Laursen.
 
 We split our encoder out into more files.
@@ -7,6 +7,7 @@ We split our encoder out into more files.
 #define ABFSECTION_H
 #include <opus/opus.h>
 namespace ABF {
+const int NUM_SAMPLES = 320;
 enum EncodingStatus {
 Waiting,
 Encoding,
@@ -15,7 +16,7 @@ Finished
 class AbfSection {
 OpusEncoder* Encoder = nullptr;
 int fd = 0;
-short TempBuffer[320] = {0};
+short TempBuffer[NUM_SAMPLES] = {0};
 short TempBufferPosition = 0;
 char FileTemplate[40]= {0};
 char* FileBuffer = nullptr;

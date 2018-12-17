@@ -1,4 +1,4 @@
-/* AbfSection.cpp
+/* $id$
 Copyright (C) 2017 Peter Laursen.
 
 We split our encoder out into more files.
@@ -31,8 +31,8 @@ FileBufferPosition = 0;
 unlink(FileTemplate);
 }
 void AbfSection::Close() {
-for (int i = TempBufferPosition; i<320; i++) TempBuffer[i]=0;
-int Length=320;
+for (int i = TempBufferPosition; i<NUM_SAMPLES; i++) TempBuffer[i]=0;
+int Length=NUM_SAMPLES;
 TempBufferPosition = 0;
 Encode(TempBuffer, Length);
 if (FileBufferPosition > 0) {
@@ -43,12 +43,12 @@ FileBufferPosition = 0;
 return;
 }
 void AbfSection::Encode(const short* Input, int& Length) {
-if (TempBufferPosition + Length >= 320) {
+if (TempBufferPosition + Length >= NUM_SAMPLES) {
 int Remaining = 0;
-for (int i = TempBufferPosition, j=0; i < 320; i++, j++, Remaining++) TempBuffer[i]=Input[j];
+for (int i = TempBufferPosition, j=0; i < NUM_SAMPLES; i++, j++, Remaining++) TempBuffer[i]=Input[j];
 
 unsigned char Output[200] = {0};
-short Bytes = opus_encode(Encoder, TempBuffer, 320, Output, 200);
+short Bytes = opus_encode(Encoder, TempBuffer, NUM_SAMPLES, Output, 200);
 if (Bytes < 0) {
 fprintf(stderr, "Opus error: %d\n%s\n", Bytes, opus_strerror(Bytes));
 return;

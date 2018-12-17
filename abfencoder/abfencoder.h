@@ -59,7 +59,6 @@ void Gather();
 void Lock(); // Lock mutex
 void Unlock(); // Unlock mutex
 void Cleanup(); // Clean up our ABFSection parts.
-
 };
 }
 #endif
