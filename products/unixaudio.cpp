@@ -29,9 +29,9 @@ Format = AFMT_S16_NE;
 ioctl(Device, SNDCTL_DSP_SETFMT, &Format);
 Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
-Format = 16000;
+Format = ABF_SAMPLING_RATE;
 ioctl(Device, SNDCTL_DSP_SPEED, &Format);
-if (Format != 16000) {
+if (Format != ABF_SAMPLING_RATE) {
 AD->SetSamplingRate(Format);
 FrameSize = 960;
 }

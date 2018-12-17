@@ -14,7 +14,7 @@ using std::string;
 class UnixAudio : public AudioSystem {
 int Device = 0;
 int Volume = 0;
-int FrameSize = 320;
+int FrameSize = ABF_SAMPLING_RATE/50;
 protected:
 virtual void Init(ABF::AbfDecoder*);
 public:

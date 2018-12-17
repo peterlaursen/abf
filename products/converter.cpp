@@ -63,7 +63,7 @@ CurrentFileName = Book->GetSectionFile(MyFile);
 
 mpg123_open(Mp3File, Book->GetSectionFile(MyFile));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, SAMPLING_RATE, 10, 0);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, ABF_SAMPLING_RATE, 10, 0);
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
@@ -72,9 +72,9 @@ short* Resampled = new short[32768];
 int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-const int FrameSize = SAMPLING_RATE/50;
+const int FrameSize = ABF_SAMPLING_RATE/50;
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
-printf("\nSampling rate: %d, Frame size: %d\n", SAMPLING_RATE, FrameSize);
+printf("\nSampling rate: %d, Frame size: %d\n", ABF_SAMPLING_RATE, FrameSize);
 
 do {
 unsigned int Processed = ResampledSize;
