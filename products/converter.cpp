@@ -63,7 +63,7 @@ CurrentFileName = Book->GetSectionFile(MyFile);
 
 mpg123_open(Mp3File, Book->GetSectionFile(MyFile));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, SAMPLING_RATE, 10, 0);
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
@@ -72,7 +72,7 @@ short* Resampled = new short[32768];
 int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-
+const int FrameSize = SAMPLING_RATE/50;
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
 do {
 unsigned int Processed = ResampledSize;
@@ -83,11 +83,11 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 unsigned int TotalSamples = Decoded/2;
 
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-short TempEncoder[320] = {0};
+short TempEncoder[FrameSize] = {0};
 int Temp = 0;
 while (Temp < Processed) {
-int EncSize = 320;
-if (Temp + 320  > Processed) EncSize = Processed - Temp;
+int EncSize = FrameSize;
+if (Temp + FrameSize  > Processed) EncSize = Processed - Temp;
 memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
 Temp += EncSize;
 AE->Encode(MyFile, TempEncoder, EncSize);
