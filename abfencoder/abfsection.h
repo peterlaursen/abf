@@ -7,16 +7,17 @@ We split our encoder out into more files.
 #define ABFSECTION_H
 #include <opus/opus.h>
 namespace ABF {
-const int NUM_SAMPLES = 320;
+const int SAMPLING_RATE = 16000;
 enum EncodingStatus {
 Waiting,
 Encoding,
 Finished
 };
 class AbfSection {
+const int FrameSize = SAMPLING_RATE/50;
 OpusEncoder* Encoder = nullptr;
 int fd = 0;
-short TempBuffer[NUM_SAMPLES] = {0};
+short* TempBuffer = nullptr;
 short TempBufferPosition = 0;
 char FileTemplate[40]= {0};
 char* FileBuffer = nullptr;
