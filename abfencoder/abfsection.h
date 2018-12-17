@@ -6,19 +6,15 @@ We split our encoder out into more files.
 #ifndef ABFSECTION_H
 #define ABFSECTION_H
 #include <opus/opus.h>
+#include "../config.h"
 namespace ABF {
-#ifndef RATE
-#define RATE 16000
-#endif
-
-const int SAMPLING_RATE = RATE;
 enum EncodingStatus {
 Waiting,
 Encoding,
 Finished
 };
 class AbfSection {
-const int FrameSize = SAMPLING_RATE/50;
+const int FrameSize = ABF_SAMPLING_RATE/50;
 OpusEncoder* Encoder = nullptr;
 int fd = 0;
 short* TempBuffer = nullptr;

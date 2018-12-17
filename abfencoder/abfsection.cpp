@@ -1,4 +1,4 @@
-/* $id$
+/* $Id$
 Copyright (C) 2017 Peter Laursen.
 
 We split our encoder out into more files.
@@ -19,7 +19,7 @@ fd = mkstemp(FileTemplate);
 printf("Temporary file: %s, fd = %d\n", FileTemplate, fd);
 #endif
 int Error = 0;
-Encoder = opus_encoder_create(SAMPLING_RATE, 1, OPUS_APPLICATION_VOIP, &Error);
+Encoder = opus_encoder_create(ABF_SAMPLING_RATE, 1, OPUS_APPLICATION_VOIP, &Error);
 
 if (Error != OPUS_OK) {
 fprintf(stderr, "Error in creating our encoder!\n");
