@@ -25,6 +25,7 @@ bool _IsOpen = false;
 bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
+unsigned short SamplingRate;
 char* Time = nullptr;
 unsigned short HeaderSize, Major, Minor, NumSections, NumMinutes;
 int IndexTableStartPosition = 0;
@@ -41,6 +42,7 @@ bool IsOpen() const { return _IsOpen; }
 const char* GetTitle() const;
 const char* GetAuthor() const;
 const char* GetTime() const;
+const unsigned short GetSamplingRate() const { return SamplingRate; }
 unsigned short GetNumSections() const;
 unsigned short GetHeaderSize() const { return HeaderSize; }
 unsigned short GetMajor() { return Major; }
@@ -59,7 +61,6 @@ const int* GetMinutePositions() { return MinutePositions; }
 bool GoToPosition(const int Minutes);
 int GetGain() const;
 void SetGain(int NewGain);
-int GetSamplingRate() const;
 void SetSamplingRate(int SampleRate);
 };
 }

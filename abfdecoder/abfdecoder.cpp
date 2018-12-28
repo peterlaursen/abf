@@ -32,7 +32,8 @@ if (!fin) _IsOpen = false;
 else _IsOpen = true;
 if (Validate()) ReadHeader();
 int Error = 0;
-Decoder = opus_decoder_create(ABF_SAMPLING_RATE, 1, &Error);
+Decoder = opus_decoder_create(GetSamplingRate(), 1, &Error);
+printf("Sampling Rate from file: %d\n", GetSamplingRate());
 if (Error != OPUS_OK) {
 fprintf(stderr, "Something went wrong in creating our decoder!\n");
 ::fclose(fin);
@@ -73,12 +74,21 @@ fread(&TitleLength, sizeof(short), 1, fin);
 Author = new char[TitleLength+1];
 Author[TitleLength] = '\0';
 fread(Author, 1, TitleLength, fin);
+if (Major == 2 && Minor == 2)  {
+Time = new char[2];
+Time[0] = '\"';
+Time[1] = '\"';
+fread(&SamplingRate, sizeof(unsigned short), 1, fin);
+}
+else {
+SamplingRate = 16000;
 fread(&TitleLength, sizeof(short), 1, fin);
 Time = new char[TitleLength+1];
 fread(Time, 1, TitleLength, fin);
 Time[TitleLength] = '\0';
+}
 fread(&NumSections, sizeof(short), 1, fin);
-if (Major == 2 && Minor == 1) {
+if (Major == 2 && Minor >= 1) {
 fread(&NumMinutes, 1, sizeof(short), fin);
 fread(&IndexTableStartPosition, 1, sizeof(int), fin);
 MinutePositions = new int[NumMinutes];
@@ -106,7 +116,7 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 printf("Bytes: %d\n", Bytes);
 #endif
 
-int FrameSize = ABF_SAMPLING_RATE/50;
+int FrameSize = GetSamplingRate()/50;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
@@ -165,7 +175,7 @@ fclose();
 _IsOpen = false;
 _IsValid = false;
 }
-if (Major == 2 && Minor == 1) {
+if (Major == 2 && Minor >= 1) {
 if (MinutePositions != nullptr) {
 delete[] MinutePositions;
 MinutePositions = nullptr;
@@ -207,16 +217,11 @@ opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
 We do this in the Opus decoder itself, which saves us from worrying too much about it.
 */
-int AbfDecoder::GetSamplingRate() const {
-int SamplingRate = 0;
-opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
-return SamplingRate;
-}
-
 void AbfDecoder::SetSamplingRate(int SamplingRate) {
+// This function is no longer used.
 return;
 // Do we need to do any work?
-if (SamplingRate == ABF_SAMPLING_RATE) return;
+if (SamplingRate == GetSamplingRate()) return;
 opus_decoder_destroy(Decoder);
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);

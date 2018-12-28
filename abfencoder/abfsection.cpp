@@ -56,8 +56,8 @@ if (TempBufferPosition + Length >= FrameSize) {
 int Remaining = 0;
 for (int i = TempBufferPosition, j=0; i < FrameSize; i++, j++, Remaining++) TempBuffer[i]=Input[j];
 
-unsigned char Output[200] = {0};
-short Bytes = opus_encode(Encoder, TempBuffer, FrameSize, Output, 200);
+unsigned char Output[400] = {0};
+short Bytes = opus_encode(Encoder, TempBuffer, FrameSize, Output, 400);
 if (Bytes < 0) {
 fprintf(stderr, "Opus error: %d\n%s\n", Bytes, opus_strerror(Bytes));
 return;
