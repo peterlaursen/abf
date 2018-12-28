@@ -116,7 +116,7 @@ return (EXIT_FAILURE);
 unsigned short GlobalSamplingRate = 16000;
 if (argc == 4) {
 string arg(argv[3]);
-if (arg == "-h") GlobalSamplingRate = 32000;
+if (arg == "-h") GlobalSamplingRate = 24000;
 if (arg == "-x") GlobalSamplingRate = 48000;
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
