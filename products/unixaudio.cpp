@@ -24,6 +24,7 @@ Device = open(DevName.c_str(), O_WRONLY);
 void UnixAudio::Init(AbfDecoder* _AD) {
 AD = _AD;
 FrameSize = AD->GetSamplingRate()/50;
+printf("Unixaudio: Frame sixe: %d\n", FrameSize);
 int Format = 1;
 ioctl(Device, SNDCTL_DSP_COOKEDMODE, &Format);
 Format = AFMT_S16_NE;
@@ -32,6 +33,7 @@ Format = 1;
 ioctl(Device, SNDCTL_DSP_CHANNELS, &Format);
 Format = AD->GetSamplingRate();
 ioctl(Device, SNDCTL_DSP_SPEED, &Format);
+printf("Sampling rate from audio: %d\n", Format);
 if (Format != AD->GetSamplingRate()) {
 AD->SetSamplingRate(Format);
 FrameSize = 960;

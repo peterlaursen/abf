@@ -74,8 +74,6 @@ int SamplesWritten = 0;
 int Status = MPG123_OK;
 const int FrameSize = AE->GetSamplingRate()/50;
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
-printf("\nSampling rate: %d, Frame size: %d\n", AE->GetSamplingRate(), FrameSize);
-
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
@@ -133,7 +131,6 @@ D.GetAudioFiles();
 fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
 return (EXIT_FAILURE);
 }
-printf("Sections: %d\nSampling rate: %d\n", D.GetNumSections(), GlobalSamplingRate);
 AbfEncoder AE(argv[2], D.GetNumSections(), GlobalSamplingRate);
 GlobalAE = &AE;
 Book = &D;
