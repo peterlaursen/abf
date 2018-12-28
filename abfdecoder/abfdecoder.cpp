@@ -33,7 +33,6 @@ else _IsOpen = true;
 if (Validate()) ReadHeader();
 int Error = 0;
 Decoder = opus_decoder_create(GetSamplingRate(), 1, &Error);
-printf("Sampling Rate from file: %d\n", GetSamplingRate());
 if (Error != OPUS_OK) {
 fprintf(stderr, "Something went wrong in creating our decoder!\n");
 ::fclose(fin);
