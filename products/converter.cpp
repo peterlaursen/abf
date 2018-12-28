@@ -133,7 +133,7 @@ D.GetAudioFiles();
 fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
 return (EXIT_FAILURE);
 }
-printf("Sections: %d\n", D.GetNumSections());
+printf("Sections: %d\nSampling rate: %d\n", D.GetNumSections(), GlobalSamplingRate);
 AbfEncoder AE(argv[2], D.GetNumSections(), GlobalSamplingRate);
 GlobalAE = &AE;
 Book = &D;
