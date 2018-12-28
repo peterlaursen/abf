@@ -2,12 +2,14 @@ README
 
 DOCUMENTATION FOR THE CONVERTER AND THE PLAYER
 
-Version 0.50
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
+Version 0.60
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Peter Laursen.
 
-NOTE:
-
-This is Beta software. Run at your own risk. This software has not been known to eat you alive, but you must expect some bugs. Also, no guarantee is made for correct operation of beta programs.
+What's New in Version 0.60:
+* Various bug fixes  in the player and converter.
+* Windows stuff no longer present in trunk; it's moved to its own branch.
+* The minor version of our ABF format has been bumped since we've added the ability to encode various sampling rates. Also, the time text field has been moved. 
+* Added a few switches to the converter so that it can encode in either normal quality, "higher" quality or "extreme" quality. The switches are "-h" for high (32kHz) and -x (48kHz).
 
 What's new in Version 0.50?
 ===
@@ -22,7 +24,6 @@ What's new in Version 0.50?
 * Add keys for adjusting the playback gain of the decoder. The keys are + and - (minus).
 * Implement an argument globbing routine in the player. This means that we now fully support shell globbing in addition to single book arguments.
 * Fix a Daisy book character conversion error that prevented us from converting Danish characters to UTF-8. This bug was fixed in Libdaisy20.
-
 * Implemented a SIGINFO handler. We output what file is currently being converted + how many sections the file contains. This is only available on FreeBSD.
 * Pulseaudio is now supported.
 * Fixed various resource leaks to do with sqlite3 handles. Nothing would have gone wrong in ordinary operations, but if a bug should appear, the handles were not freed properly.
