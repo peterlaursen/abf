@@ -57,7 +57,7 @@ Mp3File = mpg123_new(NULL, &err);
 CurrentFileName = Paths.gl_pathv[MyFile];
 mpg123_open(Mp3File, Paths.gl_pathv[MyFile]);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, AE->GetSamplingRate(), 10, 0);
 // Let's try to create an encoder.
 // Get a little information about our encoder
 short *Buffer = new short[32768] ;
@@ -73,11 +73,12 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 //printf("MP3 status: %d\n", Status);
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-short TempEncoder[320] = {0};
+int FrameSize = AE->GetSamplingRate()/50;
+short TempEncoder[FrameSize];
 int Temp = 0;
 while (Temp < Processed) {
-int EncSize = 320;
-if (Temp + 320 > Processed) EncSize = Processed - Temp;
+int EncSize = FrameSize;
+if (Temp + FrameSize > Processed) EncSize = Processed - Temp;
 memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
 Temp += EncSize;
 AE->Encode(MyFile, TempEncoder, EncSize);
@@ -95,13 +96,14 @@ Buffer = Resampled = nullptr;
 }
 }
 int main(int argc, char* argv[]) {
-if (argc != 3) {
+if (argc != 3 || argc != 4) {
 cerr << "Error, need at least an input folder and an output file name." << endl;
+cout << "Alternatively, pass '-h' or '-x' as the last argument to encode in higher (24kHz) or extreme (48kHz)." << endl;
 return (EXIT_FAILURE);
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
 mpg123_init();
-string Title, Author, Time;
+string Title, Author;
 char Pattern[4096] = {0};
 int PatternLength = sprintf(Pattern, "%s/*.mp3", argv[1]);
 Pattern[PatternLength] = '\0';
@@ -110,8 +112,6 @@ cout << "Title: ";
 getline(cin, Title);
 cout << endl << "Author: ";
 getline(cin, Author);
-cout << endl << "Time: ";
-getline(cin, Time);
 glob(Pattern, 0, NULL, &Paths);
 } catch (string& E) {
 cerr << "Caught exception: %s\nWe exit because of this.\n" << E.c_str() << endl;
@@ -123,11 +123,16 @@ signal(SIGINT, &Cleanup);
 signal(SIGINFO, &ConvertInfo);
 #endif
 BookFileName = argv[2];
-AbfEncoder AE(argv[2], (unsigned short)Paths.gl_pathc);
+unsigned int GlobalSamplingRate = 16000;
+if (argc == 4) {
+string arg(argv[3]);
+if (arg == "-h") GlobalSamplingRate = 24000;
+else if (arg == "-x") GlobalSamplingRate = 48000;
+}
+AbfEncoder AE(argv[2], (unsigned short)Paths.gl_pathc, GlobalSamplingRate);
 GlobalAE = &AE;
 AE.SetTitle(Title.c_str());
 AE.SetAuthor(Author.c_str());
-AE.SetTime(Time.c_str());
 AE.WriteHeader();
 AbfEncoder* PAE = &AE;
 int NumThreads = thread::hardware_concurrency();
