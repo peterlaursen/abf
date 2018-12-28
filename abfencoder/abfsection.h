@@ -1,5 +1,5 @@
-/* $id$
-Copyright (C) 2017 Peter Laursen.
+/* $Id$
+Copyright (C) 2017, 2018, 2019 Peter Laursen.
 
 We split our encoder out into more files.
 */
