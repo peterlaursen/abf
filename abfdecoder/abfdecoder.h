@@ -11,7 +11,6 @@ That library is no longer updated and this library is incompatible with it.
 #include <string>
 #include <vector>
 #include <opus/opus.h>
-#include "../config.h"
 namespace ABF {
 using std::FILE;
 using std::string;
