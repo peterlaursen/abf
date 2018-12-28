@@ -63,7 +63,7 @@ CurrentFileName = Book->GetSectionFile(MyFile);
 
 mpg123_open(Mp3File, Book->GetSectionFile(MyFile));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, ABF_SAMPLING_RATE, 10, 0);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, AE->GetSamplingRate(), 10, 0);
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
@@ -72,9 +72,9 @@ short* Resampled = new short[32768];
 int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-const int FrameSize = ABF_SAMPLING_RATE/50;
+const int FrameSize = AE->GetSamplingRate()/50;
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
-printf("\nSampling rate: %d, Frame size: %d\n", ABF_SAMPLING_RATE, FrameSize);
+printf("\nSampling rate: %d, Frame size: %d\n", AE->GetSamplingRate(), FrameSize);
 
 do {
 unsigned int Processed = ResampledSize;
@@ -85,7 +85,7 @@ Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 unsigned int TotalSamples = Decoded/2;
 
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-short TempEncoder[FrameSize] = {0};
+short TempEncoder[FrameSize];
 int Temp = 0;
 while (Temp < Processed) {
 int EncSize = FrameSize;
@@ -109,11 +109,16 @@ speex_resampler_destroy(Resampler);
 return nullptr;
 }
 int main(int argc, char* argv[]) {
-if (argc != 3) {
+if (argc < 3) {
 fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
 return (EXIT_FAILURE);
 }
-
+unsigned short GlobalSamplingRate = 16000;
+if (argc == 4) {
+string arg(argv[3]);
+if (arg == "-h") GlobalSamplingRate = 32000;
+if (arg == "-x") GlobalSamplingRate = 48000;
+}
 // Let's open the file and get some information, later to be used for the Speex resampler.
 mpg123_init();
 DaisyBook D(argv[1]);
@@ -129,7 +134,7 @@ fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
 return (EXIT_FAILURE);
 }
 printf("Sections: %d\n", D.GetNumSections());
-AbfEncoder AE(argv[2], D.GetNumSections());
+AbfEncoder AE(argv[2], D.GetNumSections(), GlobalSamplingRate);
 GlobalAE = &AE;
 Book = &D;
 #ifndef WIN32
@@ -141,7 +146,6 @@ BookFileName = argv[2];
 #endif
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
-AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
 void* PAE = &AE;
 int NumThreads = std::thread::hardware_concurrency();
