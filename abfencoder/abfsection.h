@@ -14,6 +14,7 @@ Finished
 };
 class AbfSection {
 int FrameSize = -1;
+int SamplingRate = -1;
 OpusEncoder* Encoder = nullptr;
 int fd = 0;
 short* TempBuffer = nullptr;
@@ -22,13 +23,14 @@ char FileTemplate[40]= {0};
 char* FileBuffer = nullptr;
 int FileBufferPosition = 0;
 public:
-AbfSection(unsigned short SamplingRate = 16000);
+AbfSection();
 ~AbfSection();
 EncodingStatus Status = Waiting;
 void Close();
 void Encode(const short* Samples, int& Length);
 int Getfd() const { return fd; }
 const char* TempFile() { return FileTemplate; }
+void Init(int Samp);
 };
 }
 #endif

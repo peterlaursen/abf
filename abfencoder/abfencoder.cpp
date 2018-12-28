@@ -26,6 +26,7 @@ void AbfEncoder::Initialize(const char* Filename) {
 
 if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 24000 || SamplingRate == 48000)) {
 AbfSections = new AbfSection[_NumSections];
+for (int i = 0; i < _NumSections; i++) AbfSections[i].Init(SamplingRate);
 }
 fout = fopen(Filename, "wb+");
 }
