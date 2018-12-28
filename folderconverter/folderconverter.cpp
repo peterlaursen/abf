@@ -96,7 +96,7 @@ Buffer = Resampled = nullptr;
 }
 }
 int main(int argc, char* argv[]) {
-if (argc != 3 || argc != 4) {
+if (argc < 3) {
 cerr << "Error, need at least an input folder and an output file name." << endl;
 cout << "Alternatively, pass '-h' or '-x' as the last argument to encode in higher (24kHz) or extreme (48kHz)." << endl;
 return (EXIT_FAILURE);
