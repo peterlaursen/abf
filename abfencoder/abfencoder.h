@@ -32,7 +32,7 @@ int* fds = nullptr; // File descriptors for sections
 unsigned short HeaderSize = 0;
 string _Title;
 string _Author;
-string _Time;
+unsigned short SamplingRate;
 unsigned short _NumSections = 0;
 unsigned short NumMinutes = 0;
 int IndexTableStartPosition = 0;
@@ -42,11 +42,11 @@ void Initialize(const char*);
 AbfSection* AbfSections = nullptr; // Our ABFSections
 mutex mtx; // Mutex we use.
 public:
-AbfEncoder(const char* Filename, unsigned short NumSections);
+AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate = 16000);
 ~AbfEncoder();
 void SetTitle(const char* Title);
 void SetAuthor(const char* Author);
-void SetTime(const char* Time);
+const unsigned short GetSamplingRate() const;
 void WriteHeader();
 void Encode(unsigned short Section, const short* Input, int& Length);
 void CloseSection(unsigned short Section) { AbfSections[Section].Status = Finished; AbfSections[Section].Close(); }

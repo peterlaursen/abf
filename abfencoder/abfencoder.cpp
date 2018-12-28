@@ -19,12 +19,12 @@ Note furthermore that this is intended to work only on Unix platforms.
 #include <fcntl.h>
 using namespace std;
 namespace ABF {
-AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections): _NumSections(NumSections) {
+AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate): _NumSections(NumSections), SamplingRate(SamplingRate) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
 
-if (_NumSections > 0) {
+if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 32000 || SamplingRate == 48000)) {
 AbfSections = new AbfSection[_NumSections];
 }
 fout = fopen(Filename, "wb+");
@@ -55,13 +55,13 @@ mtx.unlock();
 }
 void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
 void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
-void AbfEncoder::SetTime(const char* Time) { _Time = Time; }
+const unsigned short AbfEncoder::GetSamplingRate() const { return SamplingRate; }
 void AbfEncoder::WriteHeader() {
 rewind(fout);
 fwrite("ABF", 1, 3, fout);
 HeaderSize = 0;
 fwrite(&HeaderSize, sizeof(short), 1, fout);
-unsigned short Major = 2, Minor = 1;
+unsigned short Major = 2, Minor = 2;
 fwrite(&Major, sizeof(short), 1, fout);
 fwrite(&Minor, sizeof(short), 1, fout);
 unsigned short Length = _Title.length();
@@ -70,9 +70,7 @@ fwrite(_Title.c_str(), 1, Length, fout);
 Length = _Author.length();
 fwrite(&Length, sizeof(short), 1, fout);
 fwrite(_Author.c_str(), 1, Length, fout);
-Length = _Time.length();
-fwrite(&Length, sizeof(short), 1, fout);
-fwrite(_Time.c_str(), 1, Length, fout);
+fwrite(&SamplingRate, 1, sizeof(unsigned short), fout);
 fwrite(&_NumSections, sizeof(short), 1, fout);
 fwrite(&NumMinutes, 1, sizeof(unsigned short), fout);
 fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
