@@ -24,7 +24,7 @@ Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
 
-if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 32000 || SamplingRate == 48000)) {
+if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 24000 || SamplingRate == 48000)) {
 AbfSections = new AbfSection[_NumSections];
 }
 fout = fopen(Filename, "wb+");
