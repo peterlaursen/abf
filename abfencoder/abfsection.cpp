@@ -11,7 +11,8 @@ We split our encoder out into more files.
 #include <unistd.h>
 using namespace std;
 namespace ABF {
-AbfSection::AbfSection() {
+AbfSection::AbfSection(unsigned short SamplingRate) {
+FrameSize = SamplingRate/50;
 TempBuffer = new  short[FrameSize];
 sprintf(FileTemplate, "/tmp/abfconvXXXXXX");
 fd = mkstemp(FileTemplate);
@@ -19,7 +20,7 @@ fd = mkstemp(FileTemplate);
 printf("Temporary file: %s, fd = %d\n", FileTemplate, fd);
 #endif
 int Error = 0;
-Encoder = opus_encoder_create(ABF_SAMPLING_RATE, 1, OPUS_APPLICATION_VOIP, &Error);
+Encoder = opus_encoder_create(SamplingRate, 1, OPUS_APPLICATION_VOIP, &Error);
 
 if (Error != OPUS_OK) {
 fprintf(stderr, "Error in creating our encoder!\n");
