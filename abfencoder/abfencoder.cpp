@@ -113,10 +113,6 @@ unsigned short FrameSize = 0;
 unsigned char Data[1024] = {0};
 int _FrameSize = fread(&FrameSize, sizeof(short), 1, fout);
 int _DataSize = fread(Data, FrameSize, 1, fout);
-if (_DataSize > 200) {
-printf("Frame too big. Frame size: %d, Data size: %d\n", _FrameSize, _DataSize);
-}
-
 ++FramesRead;
 } while(!feof(fout));
 }
