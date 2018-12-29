@@ -40,7 +40,7 @@ HRESULT hr;
 memset(&wfx, 0, sizeof(WAVEFORMATEX));
 wfx.wFormatTag = WAVE_FORMAT_PCM;
 wfx.nChannels = 1;
-wfx.nSamplesPerSec = 16000;
+wfx.nSamplesPerSec = AD->GetSamplingRate();
 wfx.nBlockAlign = 2;
 wfx.nAvgBytesPerSec = wfx.nSamplesPerSec * wfx.nBlockAlign;
 wfx.wBitsPerSample = 16;
@@ -71,6 +71,8 @@ Device->SetCooperativeLevel(WindowHandle, DSSCL_PRIORITY);
 }
 void DSAudio::Play() {
 	IsPlaying = true;
+int FrameSize = AD->GetSamplingRate()/50;
+short* Decoded = new short[FrameSize];
 CreateBasicBuffer(Device, &Buffer);
 bool Initialized = false;
 	while (!AD->feof() && PS == Playing) {
@@ -81,14 +83,13 @@ DWORD PlayPosition = 0;
 do {
 if (!Initialized) break;
 Buffer->GetCurrentPosition(&PlayPosition, 0);
-} while (PlayPosition <= 32000);
+} while (PlayPosition <= AD->GetSamplingRate()*2);
 short* DirectXBuffer;
 unsigned long BufferLength;
-Buffer->Lock(0, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
-short Decoded[320] = {0};
-for (int i = 0; i < 16000; i+= 320) {
+Buffer->Lock(0, AD->GetSamplingRate()*2, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
+for (int i = 0; i < AD->GetSamplingRate(); i+= FrameSize) {
 AD->Decode(Decoded);
-for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
+for (int j = 0; j < FrameSize; j++) DirectXBuffer[i+j] = Decoded[j];
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
 if (PS == Quit) {
@@ -99,11 +100,11 @@ do {
 if (!Initialized) break;
 
 Buffer->GetCurrentPosition(&PlayPosition, NULL);
-} while (PlayPosition >= 32000);
-Buffer->Lock(32000, 32000, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
-for (int i = 0; i < 16000; i+= 320) {
+} while (PlayPosition >= AD->GetSamplingRate()*2);
+Buffer->Lock(AD->GetSamplingRate()*2, AD->GetSamplingRate()*2, (LPVOID*)&DirectXBuffer, &BufferLength, 0, 0, 0);
+for (int i = 0; i < AD->GetSamplingRate(); i+= FrameSize) {
 AD->Decode(Decoded);
-for (int j = 0; j < 320; j++) DirectXBuffer[i+j] = Decoded[j];
+for (int j = 0; j < FrameSize; j++) DirectXBuffer[i+j] = Decoded[j];
 }
 Buffer->Unlock((LPVOID*)DirectXBuffer, BufferLength, 0, 0);
 Buffer->Play(0, 0, DSBPLAY_LOOPING);
@@ -113,6 +114,7 @@ Buffer->Stop();
 Buffer->SetCurrentPosition(0);
 Buffer->Release();
 Buffer = 0;
+delete[] Decoded;
 }
 void DSAudio::Stop() {
 IsPlaying = false;
