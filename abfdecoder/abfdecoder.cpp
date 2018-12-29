@@ -18,7 +18,7 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 #endif
 using namespace std;
 namespace ABF {
-int SHARED AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
+int   AbfDecoder::Seek(long offset, int whence) { return fseek(fin, offset, whence); }
 AbfDecoder::AbfDecoder(): fin(nullptr), _IsOpen(false), _IsValid(false) {
 HeaderSize = Major = Minor = NumMinutes = NumSections = 0;
 }
@@ -32,7 +32,7 @@ if (!fin) _IsOpen = false;
 else _IsOpen = true;
 if (Validate()) ReadHeader();
 int Error = 0;
-Decoder = opus_decoder_create(16000, 1, &Error);
+Decoder = opus_decoder_create(GetSamplingRate(), 1, &Error);
 if (Error != OPUS_OK) {
 fprintf(stderr, "Something went wrong in creating our decoder!\n");
 ::fclose(fin);
@@ -73,12 +73,21 @@ fread(&TitleLength, sizeof(short), 1, fin);
 Author = new char[TitleLength+1];
 Author[TitleLength] = '\0';
 fread(Author, 1, TitleLength, fin);
+if (Major == 2 && Minor == 2)  {
+Time = new char[2];
+Time[0] = '\"';
+Time[1] = '\"';
+fread(&SamplingRate, sizeof(unsigned short), 1, fin);
+}
+else {
+SamplingRate = 16000;
 fread(&TitleLength, sizeof(short), 1, fin);
 Time = new char[TitleLength+1];
 fread(Time, 1, TitleLength, fin);
 Time[TitleLength] = '\0';
+}
 fread(&NumSections, sizeof(short), 1, fin);
-if (Major == 2 && Minor == 1) {
+if (Major == 2 && Minor >= 1) {
 fread(&NumMinutes, 1, sizeof(short), fin);
 fread(&IndexTableStartPosition, 1, sizeof(int), fin);
 MinutePositions = new int[NumMinutes];
@@ -97,6 +106,7 @@ const int* AbfDecoder::GetSections() const {
 return Array;
 }
 void AbfDecoder::Decode(short* Output) const {
+if (feof()) return;
 unsigned short Bytes;
 unsigned char Input[320] = {0};
 fread(&Bytes, 2, 1, fin);
@@ -104,9 +114,8 @@ int BytesRead = fread(Input, 1, Bytes, fin);
 #ifdef DEBUG
 printf("Bytes: %d\n", Bytes);
 #endif
-if (feof()) return;
 
-int FrameSize = (GetSamplingRate()==48000)?960:320;
+int FrameSize = GetSamplingRate()/50;
 int Error = opus_decode(Decoder, Input, BytesRead, Output, FrameSize, 0);
 if (Error < 0 && Error != OPUS_OK) {
 fprintf(stderr, "Error decoding Opus frame.\n");
@@ -121,7 +130,7 @@ return (ftell() >= IndexTableStartPosition)?true:false; else return std::feof(fi
 const char* AbfDecoder::GetTitle() const { return Title; }
 const char* AbfDecoder::GetAuthor() const { return Author; }
 const char* AbfDecoder::GetTime() const { return Time; }
-const unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
+unsigned short AbfDecoder::GetNumSections() const { return NumSections; }
 bool AbfDecoder::GoToPosition(int minutes) { 
 
 fseek(fin, MinutePositions[minutes], SEEK_SET);
@@ -165,7 +174,7 @@ fclose();
 _IsOpen = false;
 _IsValid = false;
 }
-if (Major == 2 && Minor == 1) {
+if (Major == 2 && Minor >= 1) {
 if (MinutePositions != nullptr) {
 delete[] MinutePositions;
 MinutePositions = nullptr;
@@ -195,7 +204,7 @@ Array = nullptr;
 }
 void AbfDecoder::fclose() { std::fclose(fin); fin = nullptr; }
 /* Try to insert some gain macros here... */
-const int AbfDecoder::GetGain() const {
+int AbfDecoder::GetGain() const {
 int Gain = 0;
 opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
 return Gain;
@@ -207,15 +216,11 @@ opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
 We do this in the Opus decoder itself, which saves us from worrying too much about it.
 */
-const int AbfDecoder::GetSamplingRate() const {
-int SamplingRate = 0;
-opus_decoder_ctl(Decoder, OPUS_GET_SAMPLE_RATE(&SamplingRate));
-return SamplingRate;
-}
-
 void AbfDecoder::SetSamplingRate(int SamplingRate) {
+// This function is no longer used.
+return;
 // Do we need to do any work?
-if (SamplingRate == 16000) return;
+if (SamplingRate == GetSamplingRate()) return;
 opus_decoder_destroy(Decoder);
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);

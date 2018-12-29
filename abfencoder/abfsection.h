@@ -1,5 +1,5 @@
-/* AbfSection.h
-Copyright (C) 2017 Peter Laursen.
+/* $Id$
+Copyright (C) 2017, 2018, 2019 Peter Laursen.
 
 We split our encoder out into more files.
 */
@@ -21,9 +21,11 @@ Encoding,
 Finished
 };
 class SHARED AbfSection {
+int FrameSize = -1;
+int SamplingRate = -1;
 OpusEncoder* Encoder = nullptr;
 FILE* fd = nullptr;
-short TempBuffer[320] = {0};
+short* TempBuffer = nullptr;
 short TempBufferPosition = 0;
 char FileTemplate[40]= {0};
 char* FileBuffer = nullptr;
@@ -36,6 +38,7 @@ void Close();
 void Encode(const short* Samples, int& Length);
 FILE* Getfd() const { return fd; }
 const char* TempFile() { return FileTemplate; }
+void Init(int Samp);
 };
 }
 #endif

@@ -1,12 +1,9 @@
-/* $Fossil libabfnewapi branch$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
+/* $Id$
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Peter Laursen.
 
 This is an encoder for our audio book format for Windows.
-Note that this library uses ABF 2.0 only.
-For the previous library utilizing Speex for its encoding and decoding, see /code/branches/abf-1.0.
-
 Note that we remove the ABFDecoder from this library.
-We also rename this implementation to something else.
+The library only supports encoding the latest formats.
 */
 
 #include <cstdio>
@@ -18,12 +15,13 @@ We also rename this implementation to something else.
 #include <windows.h>
 using namespace std;
 namespace ABF {
-AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections): _NumSections(NumSections) {
+AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate): _NumSections(NumSections), SamplingRate(SamplingRate) {
 Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
-if (_NumSections > 0) {
+if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 24000 || SamplingRate == 48000)) {
 AbfSections = new AbfSection[_NumSections];
+for (int i = 0; i < _NumSections; i++) AbfSections[i].Init(SamplingRate);
 }
 fout = fopen(Filename, "wb+");
 }
@@ -53,13 +51,13 @@ mtx.unlock();
 }
 void AbfEncoder::SetTitle(const char* Title) { _Title = Title; }
 void AbfEncoder::SetAuthor(const char* Author) { _Author = Author; }
-void AbfEncoder::SetTime(const char* Time) { _Time = Time; }
+const unsigned short AbfEncoder::GetSamplingRate() const { return SamplingRate; }
 void AbfEncoder::WriteHeader() {
 rewind(fout);
 fwrite("ABF", 1, 3, fout);
 HeaderSize = 0;
 fwrite(&HeaderSize, sizeof(short), 1, fout);
-unsigned short Major = 2, Minor = 1;
+unsigned short Major = 2, Minor = 2;
 fwrite(&Major, sizeof(short), 1, fout);
 fwrite(&Minor, sizeof(short), 1, fout);
 unsigned short Length = _Title.length();
@@ -68,9 +66,7 @@ fwrite(_Title.c_str(), 1, Length, fout);
 Length = _Author.length();
 fwrite(&Length, sizeof(short), 1, fout);
 fwrite(_Author.c_str(), 1, Length, fout);
-Length = _Time.length();
-fwrite(&Length, sizeof(short), 1, fout);
-fwrite(_Time.c_str(), 1, Length, fout);
+fwrite(&SamplingRate, 1, sizeof(unsigned short), fout);
 fwrite(&_NumSections, sizeof(short), 1, fout);
 fwrite(&NumMinutes, 1, sizeof(unsigned short), fout);
 fwrite(&IndexTableStartPosition, 1, sizeof(int), fout);
@@ -109,7 +105,7 @@ int FramesRead = 0;
 do {
 if (FramesRead % 3000 == 0) MinutePositions.push_back(ftell(fout));
 unsigned short FrameSize = 0;
-unsigned char Data[200] = {0};
+unsigned char Data[1024] = {0};
 int _FrameSize = fread(&FrameSize, sizeof(short), 1, fout);
 int _DataSize = fread(Data, FrameSize, 1, fout);
 ++FramesRead;

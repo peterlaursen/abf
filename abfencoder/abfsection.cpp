@@ -1,5 +1,5 @@
-/* AbfSection.cpp
-Copyright (C) 2017 Peter Laursen.
+/* $Id$
+Copyright (C) 2017, 2018, 2019 Peter Laursen.
 
 We split our encoder out into more files.
 */
@@ -14,13 +14,23 @@ namespace ABF {
 AbfSection::AbfSection() {
 GetTempFileName(".", "ABFConv", 0, FileTemplate); 
 fd = fopen(FileTemplate, "wb+");
+FileBuffer = new char[1024*1024];
 #ifdef DEBUG
 printf("Temporary file: %s\n", FileTemplate);
 #endif
+}
+void AbfSection::Init(int Samp) {
+SamplingRate = Samp;
+FrameSize = SamplingRate/50;
+TempBuffer = new  short[FrameSize];
 int Error = 0;
-Encoder = opus_encoder_create(16000, 1, OPUS_APPLICATION_VOIP, &Error);
-if (Error != OPUS_OK) fprintf(stderr, "Error in creating our encoder!\n");
-FileBuffer = new char[1024*1024];
+Encoder = opus_encoder_create(SamplingRate, 1, OPUS_APPLICATION_VOIP, &Error);
+if (Error != OPUS_OK) {
+fprintf(stderr, "Error in creating our encoder!\n");
+delete[] TempBuffer;
+TempBuffer = nullptr;
+return;
+}
 }
 AbfSection::~AbfSection() {
 fclose(fd);
@@ -28,10 +38,11 @@ opus_encoder_destroy(Encoder);
 delete[] FileBuffer;
 FileBufferPosition = 0;
 DeleteFile(FileTemplate);
+delete[] TempBuffer;
 }
 void AbfSection::Close() {
-for (int i = TempBufferPosition; i<320; i++) TempBuffer[i]=0;
-int Length=320;
+for (int i = TempBufferPosition; i<FrameSize; i++) TempBuffer[i]=0;
+int Length=FrameSize;
 TempBufferPosition = 0;
 Encode(TempBuffer, Length);
 if (FileBufferPosition > 0) {
@@ -42,12 +53,12 @@ FileBufferPosition = 0;
 return;
 }
 void AbfSection::Encode(const short* Input, int& Length) {
-if (TempBufferPosition + Length >= 320) {
+if (TempBufferPosition + Length >= FrameSize) {
 int Remaining = 0;
-for (int i = TempBufferPosition, j=0; i < 320; i++, j++, Remaining++) TempBuffer[i]=Input[j];
+for (int i = TempBufferPosition, j=0; i < FrameSize; i++, j++, Remaining++) TempBuffer[i]=Input[j];
 
-unsigned char Output[200] = {0};
-short Bytes = opus_encode(Encoder, TempBuffer, 320, Output, 200);
+unsigned char Output[400] = {0};
+short Bytes = opus_encode(Encoder, TempBuffer, FrameSize, Output, 400);
 if (Bytes < 0) {
 fprintf(stderr, "Opus error: %d\n%s\n", Bytes, opus_strerror(Bytes));
 return;

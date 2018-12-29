@@ -11,20 +11,11 @@ That library is no longer updated and this library is incompatible with it.
 #include <string>
 #include <vector>
 #include <opus/opus.h>
-#ifdef WIN32
-#ifdef BUILD_DLL
-#define SHARED __declspec(dllexport)
-#else
-#define SHARED __declspec(dllimport)
-#endif
-#else
-#define SHARED
-#endif
 namespace ABF {
 using std::FILE;
 using std::string;
 using std::vector;
-class SHARED AbfDecoder {
+class AbfDecoder {
 int* Array = nullptr;
 int* MinutePositions = nullptr;
 OpusDecoder* Decoder = nullptr;
@@ -33,6 +24,7 @@ bool _IsOpen = false;
 bool _IsValid = false;
 char* Title = nullptr;
 char* Author = nullptr;
+unsigned short SamplingRate;
 char* Time = nullptr;
 unsigned short HeaderSize, Major, Minor, NumSections, NumMinutes;
 int IndexTableStartPosition = 0;
@@ -49,10 +41,11 @@ bool IsOpen() const { return _IsOpen; }
 const char* GetTitle() const;
 const char* GetAuthor() const;
 const char* GetTime() const;
-const unsigned short GetNumSections() const;
-const unsigned short GetHeaderSize() const { return HeaderSize; }
-const unsigned short GetMajor() { return Major; }
-const unsigned short GetMinor() const { return Minor; }
+const unsigned short GetSamplingRate() const { return SamplingRate; }
+unsigned short GetNumSections() const;
+unsigned short GetHeaderSize() const { return HeaderSize; }
+unsigned short GetMajor() { return Major; }
+unsigned short GetMinor() const { return Minor; }
 bool feof() const;
 int ftell() const;
 void fclose();
@@ -62,12 +55,11 @@ void Decode(short* Output) const;
 /*
 This function only works with ABF 2.1, the absolutely latest format.
 */
-const int GetMinutes() const { return NumMinutes; }
+int GetMinutes() const { return NumMinutes; }
 const int* GetMinutePositions() { return MinutePositions; }
 bool GoToPosition(const int Minutes);
-const int GetGain() const;
+int GetGain() const;
 void SetGain(int NewGain);
-const int GetSamplingRate() const;
 void SetSamplingRate(int SampleRate);
 };
 }
