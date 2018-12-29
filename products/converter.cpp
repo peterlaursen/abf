@@ -1,4 +1,4 @@
-;/* $Id$
+/* $Id$
 Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
 
 This small program now attempts to read an Daisy book using Libdaisy20, resamples it using the Speex resampler and encodes it using Opus.
@@ -47,7 +47,7 @@ CurrentFileName = Book->GetSectionFile(MyFile);
 
 mpg123_open(Mp3File, Book->GetSectionFile(MyFile));
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
-SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, 16000, 10, 0);
+SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, AE->GetSamplingRate(), 10, 0);
 
 // Let's try to create an encoder.
 // Get a little information about our encoder
@@ -56,26 +56,26 @@ short* Resampled = new short[32768];
 int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-
 printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
+const int FrameSize = AE->GetSamplingRate()/50;
+short* TempEncoder = new short[FrameSize];
 do {
 unsigned int Processed = ResampledSize;
 size_t Decoded;
 Status = mpg123_read(Mp3File, (unsigned char*)Buffer, 32768, &Decoded);
 //printf("MP3 status: %d\n", Status);
-
 unsigned int TotalSamples = Decoded/2;
 speex_resampler_process_int(Resampler, 0, Buffer, &TotalSamples, Resampled, &Processed);
-short TempEncoder[320] = {0};
 int Temp = 0;
 while (Temp < Processed) {
-int EncSize = 320;
-if (Temp + 320  > Processed) EncSize = Processed - Temp;
+int EncSize = FrameSize;
+if (Temp + FrameSize  > Processed) EncSize = Processed - Temp;
 memcpy(TempEncoder, &Resampled[Temp], EncSize*2);
 Temp += EncSize;
 AE->Encode(MyFile, TempEncoder, EncSize);
 }
 } while (Status == MPG123_OK);
+delete[] TempEncoder;
 AE->Lock();
 AE->CloseSection(MyFile);
 AE->Unlock();
@@ -89,11 +89,16 @@ speex_resampler_destroy(Resampler);
 return;
 }
 int main(int argc, char* argv[]) {
-if (argc != 3) {
+if (argc < 3) {
 fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
 return (EXIT_FAILURE);
 }
-
+unsigned short GlobalSamplingRate = 16000;
+if (argc == 4) {
+string arg(argv[3]);
+if (arg == "-h") GlobalSamplingRate = 24000;
+if (arg == "-x") GlobalSamplingRate = 48000;
+}
 // Let's open the file and get some information, later to be used for the Speex resampler.
 mpg123_init();
 DaisyBook D(argv[1]);
@@ -108,14 +113,12 @@ D.GetAudioFiles();
 fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
 return (EXIT_FAILURE);
 }
-printf("Sections: %d\n", D.GetNumSections());
-AbfEncoder AE(argv[2], D.GetNumSections());
+AbfEncoder AE(argv[2], D.GetNumSections(), GlobalSamplingRate);
 GlobalAE = &AE;
 Book = &D;
 BookFileName = argv[2];
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
-AE.SetTime(D.GetTotalTime().c_str());
 AE.WriteHeader();
 AbfEncoder* PAE = &AE;
 int NumThreads = std::thread::hardware_concurrency();
