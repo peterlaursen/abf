@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Peter Laursen.
 
 This is our interface to our ABF library. Currently, we focus on upgrading our format slightly, so our player and other things may catch up as time progresses.
 For all the previous work on ABF, see /branches/libabf-1.0.
@@ -7,6 +7,12 @@ That library is no longer updated and this library is incompatible with it.
 */
 #ifndef ABFDECODER_H
 #define ABFDECODER_H
+#ifdef BUILD_DLL
+#define SHARED __declspec(dllexport)
+#else
+#define SHARED __declspec(dllimport)
+#endif
+
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -15,7 +21,7 @@ namespace ABF {
 using std::FILE;
 using std::string;
 using std::vector;
-class AbfDecoder {
+class SHARED AbfDecoder {
 int* Array = nullptr;
 int* MinutePositions = nullptr;
 OpusDecoder* Decoder = nullptr;

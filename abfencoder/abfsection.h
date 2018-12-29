@@ -5,12 +5,10 @@ We split our encoder out into more files.
 */
 #ifndef ABFSECTION_H
 #define ABFSECTION_H
-#ifndef SHARED
 #ifdef BUILD_DLL
 #define SHARED __declspec(dllexport)
 #else
-#define SHARED
-#endif
+#define SHARED __declspec(dllimport)
 #endif
 #include <opus/opus.h>
 #include <stdio.h>
