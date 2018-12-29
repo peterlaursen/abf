@@ -32,7 +32,7 @@ PL.Remove(PL.GetCurrentBook());
 if (PL.GetTotalItems() == 0) return;
 }
 bool JumpToTime(AbfDecoder& AD) {
-if (AD.GetMajor() == 2 && AD.GetMinor() != 1) {
+if (AD.GetMajor() == 2 && AD.GetMinor() < 1) {
 cerr << "ABF " << AD.GetMajor() << "." << AD.GetMinor() << " does not support seeking." << endl;
 cerr << "You must re-encode with a supported encoder in order to get this ability." << endl;
 return false;
