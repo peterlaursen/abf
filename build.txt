@@ -1,0 +1,7 @@
+# $Id$
+
+To build the files used by CMake, create a directory (for example "build") and cd into it. When done, run CMake like this:
+cmake -g "Visual Studio 15 2017" -A x64 ..
+
+To build, run CMake like this:
+cmake --build . --config Release
