@@ -38,12 +38,13 @@ unsigned short NumMinutes = 0;
 int IndexTableStartPosition = 0;
 int FramesEncoded = 0;
 vector<int> MinutePositions;
-void Initialize(const char*);
 AbfSection* AbfSections = nullptr; // Our ABFSections
 mutex mtx; // Mutex we use.
+bool Initialized = false;
 public:
-AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate = 16000);
+AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate = 16000, bool AbfInit = true);
 ~AbfEncoder();
+void Initialize(const char*);
 void SetTitle(const char* Title);
 void SetAuthor(const char* Author);
 const unsigned short GetSamplingRate() const;

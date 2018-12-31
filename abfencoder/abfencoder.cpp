@@ -14,23 +14,35 @@ Note furthermore that this is intended to work only on Unix platforms.
 #include <cstdlib>
 #include <unistd.h>
 #include <pthread.h>
+#include <errno.h>
+#include <libgen.h>
 #include "abfencoder.h"
 #include "abfsection.h"
 #include <fcntl.h>
 using namespace std;
 namespace ABF {
-AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate): _NumSections(NumSections), SamplingRate(SamplingRate) {
-Initialize(Filename);
+AbfEncoder::AbfEncoder(const char* Filename, unsigned short NumSections, unsigned short SamplingRate, bool AbfInit): 
+_NumSections(NumSections), SamplingRate(SamplingRate) {
+if (AbfInit) Initialize(Filename);
 }
 void AbfEncoder::Initialize(const char* Filename) {
+char Directory[2048] = {0};
+sprintf(Directory, "%s", Filename);
+int rc = access(dirname(Directory), W_OK);
+if (rc == -1) {
+throw string(strerror(errno));
+return;
+}
 
 if (_NumSections > 0 && (SamplingRate == 16000 || SamplingRate == 24000 || SamplingRate == 48000)) {
 AbfSections = new AbfSection[_NumSections];
 for (int i = 0; i < _NumSections; i++) AbfSections[i].Init(SamplingRate);
 }
 fout = fopen(Filename, "wb+");
+Initialized = true;
 }
 AbfEncoder::~AbfEncoder() {
+if (Initialized) {
 Lock();
 for (int i = 0; i < _NumSections; i++) {
 AbfSections[i].Close();
@@ -47,6 +59,7 @@ fseek(fout, IndexTableStartPosition, SEEK_SET);
 for (int i = 0; i < MinutePositions.size(); i++) fwrite(&MinutePositions[i], 1, sizeof(int), fout);
 delete[] AbfSections;
 fclose(fout);
+}
 }
 void AbfEncoder::Lock() { 
 mtx.lock();
