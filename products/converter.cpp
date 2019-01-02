@@ -11,10 +11,8 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <thread>
 #include "../libdaisy20/libdaisy20.h"
 #include "../abfencoder/abfencoder.h"
-#ifndef WIN32
 #include <unistd.h>
 #include <signal.h>
-#endif
 #include <sys/stat.h>
 #include <opus/opus.h>
 #include <mpg123.h>
@@ -25,7 +23,6 @@ static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
 static DaisyBook* Book = nullptr;
 static AbfEncoder* GlobalAE = nullptr;
-#ifndef WIN32
 void Cleanup(int Signal) {
 GlobalAE->Cleanup();
 unlink(BookFileName);
@@ -34,8 +31,6 @@ exit(Signal);
 void ConvertInfo(int Signal) {
 printf("Book consists of %d sections - working with file %s\n", NumberOfFiles, CurrentFileName);
 }
-
-#endif
 void* ConverterThread(void* ThreadAE) {
 // Put everything here into a while loop...
 //I hope it works.
@@ -141,13 +136,11 @@ return -1;
 
 GlobalAE = &AE;
 Book = &D;
-#ifndef WIN32
 signal(SIGINT, &Cleanup);
 #ifdef FREEBSD
 signal(SIGINFO, &ConvertInfo);
 #endif
 BookFileName = argv[2];
-#endif
 AE.SetTitle(D.GetTitle().c_str());
 AE.SetAuthor(D.GetAuthor().c_str());
 AE.WriteHeader();
