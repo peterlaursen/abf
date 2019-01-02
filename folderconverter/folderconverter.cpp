@@ -9,18 +9,19 @@ If everything goes well, this will be done all in memory so that the only file t
 #include <cstring>
 #include <cmath>
 #include <thread>
-#include "../libdaisy20/libdaisy20.h"
+#include <vector>
+#include "../libdaisy20/scandir.h"
 #include "../abfencoder/abfencoder.h"
 #include <opus/opus.h>
 #include <mpg123.h>
-#include "speex_resampler.h"
+#include "../products/speex_resampler.h"
 using namespace std;
 using namespace ABF;
 static const char* BookFileName = nullptr;
 static int NumberOfFiles = 0;
 static const char* CurrentFileName = nullptr;
-static DaisyBook* Book = nullptr;
 static AbfEncoder* GlobalAE = nullptr;
+vector<string> Paths;
 void ConverterThread(AbfEncoder* AE) {
 // Put everything here into a while loop...
 //I hope it works.
@@ -31,6 +32,7 @@ for (unsigned short i = 0; i < AE->GetNumSections(); i++) {
 if (AE->GetStatus(i) == Waiting) {
 AE->SetStatus(i, Encoding);
 MyFile = i;
+CurrentFileName = Paths[i].c_str();
 break;
 }
 }
@@ -43,9 +45,7 @@ long SamplingRate = 0;
 int Channels = 0, Encoding = 0;
 int err = MPG123_OK;
 Mp3File = mpg123_new(NULL, &err);
-CurrentFileName = Book->GetSectionFile(MyFile);
-
-mpg123_open(Mp3File, Book->GetSectionFile(MyFile));
+mpg123_open(Mp3File, CurrentFileName);
 mpg123_getformat(Mp3File, &SamplingRate, &Channels, &Encoding);
 SpeexResamplerState* Resampler = speex_resampler_init(1, SamplingRate, AE->GetSamplingRate(), 10, 0);
 
@@ -56,7 +56,7 @@ short* Resampled = new short[32768];
 int ResampledSize= 32768;
 int SamplesWritten = 0;
 int Status = MPG123_OK;
-printf("Working with file %s.\n", Book->GetSectionFile(MyFile));
+printf("Working with file %s.\n", CurrentFileName);
 const int FrameSize = AE->GetSamplingRate()/50;
 short* TempEncoder = new short[FrameSize];
 do {
@@ -88,6 +88,12 @@ speex_resampler_destroy(Resampler);
 }
 return;
 }
+int SelectMP3(const struct dirent* d) {
+string cont(d->d_name);
+int index = cont.find(string(".mp3"));
+if (index == string::npos) return 0;
+else return 1;
+}
 int main(int argc, char* argv[]) {
 if (argc < 3) {
 fprintf(stderr, "Error, need at least an input folder and an output file name.\n");
@@ -101,28 +107,36 @@ if (arg == "-x") GlobalSamplingRate = 48000;
 }
 // Let's open the file and get some information, later to be used for the Speex resampler.
 mpg123_init();
-DaisyBook D(argv[1]);
-if (!D.BookIsValid()) {
-fprintf(stderr, "No daisy Book. Exitting\n");
-return (EXIT_FAILURE);
+dirent** FileList;
+int FileListLength = 0;
+FileListLength = scandir(argv[1], &FileList, SelectMP3, alphasort);
+if (FileListLength == 0) {
+cerr << "No MP3 files found." << endl;
+return -1;
 }
-try {
-D.GetMetadata();
-D.GetAudioFiles();
-} catch (string& E) {
-fprintf(stderr, "Caught exception: %s\nWe exit because of this.\n", E.c_str());
-return (EXIT_FAILURE);
+for (int i = 0; i < FileListLength; i++) {
+string P(argv[1]);
+P += "\\";
+P += FileList[i]->d_name;
+Paths.push_back(P);
+free(FileList[i]);
 }
-AbfEncoder AE(argv[2], D.GetNumSections(), GlobalSamplingRate);
+free(FileList);
+AbfEncoder AE(argv[2], FileListLength, GlobalSamplingRate);
 GlobalAE = &AE;
-Book = &D;
 BookFileName = argv[2];
-AE.SetTitle(D.GetTitle().c_str());
-AE.SetAuthor(D.GetAuthor().c_str());
+string title, author;
+cout << "Title: ";
+getline(cin, title);
+cout << endl << "Author: ";
+getline(cin, author);
+AE.SetTitle(title.c_str());
+AE.SetAuthor(author.c_str());
+
 AE.WriteHeader();
 AbfEncoder* PAE = &AE;
 int NumThreads = std::thread::hardware_concurrency();
-NumberOfFiles = D.GetNumSections();
+NumberOfFiles = FileListLength;
 thread* ThreadHandle = new thread[NumThreads];
 for (int i = 0; i < NumThreads; i++) {
 ThreadHandle[i] = thread(ConverterThread, PAE);
@@ -130,9 +144,7 @@ ThreadHandle[i] = thread(ConverterThread, PAE);
 for (int i = 0; i < NumThreads; i++) ThreadHandle[i].join();
 delete[] ThreadHandle;
 ConverterThread(&AE);
-cout << "Before gather..." << endl;
 AE.Gather();
-cout << "After gather." << endl;
 mpg123_exit();
 return (EXIT_SUCCESS);
 }
