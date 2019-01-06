@@ -3,7 +3,7 @@
 This file contains compatibility functions for FreeBSD.
 */
 
-#include "compat.h"
+#include "linuxcompat.h"
 #include <stdio.h>
 #include <termios.h>
 int getch() {
