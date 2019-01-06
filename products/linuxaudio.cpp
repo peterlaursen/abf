@@ -22,7 +22,7 @@ Pulseaudio apparently requires the format to be set up in a slightly different w
 We do it here.
 */
 AudioFormat.format = PA_SAMPLE_S16LE;
-AudioFormat.rate = 16000;
+AudioFormat.rate = AD->GetSamplingRate();
 AudioFormat.channels = 1;
 int Error = 0;
 Device = pa_simple_new(NULL, "abfplayer", PA_STREAM_PLAYBACK, NULL, "ABF Audio Book", &AudioFormat, NULL, NULL, &Error); 
@@ -33,7 +33,8 @@ pa_simple_free(Device);
 void LinuxAudio::Play() {
 IsPlaying = true;
 while (!AD->feof() && PS == Playing) {
-short Buffer[320];
+int FrameSize = AD->GetSamplingRate()/50;
+short Buffer[FrameSize];
 AD->Decode(Buffer);
 int Error = 0;
 pa_simple_write(Device, Buffer, sizeof(Buffer), &Error);
