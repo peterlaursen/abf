@@ -23,6 +23,7 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <libgpio.h>
 #endif
 #include <string>
+#include <cstring>
 using namespace std;
 using namespace ABF;
 AudioSystem* Device = nullptr;

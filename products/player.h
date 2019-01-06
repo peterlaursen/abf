@@ -9,8 +9,9 @@ This file contains various declarations that are used within the player.
 #include "../abfdecoder/abfdecoder.h"
 #ifdef FREEBSD
 #include "unixaudio.h"
-#elif defined(PULSE)
+#elif defined(LINUX)
 #include "linuxaudio.h"
+#include "linuxcompat.h"
 #endif
 #include <thread>
 enum PlayerStatus {
