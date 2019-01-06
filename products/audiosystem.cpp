@@ -5,7 +5,7 @@ This contains the implementation of the AudioSystem class.
 */
 #include "audiosystem.h"
 #include <string>
-#ifndef PULSE
+#ifndef LINUX
 #include "unixaudio.h"
 #else
 #include "linuxaudio.h"
@@ -14,7 +14,7 @@ namespace ABF {
 using std::string;
 AudioSystem* AudioSystem::AS = nullptr;
 AudioSystem* AudioSystem::Create(AbfDecoder* AD, string DevName) {
-#ifndef PULSE
+#ifndef LINUX
 AS = new UnixAudio(DevName);
 #else
 AS = new LinuxAudio(DevName);

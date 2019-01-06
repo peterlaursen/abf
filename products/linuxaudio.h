@@ -16,6 +16,7 @@ class LinuxAudio : public AudioSystem {
 pa_simple* Device;
 pa_sample_spec AudioFormat;
 int Volume;
+virtual void Init(AbfDecoder* _AD);
 public:
 LinuxAudio(string DevName = "");
 ~LinuxAudio();

@@ -16,17 +16,15 @@ namespace ABF {
 using std::string;
 using std::cerr;
 using std::endl;
-LinuxAudio::LinuxAudio(string DevName) {
-/*
-Pulseaudio apparently requires the format to be set up in a slightly different way to OSS on FreeBSD.
-We do it here.
-*/
+void LinuxAudio::Init(AbfDecoder* _AD) {
+AD = _AD;
 AudioFormat.format = PA_SAMPLE_S16LE;
 AudioFormat.rate = AD->GetSamplingRate();
 AudioFormat.channels = 1;
 int Error = 0;
 Device = pa_simple_new(NULL, "abfplayer", PA_STREAM_PLAYBACK, NULL, "ABF Audio Book", &AudioFormat, NULL, NULL, &Error); 
 }
+LinuxAudio::LinuxAudio(string DevName) {}
 LinuxAudio::~LinuxAudio() {
 pa_simple_free(Device); 
 }
