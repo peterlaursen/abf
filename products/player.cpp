@@ -23,7 +23,6 @@ This contains code that interfaces with our libabf library, most specifically ou
 #include <libgpio.h>
 #endif
 #include <string>
-#include <cstring>
 using namespace std;
 using namespace ABF;
 AudioSystem* Device = nullptr;
@@ -311,7 +310,7 @@ cfmakeraw(&newt);
 tcsetattr(0, TCSANOW, &newt);
 int Start = 1;
 if (argc >= 2) {
-if (!strcmp(argv[1], "-d")) {
+if (string(argv[1]) == "-d") {
 Start = 3;
 DevName = argv[2];
 }
