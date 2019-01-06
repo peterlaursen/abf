@@ -1,5 +1,5 @@
 /* $Id$
-Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015 Peter Laursen.
+Copyright (C) 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019 Peter Laursen.
 
 This file contains the class implementation of the Pulseaudio API that's in use on various Linux distributions.
 If your system uses another audio system, derive from the AudioSystem class and make your own implementation.
