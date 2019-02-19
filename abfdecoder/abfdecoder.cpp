@@ -210,8 +210,7 @@ opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
 return Gain;
 }
 void AbfDecoder::SetGain(int NewGain) {
-int Gain = pow(10, NewGain/(20*256));
-opus_decoder_ctl(Decoder, OPUS_SET_GAIN(Gain));
+opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
 }
 /*
 Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
