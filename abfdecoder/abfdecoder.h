@@ -41,7 +41,7 @@ bool IsOpen() const { return _IsOpen; }
 const char* GetTitle() const;
 const char* GetAuthor() const;
 const char* GetTime() const;
-const unsigned short GetSamplingRate() const { return SamplingRate; }
+unsigned short GetSamplingRate() const { return SamplingRate; }
 unsigned short GetNumSections() const;
 unsigned short GetHeaderSize() const { return HeaderSize; }
 unsigned short GetMajor() { return Major; }

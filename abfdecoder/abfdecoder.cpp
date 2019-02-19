@@ -9,6 +9,7 @@ For the previous library utilizing Speex for its encoding and decoding, see /cod
 */
 
 #include <cstdio>
+#include <cmath>
 #include <cstring>
 #include "abfdecoder.h"
 #ifdef WIN32
@@ -45,7 +46,6 @@ rewind(fin);
 char Buffer[4];
 Buffer[3] = '\0';
 fread(Buffer, 1, 3, fin);
-unsigned short HeaderSize, Major, Minor;
 fread(&HeaderSize, sizeof(short), 1, fin);
 fread(&Major, sizeof(short), 1, fin);
 fread(&Minor, sizeof(short), 1, fin);
@@ -210,17 +210,18 @@ opus_decoder_ctl(Decoder, OPUS_GET_GAIN(&Gain));
 return Gain;
 }
 void AbfDecoder::SetGain(int NewGain) {
-opus_decoder_ctl(Decoder, OPUS_SET_GAIN(NewGain));
+int Gain = pow(10, NewGain/(20*256));
+opus_decoder_ctl(Decoder, OPUS_SET_GAIN(Gain));
 }
 /*
 Sometimes, we may need to change the output sampling rate - for example when using VirtualOSS for Bluetooth audio.
 We do this in the Opus decoder itself, which saves us from worrying too much about it.
 */
-void AbfDecoder::SetSamplingRate(int SamplingRate) {
+void AbfDecoder::SetSamplingRate(int NewSamplingRate) {
 // This function is no longer used.
 return;
 // Do we need to do any work?
-if (SamplingRate == GetSamplingRate()) return;
+if (NewSamplingRate == GetSamplingRate()) return;
 opus_decoder_destroy(Decoder);
 int Error = 0;
 Decoder = opus_decoder_create(SamplingRate, 1, &Error);
