@@ -2,7 +2,7 @@
 .\" A first draft manual page for abfplayer
 .\" This is only a draft page - as such, we do not really know whether it will display properly.
 .\" I hope it will prove useful.
-.Dd November 29, 2015
+.Dd February 24, 2019
 .Dt ABFPLAYER 1
 .Os
 .Sh NAME
@@ -15,9 +15,8 @@ is a program that allows you to play ABF audio books on Unix and Windows-based s
 On Windows, however, the Winamp plugin may be better suited to the people preferring a mouse.
 .Sh Overview
 .Nm
-(1) takes ABF filenames as arguments and starts playing the first file it encounters. Upon completion of a book, it automatically proceeds to play the next book specified.
-.Sh BUGS
-On Linux and FreeBSD, the keypresses are shown on the console. This is not desirable and we are looking at ways of fixing it.
+plays ABF audio books specified on the command line. Standard globbing can be used to ease locating files.
+
 .Sh AUTHORS
 .An Peter Laursen
 .Sh SEE ALSO

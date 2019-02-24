@@ -2,7 +2,7 @@
 .\" A first draft manual page for abfconverter
 .\" This is only a draft page - as such, we do not really know whether it will display properly.
 .\" I hope it will prove useful.
-.Dd November 29, 2015
+.Dd February 24, 2019
 .Dt ABFCONVERTER 1
 .Os
 .Sh NAME
@@ -13,9 +13,10 @@
 takes a Daisy 2.02 book and converts it to an ABF book to be played by abfplayer(1).
 .Pp
 .Nm
-only takes two arguments - the first argument is a folder containing the Daisy book and the second argument is the ABF Audiobook output file.
-.Sh BUGS
-Conversion is a little slow, but it works quite well otherwise.
+can encode at three different quality levels: Normal sample rate, higher quality or extreme quality.
+.pp
+To specify the quality, parse an optional -h or -x option after the ABF output file name.
+
 .Sh AUTHORS
 .An Peter Laursen
 
